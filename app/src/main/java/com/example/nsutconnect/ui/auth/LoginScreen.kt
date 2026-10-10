@@ -30,6 +30,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import app.rive.runtime.kotlin.RiveAnimationView
 import com.example.nsutconnect.R
 import com.example.nsutconnect.theme.*
 
@@ -62,67 +64,31 @@ fun LoginScreen(
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Creative Brand Hero Header
+            // Greg the Frog Rive Animation Mascot
             Box(
                 modifier = Modifier
-                    .size(96.dp)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                AppleSystemBlue.copy(alpha = 0.22f),
-                                AppleSystemBlue.copy(alpha = 0.05f),
-                                Color.Transparent
-                            )
-                        )
-                    ),
+                    .fillMaxWidth()
+                    .height(190.dp)
+                    .clip(RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(68.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1E2038), Color(0xFF101016))
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { ctx ->
+                        RiveAnimationView(ctx).apply {
+                            setRiveResource(
+                                resId = R.raw.greg_the_frog,
+                                stateMachineName = "State Machine 1",
+                                autoplay = true
                             )
-                        )
-                        .border(
-                            width = 1.dp,
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    AppleSystemBlue.copy(alpha = 0.75f),
-                                    Color(0xFF818CF8).copy(alpha = 0.25f),
-                                    Color.Transparent
-                                )
-                            ),
-                            shape = RoundedCornerShape(20.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "N",
-                            fontFamily = AppleSans,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 34.sp,
-                            letterSpacing = (-1).sp,
-                            color = Color.White
-                        )
-                        // Connected Accent Node
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .offset(x = 15.dp, y = (-12).dp)
-                                .clip(CircleShape)
-                                .background(AppleSystemBlue)
-                        )
+                        }
                     }
-                }
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -146,36 +112,7 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Surface(
-                shape = RoundedCornerShape(100.dp),
-                color = AppleElevatedSurface.copy(alpha = 0.65f),
-                border = BorderStroke(1.dp, AppleBorderLight.copy(alpha = 0.4f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .clip(CircleShape)
-                            .background(AppleSystemGreen)
-                    )
-                    Text(
-                        text = "CAMPUS PORTAL",
-                        fontFamily = AppleSans,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 11.sp,
-                        letterSpacing = 1.sp,
-                        color = AppleSecondaryLabel
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Error Banner with Apple Accordion Spring Motion
             val displayError = errorMessage ?: validationError

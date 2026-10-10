@@ -24,6 +24,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
+            app.rive.runtime.kotlin.core.Rive.init(this)
+        } catch (_: Throwable) {}
         enableEdgeToEdge()
 
         activeTab = intent?.getStringExtra("destination_tab") ?: "attendance"

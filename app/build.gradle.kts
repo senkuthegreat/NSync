@@ -94,4 +94,7 @@ dependencies {
 
   // OkHttp for Gemini Live WebSocket (BidiGenerateContent)
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+  // Rive Animation Runtime
+  implementation("app.rive:rive-android:11.12.1")
 }
