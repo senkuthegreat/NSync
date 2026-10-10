@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NSync</string>
+    <string name="widget_attendance_desc">Shows your live NSUT college attendance, percentage, and safe bunk calculator.</string>
+    <string name="widget_schedule_desc">Shows today\'s classes schedule, room numbers, and upcoming lectures.</string>
+</resources>

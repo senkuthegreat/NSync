@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_attendance_item_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingVertical="5dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_item_subject_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Machine Learning"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_item_subject_counts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="32 / 38 classes (CSD301)"
+            android:textColor="#8F9CAE"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <!-- Bunk / Need Chip -->
+    <TextView
+        android:id="@+id/tv_item_bunk_chip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/widget_pill_accent"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:text="+4 bunks"
+        android:textColor="#90CDF4"
+        android:textSize="9sp" />
+
+    <!-- Percentage Badge -->
+    <TextView
+        android:id="@+id/tv_item_percentage_badge"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/widget_badge_safe"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:text="84.2%"
+        android:textColor="#2ECC71"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

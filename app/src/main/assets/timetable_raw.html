@@ -1,0 +1,61 @@
+<LINK href='css/METAL/app.css' type=text/css rel=stylesheet>
+        <SCRIPT LANGUAGE = 'javascript' src='js/plumjs.js'  type='text/javascript'> </SCRIPT><LINK href='css/METAL/app.css' type=text/css rel=stylesheet>
+		<SCRIPT LANGUAGE = 'javascript' src='js/plumjs.js'  type='text/javascript'> 
+		</SCRIPT><!DOCTYPE html>
+	<!-- saved from url=(0063)file:///C:/Users/adm/Desktop/Toogle%20search/togglesearch.html? -->
+	<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>
+    <link href='item-block.css' rel='stylesheet'> 
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+     
+    <script>
+        $(document).ready(function(){
+			$('.ttable_block').hide();
+            var is_btn = false;
+            $('.ttable_btn').hover(function(){
+                is_btn = true;
+                $('.ttable_block').hide();
+                $(this).parent().find('.ttable_block').toggle();
+            });
+            
+            $(body).hover(function(){ 
+                if ( ! is_btn)  
+                    $('.ttable_block').hide();
+                is_btn = false;
+            });
+            
+        });
+		function CheckFaculty(){
+			faculty = document.getElementById('txttutorcode').value;
+			if(faculty==''){
+				alert('Please Pick Faculty and Proceed.');
+				return false;
+			}
+			return true;
+		}
+		function CheckRoom(){
+			room = document.getElementById('txtroomcode').value;
+			if(room==''){
+				alert('Please Pick Room and Proceed.');
+				return false;
+			}
+			return true;
+		}
+		function PushNA(typ){
+			if(typ=='Dept.All'){
+				document.getElementById('txttutor').value='Dept.All';
+				document.getElementById('txttutorcode').value='Dept.All';
+			}
+			if(typ=='All'){
+				document.getElementById('txttutor').value='All';
+				document.getElementById('txttutorcode').value='All';
+			}
+		}
+	</script>
+	<style>
+		 body{font-family:Arial;}
+		 </style>
+	</head>
+
+	<body><br><table width='98%' align=center border=1 style='border-collapse:collapse;' cellspacing=0 cellpadding=3 class='plum_fieldbig'>
+		<tbody><tr align=center class='plum_head'><td colspan=10>Time Table of STUDENT<br> Academic Year : 2026-27 / Semester : 3</td><td><div id='f1'><a class='plum_button' href='javascript:if (document.getElementById("f1"))document.getElementById("f1").style.display="none";window.print()'>&emsp;Print&emsp;</a></div></td></tr>
+		<tr align=center><td style='max-width:10px;'></td><td align=center class='plum_fieldbig' nowrap><b>T1<br>08:00-09:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T2<br>09:00-10:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T3<br>10:00-11:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T4<br>11:00-12:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T5<br>12:00-01:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T6<br>01:00-02:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T7<br>02:00-03:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T8<br>03:00-04:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T9<br>04:00-05:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T10<br>05:00-06:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T11<br>06:00-07:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T12<br>07:00-08:00</b></td><td align=center class='plum_fieldbig' nowrap><b>T13<br>08:00-09:00</b></td></tr><tr><td align='center'><b>Mon</b></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC304-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC302-Sec:1,Tut-1<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC302-Sec:1,Tut-2<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC303-Sec:1,Tut-1<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC303-Sec:1,Tut-2<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td></tr></tr><tr><td align='center'><b>Tue</b></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC302-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC303-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTPHC301-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td></tr></tr><tr><td align='center'><b>Wed</b></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTPHC301-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC304-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC303-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC302-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td></tr></tr><tr><td align='center'><b>Thu</b></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTPHC301-Sec:1,Tut-1<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTPHC301-Sec:1,Tut-2<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,Grp-1<br>Room:4102<hr>VTECC304-Sec:1,Grp-2<br>Room:4102<hr>VTECC305-Sec:1,Grp-1<br>Room:4102<hr>VTECC304-Sec:1,Grp-2<br>Room:4102</td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,Grp-1<br>Room:4102<hr>VTECC304-Sec:1,Grp-2<br>Room:4102<hr>VTECC305-Sec:1,Grp-1<br>Room:4102<hr>VTECC304-Sec:1,Grp-2<br>Room:4102</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td></tr></tr><tr><td align='center'><b>Fri</b></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC304-Sec:1,<br>Room:5312</td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,Grp-2<br>Room:4102<hr>VTECC304-Sec:1,Grp-1<br>Room:4216<hr>VTECC305-Sec:1,Grp-2<br>Room:4102<hr>VTECC304-Sec:1,Grp-1<br>Room:4216</td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,Grp-2<br>Room:4102<hr>VTECC304-Sec:1,Grp-1<br>Room:4216<hr>VTECC305-Sec:1,Grp-2<br>Room:4102<hr>VTECC304-Sec:1,Grp-1<br>Room:4216</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTECC305-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC302-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'>VTECC303-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'>VTPHC301-Sec:1,<br>Room:8003</td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td></tr></tr><tr><td align='center'><b>Sat</b></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td><td align=center  class='plum_fieldbig'></td></tr></tbody></table><br><table width='98%' align=center border=1 style='border-collapse:collapse;' cellspacing=0 cellpadding=0 class='plum_field'><tbody><tr valign=top><td><p style='margin-left:15px;'>VTECC302 - Signals and Systems / DHARMENDRA KU UPADHYAY<p style='margin-left:15px;'>VTECC303 - Probability Theory and Random Process / AMIT SINGHAL<p style='margin-left:15px;'>VTECC304 - Microelectronics / RAJ SENANI<p style='margin-left:15px;'>VTECC305 - Digital Circuits and Systems / NEERAJ GOEL<p style='margin-left:15px;'>VTECC305 - Digital Circuits and Systems / NEERAJ GOEL,VTECC304 - Microelectronics / KAPIL BHUSHAN,VTECC305 - Digital Circuits and Systems / NEETU RAJ BHARTI,VTECC304 - Microelectronics / SANDEEP SINGH CHAUHAN<p style='margin-left:15px;'>VTECC305 - Digital Circuits and Systems / NEERAJ GOEL,VTECC304 - Microelectronics / SAVITA,VTECC305 - Digital Circuits and Systems / ROHIT KUMAR RAI,VTECC304 - Microelectronics / VARUN MISHRA<p style='margin-left:15px;'>VTPHC301 - Solid State Physics / HERA TARIQUE</td></tr></tbody></table><br></body></html>
