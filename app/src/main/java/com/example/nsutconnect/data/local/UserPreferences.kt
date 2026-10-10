@@ -157,18 +157,28 @@ class UserPreferences(private val context: Context) {
         prefs.edit().putBoolean(KEY_IS_LOGGED_IN, loggedIn).apply()
     }
 
-    fun clearAuth() {
-        prefs.edit()
-            .remove(KEY_ROLL_NUMBER)
-            .remove(KEY_ENCRYPTED_PASSWORD)
-            .remove(KEY_PASSWORD_IV)
+    fun clearSession(keepCredentials: Boolean = true) {
+        val editor = prefs.edit()
             .remove(KEY_PORTAL_COOKIES)
-            .remove(KEY_ATTENDANCE_JSON)
-            .remove(KEY_TIMETABLE_JSON)
-            .remove(KEY_STUDENT_NAME)
-            .remove(KEY_BRANCH)
             .putBoolean(KEY_IS_LOGGED_IN, false)
-            .apply()
+        if (!keepCredentials) {
+            editor.remove(KEY_ROLL_NUMBER)
+                .remove(KEY_ENCRYPTED_PASSWORD)
+                .remove(KEY_PASSWORD_IV)
+                .remove(KEY_ATTENDANCE_JSON)
+                .remove(KEY_TIMETABLE_JSON)
+                .remove(KEY_STUDENT_NAME)
+                .remove(KEY_BRANCH)
+        }
+        editor.apply()
+    }
+
+    fun hasSavedCredentials(): Boolean {
+        return getRollNumber().isNotBlank() && !getSavedPassword().isNullOrBlank()
+    }
+
+    fun clearAuth() {
+        clearSession(keepCredentials = false)
     }
 
     fun getBranch(): String = prefs.getString(KEY_BRANCH, "B.Tech.") ?: "B.Tech."

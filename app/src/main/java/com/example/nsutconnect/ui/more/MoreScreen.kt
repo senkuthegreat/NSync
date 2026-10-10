@@ -57,7 +57,7 @@ fun MoreScreen(
     prefs: UserPreferences,
     syncState: SyncResult,
     onForceSync: () -> Unit = {},
-    onLogout: () -> Unit
+    onLogout: (forgetCredentials: Boolean) -> Unit = {}
 ) {
     var currentSubDestination by remember { mutableStateOf(MoreSubDestination.HUB) }
 
@@ -106,8 +106,9 @@ private fun MoreHubContent(
     prefs: UserPreferences,
     syncState: SyncResult,
     onNavigate: (MoreSubDestination) -> Unit,
-    onLogout: () -> Unit
+    onLogout: (forgetCredentials: Boolean) -> Unit
 ) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
     val rollNumber = remember(syncState) { prefs.getRollNumber().ifBlank { "" } }
     val studentName = remember(syncState) { prefs.getStudentName().ifBlank { "Student" } }
     val branch = remember(syncState) { prefs.getBranch().ifBlank { "Engineering" } }
@@ -284,7 +285,7 @@ private fun MoreHubContent(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .bounceClick { onLogout() },
+                        .bounceClick { showLogoutDialog = true },
                     shape = RoundedCornerShape(16.dp),
                     color = AppleSystemRedBg
                 ) {
@@ -310,6 +311,56 @@ private fun MoreHubContent(
                             color = AppleSystemRed
                         )
                     }
+                }
+            }
+
+            if (showLogoutDialog) {
+                item {
+                    AlertDialog(
+                        onDismissRequest = { showLogoutDialog = false },
+                        containerColor = AppleCardSurface,
+                        shape = RoundedCornerShape(20.dp),
+                        title = {
+                            Text(
+                                text = "Sign Out Options",
+                                fontFamily = AppleSans,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = AppleLabel
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = "You can choose to keep your credentials remembered on this device so you only need to enter the security captcha next time, or wipe your account completely.",
+                                fontFamily = AppleSans,
+                                fontSize = 13.sp,
+                                color = AppleSecondaryLabel,
+                                lineHeight = 18.sp
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showLogoutDialog = false
+                                    onLogout(false) // Keep credentials saved
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = AppleSystemBlue),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("Keep Saved Info", color = Color.White)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    showLogoutDialog = false
+                                    onLogout(true) // Forget credentials
+                                }
+                            ) {
+                                Text("Forget Account", color = AppleSystemRed)
+                            }
+                        }
+                    )
                 }
             }
 

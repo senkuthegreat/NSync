@@ -7,10 +7,12 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nsutconnect.R
+import com.example.nsutconnect.data.network.CaptchaSession
 import com.example.nsutconnect.data.local.UserPreferences
 import com.example.nsutconnect.data.sync.NsutSyncRepository
 import com.example.nsutconnect.data.sync.NsutSyncWorker
@@ -64,6 +69,27 @@ fun MainScreen(
     val syncState by repository.syncState.collectAsStateWithLifecycle()
 
     val isLoading = syncState is SyncResult.Loading
+
+    val isSessionExpired by repository.isSessionExpired.collectAsStateWithLifecycle()
+    var captchaSession by remember { mutableStateOf<CaptchaSession?>(null) }
+    var isCaptchaLoading by remember { mutableStateOf(false) }
+    var isRenewingSession by remember { mutableStateOf(false) }
+    var renewErrorMessage by remember { mutableStateOf<String?>(null) }
+
+    fun refreshRenewalCaptcha() {
+        coroutineScope.launch {
+            isCaptchaLoading = true
+            renewErrorMessage = null
+            captchaSession = repository.getCaptchaSession()
+            isCaptchaLoading = false
+        }
+    }
+
+    LaunchedEffect(isSessionExpired) {
+        if (isSessionExpired) {
+            refreshRenewalCaptcha()
+        }
+    }
 
     // Automatically sync on open and schedule periodic background worker
     LaunchedEffect(Unit) {
@@ -177,8 +203,8 @@ fun MainScreen(
                                     repository.updateWidgets()
                                 }
                             },
-                            onLogout = {
-                                repository.logout()
+                            onLogout = { forget ->
+                                repository.logout(forgetCredentials = forget)
                                 onLogout()
                             }
                         )
@@ -186,6 +212,42 @@ fun MainScreen(
                 }
             }
         }
+    }
+
+    if (isSessionExpired) {
+        SessionExpiredDialog(
+            rollNumber = prefs.getRollNumber(),
+            captchaSession = captchaSession,
+            isCaptchaLoading = isCaptchaLoading,
+            isSubmitting = isRenewingSession,
+            errorMessage = renewErrorMessage,
+            onRefreshCaptcha = { refreshRenewalCaptcha() },
+            onSubmit = { captchaCode ->
+                coroutineScope.launch {
+                    isRenewingSession = true
+                    renewErrorMessage = null
+                    val result = repository.reAuthenticateWithCaptcha(captchaCode, captchaSession)
+                    isRenewingSession = false
+                    when (result) {
+                        is SyncResult.Success -> {
+                            // Dialog automatically dismisses via isSessionExpired = false
+                        }
+                        is SyncResult.Error -> {
+                            renewErrorMessage = result.error
+                            refreshRenewalCaptcha()
+                        }
+                        SyncResult.Loading -> {}
+                    }
+                }
+            },
+            onDismiss = {
+                repository.dismissSessionExpiredPrompt()
+            },
+            onLogout = {
+                repository.logout(forgetCredentials = false)
+                onLogout()
+            }
+        )
     }
 }
 
@@ -231,4 +293,197 @@ private fun RowScope.MainTabItem(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SessionExpiredDialog(
+    rollNumber: String,
+    captchaSession: CaptchaSession?,
+    isCaptchaLoading: Boolean,
+    isSubmitting: Boolean,
+    errorMessage: String?,
+    onRefreshCaptcha: () -> Unit,
+    onSubmit: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onLogout: () -> Unit
+) {
+    var captchaInput by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = AppleCardSurface,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = AppleSystemBlue.copy(alpha = 0.15f),
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_huge_lock),
+                            contentDescription = null,
+                            tint = AppleSystemBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+                Text(
+                    text = "Resume IMS Session",
+                    fontFamily = AppleSans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = AppleLabel
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Your IMS session timed out. Enter the security code below to resume live sync as $rollNumber without retyping your password.",
+                    fontFamily = AppleSans,
+                    fontSize = 13.sp,
+                    color = AppleSecondaryLabel,
+                    lineHeight = 18.sp
+                )
+
+                if (errorMessage != null) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = AppleSystemRedBg,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = errorMessage,
+                            fontFamily = AppleSans,
+                            fontSize = 12.sp,
+                            color = AppleSystemRed,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
+                }
+
+                // Captcha Image Preview
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        color = Color(0xFFF1F3F9)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            if (isCaptchaLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = AppleSystemBlue
+                                )
+                            } else if (captchaSession?.captchaBitmap != null) {
+                                Image(
+                                    bitmap = captchaSession.captchaBitmap.asImageBitmap(),
+                                    contentDescription = "Captcha Code",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Fit
+                                )
+                            } else {
+                                Text(
+                                    text = "Tap refresh",
+                                    fontFamily = AppleSans,
+                                    fontSize = 11.sp,
+                                    color = Color.DarkGray
+                                )
+                            }
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onRefreshCaptcha,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(AppleElevatedSurface)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_huge_refresh),
+                            contentDescription = "Refresh Captcha",
+                            tint = AppleSystemBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                // Captcha Input Field
+                TextField(
+                    value = captchaInput,
+                    onValueChange = {
+                        captchaInput = it.filter { char -> char.isLetterOrDigit() }.take(6).uppercase()
+                    },
+                    placeholder = {
+                        Text(
+                            text = "Enter code shown above",
+                            fontFamily = AppleSans,
+                            fontSize = 13.sp,
+                            color = AppleSecondaryLabel.copy(alpha = 0.6f)
+                        )
+                    },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = AppleElevatedSurface,
+                        unfocusedContainerColor = AppleElevatedSurface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = AppleLabel,
+                        unfocusedTextColor = AppleLabel
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSubmit(captchaInput) },
+                colors = ButtonDefaults.buttonColors(containerColor = AppleSystemBlue),
+                shape = RoundedCornerShape(10.dp),
+                enabled = !isSubmitting && captchaInput.isNotBlank()
+            ) {
+                if (isSubmitting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        text = "Resume",
+                        fontFamily = AppleSans,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Offline Mode",
+                    fontFamily = AppleSans,
+                    color = AppleSecondaryLabel
+                )
+            }
+        }
+    )
 }

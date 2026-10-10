@@ -246,4 +246,91 @@ class ImsNetworkClient {
             null
         }
     }
+
+    suspend fun fetchLiveAttendanceResult(cookies: String, rollNumber: String): LiveFetchResult<AttendanceSummary> = withContext(Dispatchers.IO) {
+        if (cookies.isBlank()) {
+            return@withContext LiveFetchResult.SessionExpired
+        }
+        try {
+            val conn = (URL(ATTENDANCE_URL).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                connectTimeout = 8000
+                readTimeout = 8000
+                instanceFollowRedirects = false
+                setRequestProperty("User-Agent", USER_AGENT)
+                setRequestProperty("Cookie", cookies)
+                setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                setRequestProperty("Referer", ATTENDANCE_URL)
+            }
+
+            val postData = "year=2026-27&sem=3&submit=Submit&recentitycode=$rollNumber&dept=ELECTRONICS+AND+COMMUNICATION+ENGINEERING&degree=B.Tech."
+            conn.outputStream.use { os ->
+                os.write(postData.toByteArray(Charsets.UTF_8))
+            }
+
+            val responseCode = conn.responseCode
+            if (responseCode == 302 || responseCode == 301) {
+                return@withContext LiveFetchResult.SessionExpired
+            }
+
+            val html = conn.inputStream.bufferedReader().use { it.readText() }
+            if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
+                val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
+                if (summary != null) {
+                    return@withContext LiveFetchResult.Success(summary)
+                }
+            }
+
+            if (html.contains("Session Expired", ignoreCase = true) ||
+                html.contains("student_login", ignoreCase = true) ||
+                html.contains("plum5_fw_login", ignoreCase = true) ||
+                html.contains("Please Login Again", ignoreCase = true)) {
+                return@withContext LiveFetchResult.SessionExpired
+            }
+
+            LiveFetchResult.Error("Could not parse attendance data from portal")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            LiveFetchResult.Error("Network error: ${e.localizedMessage ?: "Failed to connect"}")
+        }
+    }
+
+    suspend fun fetchLiveTimetableResult(cookies: String, rollNumber: String): LiveFetchResult<WeeklyTimetable> = withContext(Dispatchers.IO) {
+        if (cookies.isBlank()) {
+            return@withContext LiveFetchResult.SessionExpired
+        }
+        try {
+            val response = Jsoup.connect(TIMETABLE_URL)
+                .userAgent(USER_AGENT)
+                .header("Referer", "https://www.imsnsit.org/imsnsit/student_login.php")
+                .header("Cookie", cookies)
+                .timeout(8000)
+                .followRedirects(false)
+                .get()
+
+            val html = response.html()
+            if (html.contains("Time Table") || html.contains("T1")) {
+                val tt = ImsParser.parseTimetableHtml(html, rollNumber)
+                if (tt != null) return@withContext LiveFetchResult.Success(tt)
+            }
+
+            if (html.contains("Session Expired", ignoreCase = true) ||
+                html.contains("student_login", ignoreCase = true) ||
+                html.contains("plum5_fw_login", ignoreCase = true)) {
+                return@withContext LiveFetchResult.SessionExpired
+            }
+
+            LiveFetchResult.Error("Could not parse timetable")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            LiveFetchResult.Error("Network error: ${e.localizedMessage ?: "Failed to connect"}")
+        }
+    }
+}
+
+sealed class LiveFetchResult<out T> {
+    data class Success<out T>(val data: T) : LiveFetchResult<T>()
+    object SessionExpired : LiveFetchResult<Nothing>()
+    data class Error(val message: String) : LiveFetchResult<Nothing>()
 }

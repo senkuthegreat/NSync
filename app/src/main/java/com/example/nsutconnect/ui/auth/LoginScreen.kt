@@ -1,8 +1,13 @@
 package com.example.nsutconnect.ui.auth
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -47,14 +54,27 @@ fun LoginScreen(
     onRefreshCaptcha: () -> Unit = {},
     onLogin: (rollNumber: String, password: String, captcha: String, autoLogin: Boolean) -> Unit
 ) {
-    var rollNumber by remember { mutableStateOf(initialRollNumber.take(12).uppercase()) }
-    var password by remember { mutableStateOf(initialPassword.take(32)) }
+    val hasPreloadedCredentials = remember(initialRollNumber, initialPassword) {
+        initialRollNumber.isNotBlank() && initialPassword.isNotBlank()
+    }
+    var rollNumber by remember(initialRollNumber) { mutableStateOf(initialRollNumber.take(12).uppercase()) }
+    var password by remember(initialPassword) { mutableStateOf(initialPassword.take(32)) }
     var captcha by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var rememberCredentials by remember { mutableStateOf(true) }
     var validationError by remember { mutableStateOf<String?>(null) }
 
+    val captchaFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(hasPreloadedCredentials) {
+        if (hasPreloadedCredentials) {
+            try {
+                captchaFocusRequester.requestFocus()
+            } catch (e: Exception) {}
+        }
+    }
 
     Scaffold(
         containerColor = AppleBackground,
@@ -126,6 +146,69 @@ fun LoginScreen(
                             fontWeight = FontWeight.Medium,
                             color = AppleSystemRed,
                             modifier = Modifier.padding(14.dp)
+                        )
+                    }
+                }
+            }
+
+            // Saved Credentials Indicator Pill
+            val isErrorShowing = displayError != null
+            AnimatedVisibility(
+                visible = hasPreloadedCredentials && !isErrorShowing,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = AppleSystemBlue.copy(alpha = 0.12f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_huge_lock),
+                                contentDescription = null,
+                                tint = AppleSystemBlue,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = "Saved credentials loaded",
+                                    fontFamily = AppleSans,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = AppleLabel
+                                )
+                                Text(
+                                    text = "Enter the security captcha below to sign in",
+                                    fontFamily = AppleSans,
+                                    fontSize = 11.sp,
+                                    color = AppleSecondaryLabel
+                                )
+                            }
+                        }
+                        Text(
+                            text = "Reset",
+                            fontFamily = AppleSans,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppleSystemBlue,
+                            modifier = Modifier
+                                .clickable {
+                                    rollNumber = ""
+                                    password = ""
+                                }
+                                .padding(4.dp)
                         )
                     }
                 }
@@ -384,7 +467,7 @@ fun LoginScreen(
                                     pass = password,
                                     cap = captcha,
                                     onError = { validationError = it },
-                                    onProceed = { onLogin(rollNumber, password, captcha, true) }
+                                    onProceed = { onLogin(rollNumber, password, captcha, rememberCredentials) }
                                 )
                             }
                         ),
@@ -398,8 +481,36 @@ fun LoginScreen(
                             unfocusedTextColor = AppleLabel
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(captchaFocusRequester)
                     )
+
+                    // Remember Credentials Option
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = rememberCredentials,
+                            onCheckedChange = { rememberCredentials = it },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = AppleSystemBlue,
+                                uncheckedColor = AppleSecondaryLabel,
+                                checkmarkColor = Color.White
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Save login info on this device",
+                            fontFamily = AppleSans,
+                            fontSize = 12.sp,
+                            color = AppleSecondaryLabel,
+                            modifier = Modifier.clickable { rememberCredentials = !rememberCredentials }
+                        )
+                    }
                 }
             }
 
@@ -415,7 +526,7 @@ fun LoginScreen(
                         pass = password,
                         cap = captcha,
                         onError = { validationError = it },
-                        onProceed = { onLogin(rollNumber, password, captcha, true) }
+                        onProceed = { onLogin(rollNumber, password, captcha, rememberCredentials) }
                     )
                 },
                 interactionSource = signInInteraction,

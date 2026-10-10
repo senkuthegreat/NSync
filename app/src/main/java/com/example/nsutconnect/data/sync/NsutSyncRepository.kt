@@ -9,6 +9,7 @@ import com.example.nsutconnect.data.model.WeeklyTimetable
 import com.example.nsutconnect.data.network.CaptchaSession
 import com.example.nsutconnect.data.network.ImsLoginResponse
 import com.example.nsutconnect.data.network.ImsNetworkClient
+import com.example.nsutconnect.data.network.LiveFetchResult
 import com.example.nsutconnect.widget.NsutAttendanceWidgetReceiver
 import com.example.nsutconnect.widget.NsutScheduleWidgetReceiver
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,9 @@ class NsutSyncRepository(private val context: Context) {
 
     private val _syncState = MutableStateFlow<SyncResult>(SyncResult.Success("Ready"))
     val syncState: StateFlow<SyncResult> = _syncState.asStateFlow()
+
+    private val _isSessionExpired = MutableStateFlow(false)
+    val isSessionExpired: StateFlow<Boolean> = _isSessionExpired.asStateFlow()
 
     init {
         // If authentically logged in, initialize with cached data only
@@ -139,12 +143,37 @@ class NsutSyncRepository(private val context: Context) {
         val cookies = prefs.getPortalCookies()
         var liveAttendance: AttendanceSummary? = null
         var liveTimetable: WeeklyTimetable? = null
+        var sessionExpired = false
 
         try {
-            liveAttendance = networkClient.fetchLiveAttendance(cookies, rollNumber)
-            liveTimetable = networkClient.fetchLiveTimetable(cookies, rollNumber)
+            val attResult = networkClient.fetchLiveAttendanceResult(cookies, rollNumber)
+            when (attResult) {
+                is LiveFetchResult.Success -> liveAttendance = attResult.data
+                is LiveFetchResult.SessionExpired -> sessionExpired = true
+                is LiveFetchResult.Error -> {}
+            }
+
+            val ttResult = networkClient.fetchLiveTimetableResult(cookies, rollNumber)
+            when (ttResult) {
+                is LiveFetchResult.Success -> liveTimetable = ttResult.data
+                is LiveFetchResult.SessionExpired -> sessionExpired = true
+                is LiveFetchResult.Error -> {}
+            }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+
+        if (sessionExpired) {
+            _isSessionExpired.value = true
+            val cached = prefs.getCachedAttendance()
+            if (cached != null) {
+                _attendance.value = cached
+                _timetable.value = prefs.getCachedTimetable()
+                updateWidgets()
+            }
+            val res = SyncResult.Error("IMS session expired. Please enter security captcha to renew.")
+            if (!isBackground) _syncState.value = res
+            return@withContext res
         }
 
         if (liveAttendance != null) {
@@ -180,6 +209,28 @@ class NsutSyncRepository(private val context: Context) {
         err
     }
 
+    suspend fun reAuthenticateWithCaptcha(
+        captcha: String,
+        captchaSession: CaptchaSession?
+    ): SyncResult = withContext(Dispatchers.IO) {
+        val roll = prefs.getRollNumber()
+        val pass = prefs.getSavedPassword()
+        if (roll.isBlank() || pass.isNullOrBlank()) {
+            _isSessionExpired.value = false
+            return@withContext SyncResult.Error("Saved credentials not found. Please log in again.")
+        }
+
+        val result = login(roll, pass, captcha, captchaSession, autoLogin = true)
+        if (result is SyncResult.Success) {
+            _isSessionExpired.value = false
+        }
+        result
+    }
+
+    fun dismissSessionExpiredPrompt() {
+        _isSessionExpired.value = false
+    }
+
     fun updateWidgets() {
         try {
             NsutAttendanceWidgetReceiver.updateAll(context)
@@ -202,8 +253,13 @@ class NsutSyncRepository(private val context: Context) {
         }
     }
 
-    fun logout() {
-        prefs.clearAuth()
+    fun logout(forgetCredentials: Boolean = false) {
+        if (forgetCredentials) {
+            prefs.clearAuth()
+        } else {
+            prefs.clearSession(keepCredentials = true)
+        }
+        _isSessionExpired.value = false
         _attendance.value = null
         _timetable.value = null
         _syncState.value = SyncResult.Success("Logged out")

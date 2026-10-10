@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                     } else {
                         LoginScreen(
                             initialRollNumber = prefs.getRollNumber(),
-                            initialPassword = "",
+                            initialPassword = prefs.getSavedPassword() ?: "",
                             isLoading = isLoggingIn,
                             errorMessage = loginErrorMessage,
                             captchaSession = captchaSession,
