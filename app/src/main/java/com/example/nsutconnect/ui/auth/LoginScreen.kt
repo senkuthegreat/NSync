@@ -61,7 +61,7 @@ fun LoginScreen(
     var password by remember(initialPassword) { mutableStateOf(initialPassword.take(32)) }
     var captcha by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var rememberCredentials by remember { mutableStateOf(true) }
+    val rememberCredentials = true
     var validationError by remember { mutableStateOf<String?>(null) }
 
     val captchaFocusRequester = remember { FocusRequester() }
@@ -485,32 +485,6 @@ fun LoginScreen(
                             .fillMaxWidth()
                             .focusRequester(captchaFocusRequester)
                     )
-
-                    // Remember Credentials Option
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = rememberCredentials,
-                            onCheckedChange = { rememberCredentials = it },
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = AppleSystemBlue,
-                                uncheckedColor = AppleSecondaryLabel,
-                                checkmarkColor = Color.White
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Save login info on this device",
-                            fontFamily = AppleSans,
-                            fontSize = 12.sp,
-                            color = AppleSecondaryLabel,
-                            modifier = Modifier.clickable { rememberCredentials = !rememberCredentials }
-                        )
-                    }
                 }
             }
 
