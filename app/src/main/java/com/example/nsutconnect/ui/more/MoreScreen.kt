@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -309,6 +310,51 @@ private fun MoreHubContent(
                             color = AppleSystemRed
                         )
                     }
+                }
+            }
+
+            // NSync Footer Branding with New Logo
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_nsync_logo),
+                        contentDescription = "NSync Logo",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "N",
+                            fontFamily = UnkemptFont,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = AppleLabel
+                        )
+                        Text(
+                            text = "Sync",
+                            fontFamily = UnkemptFont,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = AppleSystemBlue
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Version 1.0.0 • Designed for NSUT",
+                        fontFamily = AppleSans,
+                        fontSize = 12.sp,
+                        color = TextSecondary.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

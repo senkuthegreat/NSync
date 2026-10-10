@@ -70,11 +70,11 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // NSync Vector Monogram Logo
+            // NSync Hand-Drawn Monogram & Calendar Logo
             Image(
                 painter = painterResource(id = R.drawable.ic_nsync_logo),
                 contentDescription = "NSync Logo",
-                modifier = Modifier.size(92.dp)
+                modifier = Modifier.size(108.dp)
             )
 
             Spacer(modifier = Modifier.height(14.dp))
