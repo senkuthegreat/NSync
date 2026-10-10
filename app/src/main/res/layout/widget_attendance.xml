@@ -21,9 +21,10 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_attendance_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NSUT Attendance"
+                android:text="NSync Attendance"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold" />

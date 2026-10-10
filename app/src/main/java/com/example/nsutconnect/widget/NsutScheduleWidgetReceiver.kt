@@ -54,6 +54,26 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
             val prefs = UserPreferences(context)
             val timetable = prefs.getCachedTimetable()
 
+            // Dynamic Widget Theme Background
+            val bgRes = when (prefs.getWidgetTheme()) {
+                "oled" -> R.drawable.widget_card_bg_oled
+                "dark" -> R.drawable.widget_card_bg_dark
+                "translucent" -> R.drawable.widget_card_bg_translucent
+                "midnight" -> R.drawable.widget_card_bg_midnight
+                else -> R.drawable.widget_card_bg_oled
+            }
+            views.setInt(R.id.widget_schedule_root, "setBackgroundResource", bgRes)
+
+            // Accent color for refresh button & badge
+            val accentColor = when (prefs.getWidgetAccent()) {
+                "cyan" -> 0xFF06B6D4.toInt()
+                "emerald" -> 0xFF10B981.toInt()
+                "amber" -> 0xFFF59E0B.toInt()
+                "purple" -> 0xFF8B5CF6.toInt()
+                else -> 0xFF6366F1.toInt()
+            }
+            views.setInt(R.id.btn_refresh_schedule, "setColorFilter", accentColor)
+
             val today = LocalDate.now().dayOfWeek
             val now = LocalTime.now()
 
@@ -71,22 +91,26 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
                     "$dayName · ${LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()))}"
                 }
 
-                views.setTextViewText(R.id.tv_schedule_title, "NSUT Schedule")
+                views.setTextViewText(R.id.tv_schedule_title, "NSync Schedule")
                 views.setTextViewText(R.id.tv_schedule_day_subtitle, daySubtitle)
 
                 if (isShowingTomorrow) {
                     views.setTextViewText(R.id.tv_schedule_badge, "TOMORROW")
                     views.setInt(R.id.tv_schedule_badge, "setBackgroundResource", R.drawable.widget_pill_accent)
+                    views.setTextColor(R.id.tv_schedule_badge, accentColor)
                 } else {
                     val (currentOrNext, isOngoing) = timetable.getCurrentOrNextClass(today, now)
                     views.setTextViewText(R.id.tv_schedule_badge, if (isOngoing) "LIVE" else "TODAY")
+                    views.setTextColor(R.id.tv_schedule_badge, if (isOngoing) 0xFF30D158.toInt() else accentColor)
                 }
+
+                val showBanner = prefs.isWidgetBannerEnabled()
 
                 if (activeClasses.isNotEmpty()) {
                     views.setViewVisibility(R.id.lv_schedule_classes, View.VISIBLE)
                     views.setViewVisibility(R.id.tv_schedule_empty, View.GONE)
 
-                    if (!isShowingTomorrow) {
+                    if (!isShowingTomorrow && showBanner) {
                         val (currentOrNext, isOngoing) = timetable.getCurrentOrNextClass(today, now)
                         if (currentOrNext != null) {
                             views.setViewVisibility(R.id.layout_current_class_banner, View.VISIBLE)
@@ -95,7 +119,7 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
                                 views.setTextColor(R.id.tv_current_class_status, 0xFF68D391.toInt())
                             } else {
                                 views.setTextViewText(R.id.tv_current_class_status, "NEXT UP AT ${currentOrNext.startTimeFormatted}")
-                                views.setTextColor(R.id.tv_current_class_status, 0xFF6366F1.toInt())
+                                views.setTextColor(R.id.tv_current_class_status, accentColor)
                             }
                             views.setTextViewText(
                                 R.id.tv_current_class_details,
@@ -104,13 +128,13 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
                         } else {
                             views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
                         }
-                    } else {
+                    } else if (isShowingTomorrow && showBanner) {
                         // Tomorrow mode
                         val firstClass = activeClasses.firstOrNull()
                         if (firstClass != null) {
                             views.setViewVisibility(R.id.layout_current_class_banner, View.VISIBLE)
                             views.setTextViewText(R.id.tv_current_class_status, "FIRST CLASS TOMORROW (${firstClass.startTimeFormatted})")
-                            views.setTextColor(R.id.tv_current_class_status, 0xFF6366F1.toInt())
+                            views.setTextColor(R.id.tv_current_class_status, accentColor)
                             views.setTextViewText(
                                 R.id.tv_current_class_details,
                                 "${firstClass.subjectName} · ${firstClass.roomNumber}"
@@ -118,6 +142,8 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
                         } else {
                             views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
                         }
+                    } else {
+                        views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
                     }
                 } else {
                     views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)

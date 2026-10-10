@@ -15,6 +15,25 @@ val AppleSans = FontFamily(
     Font(R.font.sf_pro_bold, FontWeight.Bold)
 )
 
+val SpaceGrotesk = FontFamily(
+    Font(R.font.space_grotesk, FontWeight.Normal),
+    Font(R.font.space_grotesk, FontWeight.Medium),
+    Font(R.font.space_grotesk, FontWeight.SemiBold),
+    Font(R.font.space_grotesk, FontWeight.Bold)
+)
+
+val OutfitFont = FontFamily(
+    Font(R.font.outfit, FontWeight.Normal),
+    Font(R.font.outfit, FontWeight.Medium),
+    Font(R.font.outfit, FontWeight.SemiBold),
+    Font(R.font.outfit, FontWeight.Bold)
+)
+
+val UnkemptFont = FontFamily(
+    Font(R.font.unkempt, FontWeight.Normal),
+    Font(R.font.unkempt_bold, FontWeight.Bold)
+)
+
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = AppleSans,

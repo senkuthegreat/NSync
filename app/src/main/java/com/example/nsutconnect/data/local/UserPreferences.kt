@@ -48,6 +48,10 @@ class UserPreferences(private val context: Context) {
         private const val KEY_AVATAR_SEED = "key_avatar_seed"
         private const val KEY_INCLUDE_ACADEMIC_CALENDAR_IN_SCHEDULE = "key_include_acad_cal_schedule"
         private const val KEY_CALENDAR_TAG_FILTERS = "key_calendar_tag_filters"
+        private const val KEY_WIDGET_THEME = "key_widget_theme"
+        private const val KEY_WIDGET_ACCENT = "key_widget_accent"
+        private const val KEY_WIDGET_BUNKS_ENABLED = "key_widget_bunks_enabled"
+        private const val KEY_WIDGET_BANNER_ENABLED = "key_widget_banner_enabled"
 
         private const val KEYSTORE_ALIAS = "NsutAuthKeyAlias"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -168,7 +172,14 @@ class UserPreferences(private val context: Context) {
     }
 
     fun getBranch(): String = prefs.getString(KEY_BRANCH, "B.Tech.") ?: "B.Tech."
+    fun setBranch(branch: String) {
+        prefs.edit().putString(KEY_BRANCH, branch).apply()
+    }
+
     fun getStudentName(): String = prefs.getString(KEY_STUDENT_NAME, "STUDENT") ?: "STUDENT"
+    fun setStudentName(name: String) {
+        prefs.edit().putString(KEY_STUDENT_NAME, name).apply()
+    }
 
     fun savePortalCookies(cookies: String) {
         prefs.edit().putString(KEY_PORTAL_COOKIES, cookies).apply()
@@ -510,4 +521,16 @@ class UserPreferences(private val context: Context) {
             null
         }
     }
+
+    fun getWidgetTheme(): String = prefs.getString(KEY_WIDGET_THEME, "oled") ?: "oled"
+    fun setWidgetTheme(theme: String) = prefs.edit().putString(KEY_WIDGET_THEME, theme).apply()
+
+    fun getWidgetAccent(): String = prefs.getString(KEY_WIDGET_ACCENT, "indigo") ?: "indigo"
+    fun setWidgetAccent(accent: String) = prefs.edit().putString(KEY_WIDGET_ACCENT, accent).apply()
+
+    fun isWidgetBunksEnabled(): Boolean = prefs.getBoolean(KEY_WIDGET_BUNKS_ENABLED, true)
+    fun setWidgetBunksEnabled(enabled: Boolean) = prefs.edit().putBoolean(KEY_WIDGET_BUNKS_ENABLED, enabled).apply()
+
+    fun isWidgetBannerEnabled(): Boolean = prefs.getBoolean(KEY_WIDGET_BANNER_ENABLED, true)
+    fun setWidgetBannerEnabled(enabled: Boolean) = prefs.edit().putBoolean(KEY_WIDGET_BANNER_ENABLED, enabled).apply()
 }

@@ -53,6 +53,26 @@ class NsutAttendanceWidgetReceiver : AppWidgetProvider() {
             val prefs = UserPreferences(context)
             val attendance = prefs.getCachedAttendance()
 
+            // Dynamic Widget Theme Background
+            val bgRes = when (prefs.getWidgetTheme()) {
+                "oled" -> R.drawable.widget_card_bg_oled
+                "dark" -> R.drawable.widget_card_bg_dark
+                "translucent" -> R.drawable.widget_card_bg_translucent
+                "midnight" -> R.drawable.widget_card_bg_midnight
+                else -> R.drawable.widget_card_bg_oled
+            }
+            views.setInt(R.id.widget_attendance_root, "setBackgroundResource", bgRes)
+
+            // Accent color for refresh button
+            val accentColor = when (prefs.getWidgetAccent()) {
+                "cyan" -> 0xFF06B6D4.toInt()
+                "emerald" -> 0xFF10B981.toInt()
+                "amber" -> 0xFFF59E0B.toInt()
+                "purple" -> 0xFF8B5CF6.toInt()
+                else -> 0xFF6366F1.toInt()
+            }
+            views.setInt(R.id.btn_refresh_attendance, "setColorFilter", accentColor)
+
             if (attendance != null && attendance.records.isNotEmpty()) {
                 val timeStr = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(attendance.lastSyncedTimestamp))
                 views.setTextViewText(R.id.tv_attendance_subtitle, "${attendance.records.size} Courses · $timeStr")

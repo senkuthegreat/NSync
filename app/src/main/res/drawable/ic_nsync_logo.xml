@@ -1,0 +1,127 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Outer Ambient Glow Ring -->
+    <path
+        android:pathData="M60,10 C87.6,10 110,32.4 110,60 C110,87.6 87.6,110 60,110 C32.4,110 10,87.6 10,60 C10,32.4 32.4,10 60,10 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="60"
+                android:centerY="60"
+                android:gradientRadius="55"
+                android:type="radial">
+                <item android:offset="0.0" android:color="#266366F1" />
+                <item android:offset="0.7" android:color="#0D6366F1" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Squircle Container Base -->
+    <path
+        android:pathData="M60,18 C85,18 98,18 100,32 C102,46 102,74 100,88 C98,102 85,102 60,102 C35,102 22,102 20,88 C18,74 18,46 20,32 C22,18 35,18 60,18 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="60"
+                android:startY="18"
+                android:endX="60"
+                android:endY="102"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF1A1C2C" />
+                <item android:offset="1.0" android:color="#FF0D0E15" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Squircle Crisp Border -->
+    <path
+        android:pathData="M60,18 C85,18 98,18 100,32 C102,46 102,74 100,88 C98,102 85,102 60,102 C35,102 22,102 20,88 C18,74 18,46 20,32 C22,18 35,18 60,18 Z"
+        android:strokeWidth="1.2"
+        android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="20"
+                android:startY="18"
+                android:endX="100"
+                android:endY="102"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#B3818CF8" />
+                <item android:offset="0.5" android:color="#4D6366F1" />
+                <item android:offset="1.0" android:color="#1AFFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Geometric "N" Monogram - Left Stem -->
+    <path
+        android:pathData="M38,78 L38,42 C38,39.8 39.8,38 42,38 C44.2,38 46,39.8 46,42 L46,78 C46,80.2 44.2,82 42,82 C39.8,82 38,80.2 38,78 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="42"
+                android:startY="38"
+                android:endX="42"
+                android:endY="82"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="1.0" android:color="#FFA5B4FC" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Geometric "N" Monogram - Dynamic Sync Diagonal -->
+    <path
+        android:pathData="M44,40 L76,78 C77.5,79.8 80.3,80.1 82,78.6 C82.8,77.9 83.3,76.8 83.3,75.7 L83.3,42 C83.3,39.8 81.5,38 79.3,38 C77.1,38 75.3,39.8 75.3,42 L75.3,64 L49.5,33.5 C48,31.7 45.2,31.4 43.5,32.9 C42.6,33.6 42.1,34.7 42.1,35.8 L44,40 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="42"
+                android:startY="32"
+                android:endX="83"
+                android:endY="80"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF818CF8" />
+                <item android:offset="0.5" android:color="#FF6366F1" />
+                <item android:offset="1.0" android:color="#FF38BDF8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Geometric "N" Monogram - Right Stem -->
+    <path
+        android:pathData="M74,78 L74,42 C74,39.8 75.8,38 78,38 C80.2,38 82,39.8 82,42 L82,78 C82,80.2 80.2,82 78,82 C75.8,82 74,80.2 74,78 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="78"
+                android:startY="38"
+                android:endX="78"
+                android:endY="82"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF38BDF8" />
+                <item android:offset="1.0" android:color="#FF6366F1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Synchronized Orbital Satellite Node (Top-Right Accent) -->
+    <path
+        android:pathData="M84,33 C86.2,33 88,31.2 88,29 C88,26.8 86.2,25 84,25 C81.8,25 80,26.8 80,29 C80,31.2 81.8,33 84,33 Z"
+        android:fillColor="#FF38BDF8" />
+
+    <!-- Orbital Flare Dot Glow -->
+    <path
+        android:pathData="M84,35 C87.3,35 90,32.3 90,29 C90,25.7 87.3,23 84,23 C80.7,23 78,25.7 78,29 C78,32.3 80.7,35 84,35 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="84"
+                android:centerY="29"
+                android:gradientRadius="6"
+                android:type="radial">
+                <item android:offset="0.0" android:color="#8038BDF8" />
+                <item android:offset="1.0" android:color="#0038BDF8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

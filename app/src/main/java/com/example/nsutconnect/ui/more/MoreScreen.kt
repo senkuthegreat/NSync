@@ -46,7 +46,8 @@ enum class MoreSubDestination {
     HUB,
     RESULTS,
     CALENDAR,
-    EXAMS
+    EXAMS,
+    WIDGET_STUDIO
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +80,12 @@ fun MoreScreen(
             }
             MoreSubDestination.EXAMS -> {
                 ExamScreen(onBack = { currentSubDestination = MoreSubDestination.HUB })
+            }
+            MoreSubDestination.WIDGET_STUDIO -> {
+                WidgetStudioScreen(
+                    prefs = prefs,
+                    onBack = { currentSubDestination = MoreSubDestination.HUB }
+                )
             }
             MoreSubDestination.HUB -> {
                 MoreHubContent(
@@ -246,6 +253,27 @@ private fun MoreHubContent(
                     title = "Exam Datesheet & Seating Plan",
                     icon = Icons.Default.Badge,
                     onClick = { onNavigate(MoreSubDestination.EXAMS) }
+                )
+            }
+
+            // Customization Section Header
+            item {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "HOME SCREEN & CUSTOMIZATION",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextSecondary,
+                    letterSpacing = 1.sp
+                )
+            }
+
+            // Feature 4: Widget Studio & Customization
+            item {
+                HubFeatureCard(
+                    title = "Widget Studio",
+                    icon = Icons.Default.Widgets,
+                    onClick = { onNavigate(MoreSubDestination.WIDGET_STUDIO) }
                 )
             }
 

@@ -24,9 +24,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
-            app.rive.runtime.kotlin.core.Rive.init(this)
-        } catch (_: Throwable) {}
         enableEdgeToEdge()
 
         activeTab = intent?.getStringExtra("destination_tab") ?: "attendance"
@@ -40,6 +37,23 @@ class MainActivity : ComponentActivity() {
                 var isLoggingIn by remember { mutableStateOf(false) }
                 var loginErrorMessage by remember { mutableStateOf<String?>(null) }
 
+                var captchaSession by remember { mutableStateOf<com.example.nsutconnect.data.network.CaptchaSession?>(null) }
+                var isCaptchaLoading by remember { mutableStateOf(false) }
+
+                fun refreshCaptcha() {
+                    coroutineScope.launch {
+                        isCaptchaLoading = true
+                        captchaSession = repository.getCaptchaSession()
+                        isCaptchaLoading = false
+                    }
+                }
+
+                LaunchedEffect(isLoggedIn) {
+                    if (!isLoggedIn) {
+                        refreshCaptcha()
+                    }
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -48,7 +62,9 @@ class MainActivity : ComponentActivity() {
                         MainScreen(
                             initialTab = activeTab,
                             onLogout = {
+                                repository.logout()
                                 isLoggedIn = false
+                                refreshCaptcha()
                             }
                         )
                     } else {
@@ -57,11 +73,14 @@ class MainActivity : ComponentActivity() {
                             initialPassword = "",
                             isLoading = isLoggingIn,
                             errorMessage = loginErrorMessage,
-                            onLogin = { roll, pass, auto ->
+                            captchaSession = captchaSession,
+                            isCaptchaLoading = isCaptchaLoading,
+                            onRefreshCaptcha = { refreshCaptcha() },
+                            onLogin = { roll, pass, cap, auto ->
                                 coroutineScope.launch {
                                     isLoggingIn = true
                                     loginErrorMessage = null
-                                    val result = repository.login(roll, pass, auto)
+                                    val result = repository.login(roll, pass, cap, captchaSession, auto)
                                     isLoggingIn = false
                                     when (result) {
                                         is SyncResult.Success -> {
@@ -69,6 +88,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                         is SyncResult.Error -> {
                                             loginErrorMessage = result.error
+                                            refreshCaptcha()
                                         }
                                         SyncResult.Loading -> {}
                                     }
