@@ -751,30 +751,32 @@ body {
   color: #111827;
 }
 
-/* Responsive Adaptations */
+/* Responsive Adaptations — Compact Low-Scroll Layout */
 @media (max-width: 1024px) {
   .hero-nav {
-    padding: 24px 28px;
+    padding: 22px 28px;
   }
 
   .features-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 
   .feature-box.wide {
-    grid-column: span 1;
+    grid-column: span 2;
   }
 
   .setup-steps-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
   }
 
   .content-section {
-    padding: 70px 24px 30px;
+    padding: 50px 24px 28px;
   }
 
   .cta-banner-wrapper {
-    padding: 10px 24px 40px;
+    padding: 10px 24px 36px;
   }
 
   .developer-contact-card {
@@ -784,76 +786,330 @@ body {
   }
 
   .canvas-footer-bottom {
-    padding: 24px;
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 22px 24px;
   }
 }
 
 @media (max-width: 768px) {
   body {
-    padding: 16px 10px 40px;
+    padding: 6px 4px 18px;
   }
 
   .canvas-frame {
-    border-radius: 24px;
-    border-width: 4px;
+    border-radius: 18px;
+    border-width: 3px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Compact Hero */
+  .hero-container {
+    min-height: auto;
+    padding-bottom: 24px;
   }
 
   .hero-nav {
-    padding: 18px 16px;
-    gap: 12px;
-  }
-
-  .nav-actions {
+    padding: 14px 14px;
     gap: 8px;
   }
 
+  .brand-group {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-title {
+    font-size: 1.45rem;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
   .nav-btn-contact {
-    padding: 7px 15px;
-    font-size: 0.85rem;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    gap: 5px;
   }
 
   .nav-btn-pill {
-    padding: 7px 16px;
-    font-size: 0.85rem;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    gap: 5px;
   }
 
   .contact-dropdown-card {
-    right: -20px;
+    top: calc(100% + 8px);
+    right: -6px;
     width: 270px;
+    max-width: 90vw;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .contact-popover-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .contact-popover-meta h4 {
+    font-size: 0.88rem;
+  }
+
+  .popover-link-item {
+    padding: 6px 8px;
+    gap: 10px;
+  }
+
+  .popover-link-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .hero-hero-content {
+    margin: 16px auto 10px;
+    padding: 0 14px;
   }
 
   .hero-main-title {
-    font-size: 2.2rem;
+    font-size: 1.85rem;
+    line-height: 1.15;
   }
 
   .hero-main-subtitle {
-    font-size: 1rem;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin: 10px auto 16px;
+    max-width: 92%;
+  }
+
+  .hero-cta-wrapper {
+    margin-bottom: 4px;
+  }
+
+  .hero-get-started-btn {
+    font-size: 0.92rem;
+    padding: 10px 22px;
+    gap: 8px;
+  }
+
+  /* Compact Sections */
+  .content-section {
+    padding: 28px 12px 14px;
+  }
+
+  .section-title-wrap {
+    margin: 0 auto 16px;
+  }
+
+  .section-pill {
+    font-size: 0.68rem;
+    padding: 3px 9px;
+    margin-bottom: 6px;
+  }
+
+  .section-title-wrap h2 {
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  .section-title-wrap p {
+    font-size: 0.82rem;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* 2-Column Compact Bento Grid for Minimal Mobile Scrolling */
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .feature-box {
+    padding: 12px 10px;
+    gap: 6px;
+    border-radius: 14px;
+  }
+
+  .feature-box.wide {
+    grid-column: span 2;
+  }
+
+  .icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .icon-badge svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .feature-box h3 {
+    font-size: 0.82rem;
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  .feature-box p {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    color: #64748b;
+  }
+
+  .feature-box code {
+    padding: 1px 4px;
+    font-size: 0.7rem;
+  }
+
+  /* 3-Column Stepper for Minimal Scroll */
+  .setup-steps-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .setup-step-card {
+    padding: 12px 8px;
+    border-radius: 14px;
+    gap: 4px;
+  }
+
+  .step-badge {
+    font-size: 0.95rem;
+  }
+
+  .setup-step-card h4 {
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+
+  .setup-step-card p {
+    font-size: 0.68rem;
+    line-height: 1.3;
+  }
+
+  .setup-step-card code {
+    padding: 1px 4px;
+    font-size: 0.68rem;
+  }
+
+  /* Compact CTA Banner */
+  .cta-banner-wrapper {
+    padding: 8px 10px 20px;
   }
 
   .cta-banner-card {
-    padding: 40px 20px;
+    padding: 22px 14px;
+    border-radius: 18px;
   }
 
   .cta-banner-card h2 {
-    font-size: 1.8rem;
+    font-size: 1.35rem;
+    margin-bottom: 6px;
   }
 
+  .cta-banner-card p {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    margin-bottom: 14px;
+  }
+
+  /* Compact Developer Footer */
   .developer-contact-card {
-    padding: 24px 18px;
+    padding: 18px 14px;
+    gap: 12px;
+  }
+
+  .dev-card-left {
+    gap: 10px;
+  }
+
+  .dev-avatar-container {
+    width: 40px;
+    height: 40px;
+  }
+
+  .dev-active-indicator {
+    width: 10px;
+    height: 10px;
+  }
+
+  .dev-badge-tag {
+    font-size: 0.6rem;
+  }
+
+  .dev-name-title {
+    font-size: 0.96rem;
+  }
+
+  .dev-handle-inline {
+    font-size: 0.78rem;
+  }
+
+  .dev-tagline {
+    font-size: 0.74rem;
+    line-height: 1.35;
   }
 
   .dev-links-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
     width: 100%;
   }
 
   .contact-pill-btn {
-    flex: 1 1 calc(50% - 10px);
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    gap: 5px;
+    flex: 1 1 calc(33.33% - 6px);
     justify-content: center;
   }
 
   .canvas-footer-bottom {
-    padding: 24px 18px;
+    padding: 14px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .footer-left .brand-logo.small {
+    width: 24px;
+    height: 24px;
+  }
+
+  .footer-left .brand-title {
+    font-size: 1.15rem;
+  }
+
+  .footer-disclaimer {
+    font-size: 0.68rem;
+  }
+
+  .footer-right {
+    gap: 14px;
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .features-grid {
+    gap: 6px;
+  }
+
+  .feature-box {
+    padding: 10px 8px;
+  }
+
+  .setup-step-card {
+    padding: 10px 6px;
+  }
+
+  .contact-pill-btn {
+    flex: 1 1 calc(50% - 6px);
   }
 }
