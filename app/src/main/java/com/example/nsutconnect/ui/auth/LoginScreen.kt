@@ -309,11 +309,6 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(rollFocusRequester)
-                            .onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    keyboardController?.show()
-                                }
-                            }
                             .semantics {
                                 contentType = ContentType.Username
                             }
@@ -534,11 +529,6 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(captchaFocusRequester)
-                            .onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    keyboardController?.show()
-                                }
-                            }
                     )
                 }
             }

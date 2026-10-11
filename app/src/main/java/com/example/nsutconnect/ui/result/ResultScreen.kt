@@ -36,21 +36,27 @@ import com.example.nsutconnect.theme.*
 fun ResultScreen(
     onBack: () -> Unit
 ) {
-    var record by remember { mutableStateOf(StudentRecordsProvider.getAcademicRecord()) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { com.example.nsutconnect.data.local.UserPreferences(context) }
+    val rollNumber = remember { prefs.getRollNumber() }
+
+    var record by remember { mutableStateOf(StudentRecordsProvider.getAcademicRecord(rollNumber)) }
     var selectedSemIndex by remember { mutableIntStateOf(0) }
     var showTargetPlanner by remember { mutableStateOf(false) }
     var targetCgpaInput by remember { mutableFloatStateOf(7.0f) }
 
     // Silent background sync
-    LaunchedEffect(Unit) {
-        try {
-            val liveRecord = StudentRecordsProvider.getOrFetchAcademicRecord(forceRefresh = false)
-            record = liveRecord
-        } catch (_: Exception) {
+    LaunchedEffect(rollNumber) {
+        if (rollNumber.isNotBlank()) {
+            try {
+                val liveRecord = StudentRecordsProvider.getOrFetchAcademicRecord(rollNumber = rollNumber, forceRefresh = false)
+                record = liveRecord
+            } catch (_: Exception) {
+            }
         }
     }
 
-    val activeSemester = record.semesters.getOrNull(selectedSemIndex) ?: record.semesters.first()
+    val activeSemester = record.semesters.getOrNull(selectedSemIndex) ?: record.semesters.firstOrNull()
 
     Scaffold(
         topBar = {
@@ -153,27 +159,29 @@ fun ResultScreen(
                                     }
                                 }
 
-                                Surface(
-                                    color = AppleAccent.copy(alpha = 0.2f),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                if (record.rankPercentile.isNotBlank()) {
+                                    Surface(
+                                        color = AppleAccent.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(12.dp)
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.TrendingUp,
-                                            contentDescription = null,
-                                            tint = AppleAccent,
-                                            modifier = Modifier.size(13.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = record.rankPercentile,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = AppleAccent
-                                        )
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                                                contentDescription = null,
+                                                tint = AppleAccent,
+                                                modifier = Modifier.size(13.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(
+                                                text = record.rankPercentile,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = AppleAccent
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -289,63 +297,65 @@ fun ResultScreen(
             }
 
             // Semester Selector Tabs with fluid sliding pill
-            item {
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(58.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(AppleCardSurface)
-                        .padding(3.dp)
-                ) {
-                    val totalWidth = maxWidth
-                    val count = record.semesters.size.coerceAtLeast(1)
-                    val tabWidth = totalWidth / count
-                    val animatedIndex by animateFloatAsState(
-                        targetValue = selectedSemIndex.toFloat(),
-                        animationSpec = spring(
-                            dampingRatio = 0.82f,
-                            stiffness = Spring.StiffnessMediumLow
-                        ),
-                        label = "sem_pill_slider"
-                    )
-
-                    // Sliding Pill
-                    Box(
+            if (record.semesters.isNotEmpty()) {
+                item {
+                    BoxWithConstraints(
                         modifier = Modifier
-                            .offset(x = tabWidth * animatedIndex)
-                            .width(tabWidth)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(11.dp))
-                            .background(AppleAccent)
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxWidth()
+                            .height(58.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(AppleCardSurface)
+                            .padding(3.dp)
                     ) {
-                        record.semesters.forEachIndexed { index, sem ->
-                            val isSelected = index == selectedSemIndex
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(11.dp))
-                                    .bounceClick(scaleDown = 0.94f) { selectedSemIndex = index }
-                                    .padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        text = "Sem ${sem.semesterNumber}",
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) Color.White else TextSecondary
-                                    )
-                                    Text(
-                                        text = "SGPA ${String.format("%.2f", sem.sgpa)}",
-                                        fontSize = 11.sp,
-                                        color = if (isSelected) Color.White.copy(alpha = 0.9f) else TextSecondary
-                                    )
+                        val totalWidth = maxWidth
+                        val count = record.semesters.size.coerceAtLeast(1)
+                        val tabWidth = totalWidth / count
+                        val animatedIndex by animateFloatAsState(
+                            targetValue = selectedSemIndex.toFloat(),
+                            animationSpec = spring(
+                                dampingRatio = 0.82f,
+                                stiffness = Spring.StiffnessMediumLow
+                            ),
+                            label = "sem_pill_slider"
+                        )
+
+                        // Sliding Pill
+                        Box(
+                            modifier = Modifier
+                                .offset(x = tabWidth * animatedIndex)
+                                .width(tabWidth)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(11.dp))
+                                .background(AppleAccent)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            record.semesters.forEachIndexed { index, sem ->
+                                val isSelected = index == selectedSemIndex
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(11.dp))
+                                        .bounceClick(scaleDown = 0.94f) { selectedSemIndex = index }
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(
+                                            text = "Sem ${sem.semesterNumber}",
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) Color.White else TextSecondary
+                                        )
+                                        Text(
+                                            text = "SGPA ${String.format("%.2f", sem.sgpa)}",
+                                            fontSize = 11.sp,
+                                            color = if (isSelected) Color.White.copy(alpha = 0.9f) else TextSecondary
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -354,9 +364,26 @@ fun ResultScreen(
             }
 
             // Course Grades List
-            items(activeSemester.courses, key = { it.code }) { course ->
-                Box(modifier = Modifier.animateItem()) {
-                    CourseGradeCard(course = course)
+            if (activeSemester != null) {
+                items(activeSemester.courses, key = { it.code }) { course ->
+                    Box(modifier = Modifier.animateItem()) {
+                        CourseGradeCard(course = course)
+                    }
+                }
+            } else {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (rollNumber.isNotBlank()) "No published results found for $rollNumber on ResultHub." else "Please log in to view results.",
+                            color = TextSecondary,
+                            fontSize = 13.sp
+                        )
+                    }
                 }
             }
         }

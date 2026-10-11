@@ -42,6 +42,26 @@ object StudentRecordsProvider {
             if (it.rollNumber == rollNumber) return it
         }
 
+        if (rollNumber.isNotBlank() && !rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+            return StudentAcademicRecord(
+                rollNumber = rollNumber,
+                name = "Student",
+                program = "B.Tech.",
+                cumulativeGpa = 0.0f,
+                totalCreditsCompleted = 0,
+                totalCoursesCompleted = 0,
+                rankPercentile = "",
+                semesters = emptyList(),
+                collegeRank = null,
+                branchRank = null,
+                percentile = null,
+                branchCode = "",
+                yearOfStudy = "",
+                gradeDistribution = emptyMap(),
+                isLiveFromResultHub = false
+            )
+        }
+
         val sem1 = SemesterResult(
             semesterNumber = 1,
             session = "Odd Sem (2025-26)",
@@ -196,16 +216,16 @@ object StudentRecordsProvider {
                 code = "VTECC304",
                 name = "Microelectronics",
                 date = LocalDate.of(year, 9, 28),
-                room = "Room 113/6 (Desk 16)",
-                hall = "APJ Abdul Kalam Block (Block 6)",
+                room = "Desk allotment on IMS portal",
+                hall = "Main Campus",
                 shift = "Shift 1 (Morning)"
             ),
             ExamScheduleEntry(
                 code = "VTECC305",
                 name = "Digital Circuits and Systems",
                 date = LocalDate.of(year, 9, 29),
-                room = "Room 305/5 (Row 1, Col 3)",
-                hall = "Block 5 (3rd Floor)",
+                room = "Desk allotment on IMS portal",
+                hall = "Main Campus",
                 shift = "Shift 1 (Morning)"
             )
         )
@@ -269,42 +289,52 @@ object StudentRecordsProvider {
     }
 
     fun getSeatingPlan(rollNumber: String = "STUDENT"): SeatingPlan {
+        val isRohit = rollNumber.equals("2024UCO1500", ignoreCase = true)
+        val displayRoom = if (isRohit) "Room 113/6 (28 Sep) & Room 305/5 (29 Sep)" else "Desk allotment notified 1 day prior"
+        val displaySeat = if (isRohit) "Desk 16 (Row 8, Col 2 on 28 Sep) / Desk 3 on 29 Sep" else "Assigned by Examination Division"
+        val displayRow = if (isRohit) "Row 8 (28 Sep) / Row 1 (29 Sep)" else "As per Notice"
+        val displayFloor = if (isRohit) "Block 6 (1st Fl.) / Block 5 (3rd Fl.)" else "Main Campus Examination Block"
+        val displayHall = if (isRohit) "APJ Abdul Kalam Block (Block 6) & Block 5" else "Main Campus Examination Hall"
+        val displayDivision = if (isRohit) "Division of Electronics & Communication Engineering (ECE)" else "NSUT Examination Division"
+
         return SeatingPlan(
             rollNumber = rollNumber,
             studentName = if (rollNumber != "STUDENT") rollNumber else "STUDENT",
             examination = "Mid-Semester Theory Examination (Sep 2026)",
-            examHall = "APJ Abdul Kalam Block (Block 6) & Block 5",
-            roomNumber = "Room 113/6 (28 Sep) & Room 305/5 (29 Sep)",
-            floor = "Block 6 (1st Fl.) / Block 5 (3rd Fl.)",
-            row = "Row 8 (28 Sep) / Row 1 (29 Sep)",
-            seatNumber = "Desk 16 (Row 8, Col 2 on 28 Sep) / Desk 3 on 29 Sep",
+            examHall = displayHall,
+            roomNumber = displayRoom,
+            floor = displayFloor,
+            row = displayRow,
+            seatNumber = displaySeat,
             reportingTime = "09:30 AM (30 min prior)",
             shift = "Shift 1 (10:00 AM - 11:30 AM)",
-            invigilatorDivision = "Division of Electronics & Communication Engineering (ECE)",
+            invigilatorDivision = displayDivision,
             guidelines = listOf(
                 "Physical Hall Ticket / Admit Card and NSUT Student ID Card are mandatory.",
                 "Students must check their pockets and belongings to ensure no written notes, mobile phones, or smartwatches are brought into the Examination Hall.",
                 "Verify that nothing is written on desk, geometry box, cardboard, or calculator.",
                 "Seating plans and room allocations are released 1 day prior to each examination by the Examination Section."
             ),
-            columnNumber = 2,
-            rowNumber = 8,
+            columnNumber = if (isRohit) 2 else 0,
+            rowNumber = if (isRohit) 8 else 0,
             columnCount = 4,
             rowCount = 8,
             totalCapacity = 32,
-            deskMatrix = listOf(
-                listOf("2025UEV2858", "2025UEV2869", "2025UEV4575", "2025UEV4648"),
-                listOf("2025UEV2859", "2025UEV2870", "2025UEV4590", "2025UEV4654"),
-                listOf("2025UEV2860", "2025UEV2872", "2025UEV4592", "2025UEV4659"),
-                listOf("2025UEV2861", "2025UEV4505", "2025UEV4601", "2025UEV4674"),
-                listOf("2025UEV2863", "2025UEV4519", "2025UEV4605", "2025UEV6005"),
-                listOf("2025UEV2864", "2025UEV4521", "2025UEV4611", "2025UEV6521"),
-                listOf("2025UEV2865", "2025UEV4544", "2025UEV4621", "2025UEV6554"),
-                listOf("2025UEV2866", rollNumber.ifBlank { "YOUR SEAT" }, "2025UEV4644", "2024UEV2828")
-            ),
-            officialNoticeRef = "Main Campus Theory Exam 28-09-2026 Shift 1 (Page 23) & 29-09-2026 Shift 1 (Page 21)",
-            pdfDownloadUrl = "https://www.imsnsit.org/imsnsit/plum_url.php?Yk8XilDXI97wwdgTG2RE35iOgpFxLwm4iEDTm+z17FUDsiikgei0RHNOh+y2gAfT+W3kH9BVzykcvRkVh/+vStK7qk//+0veoS0HJ5VdJnJ5fPFP2d1v9XvSDbRzK9PAsb66As8dJxSDZRMxSyDL1B8CLM8JSrWfh+C6RIf0nIgeeip3p0EkmIsKm8JRQgHiIZr0QO0+DelJcebQk2DAIQ==",
-            alternateDayRoom = "Room 305/5 (Block 5, 3rd Floor - Shift 1 on 29 Sep)"
+            deskMatrix = if (isRohit) {
+                listOf(
+                    listOf("2025UEV2858", "2025UEV2869", "2025UEV4575", "2025UEV4648"),
+                    listOf("2025UEV2859", "2025UEV2870", "2025UEV4590", "2025UEV4654"),
+                    listOf("2025UEV2860", "2025UEV2872", "2025UEV4592", "2025UEV4659"),
+                    listOf("2025UEV2861", "2025UEV4505", "2025UEV4601", "2025UEV4674"),
+                    listOf("2025UEV2863", "2025UEV4519", "2025UEV4605", "2025UEV6005"),
+                    listOf("2025UEV2864", "2025UEV4521", "2025UEV4611", "2025UEV6521"),
+                    listOf("2025UEV2865", "2025UEV4544", "2025UEV4621", "2025UEV6554"),
+                    listOf("2025UEV2866", rollNumber.ifBlank { "YOUR SEAT" }, "2025UEV4644", "2024UEV2828")
+                )
+            } else emptyList(),
+            officialNoticeRef = if (isRohit) "Main Campus Theory Exam 28-09-2026 Shift 1 (Page 23) & 29-09-2026 Shift 1 (Page 21)" else "Official Exam Notice",
+            pdfDownloadUrl = "https://www.imsnsit.org/imsnsit/student_login.php",
+            alternateDayRoom = if (isRohit) "Room 305/5 (Block 5, 3rd Floor - Shift 1 on 29 Sep)" else ""
         )
     }
 
@@ -332,14 +362,14 @@ private data class ExamScheduleEntry(
             ),
             NoticeItem(
                 id = "NOT-2026-092",
-                title = "Main Campus | Seating Plan for (Mid Sem.) Theory Examination | Room 113/6 (Shift 1)",
+                title = "Main Campus | Seating Plan for (Mid Sem.) Theory Examination",
                 date = "28-09-2026",
                 category = "Examinations",
                 targetDepartment = "All UG Students (B.Tech)",
-                aiSummary = "Official seating allotment from IMS (Page 23). Allotted Room 113/6 (APJ Block 6), Desk 16 (Row 8, Col 2), Shift 1 (10:00-11:30 AM).",
+                aiSummary = "Official seating allotment from IMS. Room and desk allocations are posted by the Examination Section 1 day prior to each examination.",
                 isRelevant = true,
                 isUrgent = true,
-                downloadUrl = "https://www.imsnsit.org/imsnsit/plum_url.php?Yk8XilDXI97wwdgTG2RE35iOgpFxLwm4iEDTm+z17FUDsiikgei0RHNOh+y2gAfT+W3kH9BVzykcvRkVh/+vStK7qk//+0veoS0HJ5VdJnJ5fPFP2d1v9XvSDbRzK9PAsb66As8dJxSDZRMxSyDL1B8CLM8JSrWfh+C6RIf0nIgeeip3p0EkmIsKm8JRQgHiIZr0QO0+DelJcebQk2DAIQ=="
+                downloadUrl = "https://www.imsnsit.org/imsnsit/notifications.php"
             ),
             NoticeItem(
                 id = "NOT-2026-088",

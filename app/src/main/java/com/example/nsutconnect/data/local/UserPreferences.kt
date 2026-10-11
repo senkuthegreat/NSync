@@ -52,6 +52,8 @@ class UserPreferences(private val context: Context) {
         private const val KEY_WIDGET_ACCENT = "key_widget_accent"
         private const val KEY_WIDGET_BUNKS_ENABLED = "key_widget_bunks_enabled"
         private const val KEY_WIDGET_BANNER_ENABLED = "key_widget_banner_enabled"
+        private const val KEY_ATTENDANCE_URL = "key_attendance_url"
+        private const val KEY_TIMETABLE_URL = "key_timetable_url"
 
         private const val KEYSTORE_ALIAS = "NsutAuthKeyAlias"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -124,9 +126,22 @@ class UserPreferences(private val context: Context) {
     }
 
     fun saveCredentials(rollNumber: String, password: String, autoLogin: Boolean) {
+        val currentRoll = getRollNumber()
+        val newRoll = rollNumber.trim().uppercase()
+        if (currentRoll.isNotBlank() && !currentRoll.equals(newRoll, ignoreCase = true)) {
+            prefs.edit()
+                .remove(KEY_ATTENDANCE_JSON)
+                .remove(KEY_TIMETABLE_JSON)
+                .remove(KEY_ATTENDANCE_URL)
+                .remove(KEY_TIMETABLE_URL)
+                .remove(KEY_STUDENT_NAME)
+                .remove(KEY_BRANCH)
+                .apply()
+        }
+
         val encrypted = encrypt(password)
         val editor = prefs.edit()
-            .putString(KEY_ROLL_NUMBER, rollNumber.trim().uppercase())
+            .putString(KEY_ROLL_NUMBER, newRoll)
             .putBoolean(KEY_AUTO_LOGIN, autoLogin)
             .putBoolean(KEY_IS_LOGGED_IN, true)
 
@@ -138,6 +153,16 @@ class UserPreferences(private val context: Context) {
     }
 
     fun getRollNumber(): String = prefs.getString(KEY_ROLL_NUMBER, "") ?: ""
+
+    fun getAttendanceUrl(): String? = prefs.getString(KEY_ATTENDANCE_URL, null)
+    fun saveAttendanceUrl(url: String?) {
+        prefs.edit().putString(KEY_ATTENDANCE_URL, url).apply()
+    }
+
+    fun getTimetableUrl(): String? = prefs.getString(KEY_TIMETABLE_URL, null)
+    fun saveTimetableUrl(url: String?) {
+        prefs.edit().putString(KEY_TIMETABLE_URL, url).apply()
+    }
 
     fun getSavedPassword(): String? {
         val enc = prefs.getString(KEY_ENCRYPTED_PASSWORD, null) ?: return null
@@ -160,6 +185,8 @@ class UserPreferences(private val context: Context) {
     fun clearSession(keepCredentials: Boolean = true) {
         val editor = prefs.edit()
             .remove(KEY_PORTAL_COOKIES)
+            .remove(KEY_ATTENDANCE_URL)
+            .remove(KEY_TIMETABLE_URL)
             .putBoolean(KEY_IS_LOGGED_IN, false)
         if (!keepCredentials) {
             editor.remove(KEY_ROLL_NUMBER)
@@ -261,6 +288,11 @@ class UserPreferences(private val context: Context) {
         val json = prefs.getString(KEY_ATTENDANCE_JSON, null) ?: return null
         return try {
             val root = JSONObject(json)
+            val cachedRoll = root.optString("rollNumber", "")
+            val currentRoll = getRollNumber()
+            if (currentRoll.isNotBlank() && cachedRoll.isNotBlank() && !cachedRoll.equals(currentRoll, ignoreCase = true)) {
+                return null
+            }
             val records = mutableListOf<AttendanceRecord>()
             val arr = root.optJSONArray("records")
             if (arr != null) {
@@ -320,6 +352,7 @@ class UserPreferences(private val context: Context) {
     fun saveTimetable(timetable: WeeklyTimetable) {
         try {
             val root = JSONObject().apply {
+                put("rollNumber", getRollNumber())
                 put("studentBranch", timetable.studentBranch)
                 put("section", timetable.section)
                 put("semester", timetable.semester)
@@ -360,6 +393,11 @@ class UserPreferences(private val context: Context) {
         val json = prefs.getString(KEY_TIMETABLE_JSON, null) ?: return null
         return try {
             val root = JSONObject(json)
+            val cachedRoll = root.optString("rollNumber", "")
+            val currentRoll = getRollNumber()
+            if (currentRoll.isNotBlank() && cachedRoll.isNotBlank() && !cachedRoll.equals(currentRoll, ignoreCase = true)) {
+                return null
+            }
             val daysList = mutableListOf<DaySchedule>()
             val daysArr = root.optJSONArray("days")
             if (daysArr != null) {

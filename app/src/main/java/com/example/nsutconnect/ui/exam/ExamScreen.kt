@@ -1227,6 +1227,11 @@ fun AdmitCardBottomSheet(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var isDownloading by remember { mutableStateOf(false) }
+    val prefs = remember { UserPreferences(context) }
+    val candidateName = remember { prefs.getStudentName().ifBlank { "STUDENT" } }
+    val candidateRoll = remember { prefs.getRollNumber().ifBlank { "STUDENT" } }
+    val candidateBranch = remember { prefs.getBranch().ifBlank { "B.Tech" } }
+    val isRohit = candidateRoll.equals("2024UCO1500", ignoreCase = true)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -1268,9 +1273,6 @@ fun AdmitCardBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            val prefs = remember { UserPreferences(context) }
-                            val candidateName = remember { prefs.getStudentName().ifBlank { "STUDENT" } }
-                            val candidateRoll = remember { prefs.getRollNumber().ifBlank { "STUDENT" } }
                             Text(text = "CANDIDATE", fontSize = 10.sp, color = TextSecondary)
                             Text(text = candidateName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                             Text(text = "Roll No: $candidateRoll", fontSize = 11.sp, color = AppleAccent)
@@ -1292,15 +1294,15 @@ fun AdmitCardBottomSheet(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = "Program: B.Tech (ECE - VLSI Design & Tech)", fontSize = 11.sp, color = TextSecondary)
-                    Text(text = "Center: APJ Abdul Kalam Block (Room 113/6)", fontSize = 11.sp, color = TextSecondary)
+                    Text(text = "Program: $candidateBranch", fontSize = 11.sp, color = TextSecondary)
+                    Text(text = if (isRohit) "Center: APJ Abdul Kalam Block (Room 113/6)" else "Center: Main Campus Examination Block", fontSize = 11.sp, color = TextSecondary)
 
                     Spacer(modifier = Modifier.height(12.dp))
                     HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "7 Registered Papers Verified (Mid Sem Sep 2026)",
+                        text = "Registered Papers Verified (Mid Sem Sep 2026)",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = SafeGreen
@@ -1315,7 +1317,12 @@ fun AdmitCardBottomSheet(
                     if (!isDownloading) {
                         isDownloading = true
                         coroutineScope.launch {
-                            AdmitCardManager.downloadAdmitCardPdf(context)
+                            val info = com.example.nsutconnect.data.local.AdmitCardInfo(
+                                rollNumber = candidateRoll,
+                                candidateName = candidateName,
+                                branch = candidateBranch
+                            )
+                            AdmitCardManager.downloadAdmitCardPdf(context, info)
                             isDownloading = false
                         }
                     }

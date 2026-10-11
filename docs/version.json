@@ -1,8 +1,8 @@
 {
-  "version": "1.0.35",
-  "versionCode": 35,
-  "name": "NSync v1.0.35",
-  "notes": "Exact Captcha vs Password mismatch detection via HTTP 302 Location inspection, auto-keyboard on User ID focus, and instant Captcha field reset on fresh session.",
+  "version": "1.0.38",
+  "versionCode": 38,
+  "name": "NSync v1.0.38",
+  "notes": "Optimized release with authentic Plumware student portal routing and verified session handling.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T16:35:00Z"
+  "publishedAt": "2026-10-11T19:23:00Z"
 }

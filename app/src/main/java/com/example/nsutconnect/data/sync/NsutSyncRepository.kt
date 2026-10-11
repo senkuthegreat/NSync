@@ -92,11 +92,22 @@ class NsutSyncRepository(private val context: Context) {
                 prefs.savePortalCookies(authResult.cookies)
                 authResult.studentName?.let { prefs.setStudentName(it) }
                 authResult.branch?.let { prefs.setBranch(it) }
+                prefs.saveAttendanceUrl(authResult.attendanceUrl)
+                prefs.saveTimetableUrl(authResult.timetableUrl)
                 prefs.setLoggedIn(true)
 
                 // Fetch real student attendance and timetable from the portal
-                val liveAttendance = networkClient.fetchLiveAttendance(authResult.cookies, cleanRoll)
-                val liveTimetable = networkClient.fetchLiveTimetable(authResult.cookies, cleanRoll)
+                val liveAttendance = networkClient.fetchLiveAttendance(
+                    cookies = authResult.cookies,
+                    rollNumber = cleanRoll,
+                    attendanceUrl = authResult.attendanceUrl,
+                    branch = authResult.branch
+                )
+                val liveTimetable = networkClient.fetchLiveTimetable(
+                    cookies = authResult.cookies,
+                    rollNumber = cleanRoll,
+                    timetableUrl = authResult.timetableUrl
+                )
 
                 if (liveAttendance != null) {
                     prefs.saveAttendanceSummary(liveAttendance)
@@ -141,19 +152,31 @@ class NsutSyncRepository(private val context: Context) {
         }
 
         val cookies = prefs.getPortalCookies()
+        val attendanceUrl = prefs.getAttendanceUrl()
+        val timetableUrl = prefs.getTimetableUrl()
+        val branch = prefs.getBranch()
         var liveAttendance: AttendanceSummary? = null
         var liveTimetable: WeeklyTimetable? = null
         var sessionExpired = false
 
         try {
-            val attResult = networkClient.fetchLiveAttendanceResult(cookies, rollNumber)
+            val attResult = networkClient.fetchLiveAttendanceResult(
+                cookies = cookies,
+                rollNumber = rollNumber,
+                attendanceUrl = attendanceUrl,
+                branch = branch
+            )
             when (attResult) {
                 is LiveFetchResult.Success -> liveAttendance = attResult.data
                 is LiveFetchResult.SessionExpired -> sessionExpired = true
                 is LiveFetchResult.Error -> {}
             }
 
-            val ttResult = networkClient.fetchLiveTimetableResult(cookies, rollNumber)
+            val ttResult = networkClient.fetchLiveTimetableResult(
+                cookies = cookies,
+                rollNumber = rollNumber,
+                timetableUrl = timetableUrl
+            )
             when (ttResult) {
                 is LiveFetchResult.Success -> liveTimetable = ttResult.data
                 is LiveFetchResult.SessionExpired -> sessionExpired = true

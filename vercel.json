@@ -10,11 +10,33 @@
       "destination": "/docs/downloads/$1"
     },
     {
+      "source": "/version.json",
+      "destination": "/docs/version.json"
+    },
+    {
       "source": "/assets/(.*)",
       "destination": "/docs/assets/$1"
     }
   ],
   "headers": [
+    {
+      "source": "/version.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/downloads/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [

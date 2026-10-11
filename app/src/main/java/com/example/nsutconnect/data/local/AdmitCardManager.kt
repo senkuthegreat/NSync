@@ -69,28 +69,36 @@ object AdmitCardManager {
     }
 
     fun openAdmitCardPdf(context: Context) {
-        try {
-            val pdfFile = getOfficialAdmitCardPdfFile(context)
-            val authority = "${context.packageName}.fileprovider"
-            val contentUri = FileProvider.getUriForFile(context, authority, pdfFile)
+        val prefs = UserPreferences(context)
+        val currentRoll = prefs.getRollNumber()
+        if (currentRoll.equals("2024UCO1500", ignoreCase = true)) {
+            try {
+                val pdfFile = getOfficialAdmitCardPdfFile(context)
+                val authority = "${context.packageName}.fileprovider"
+                val contentUri = FileProvider.getUriForFile(context, authority, pdfFile)
 
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(contentUri, "application/pdf")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(contentUri, "application/pdf")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(Intent.createChooser(intent, "Open Official Admit Card PDF").apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, "No PDF viewer app found on device", Toast.LENGTH_SHORT).show()
             }
-            context.startActivity(Intent.createChooser(intent, "Open Official Admit Card PDF").apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            })
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(context, "No PDF viewer app found on device", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Admit card is generated upon release by NSUT Examination Division.", Toast.LENGTH_SHORT).show()
         }
     }
 
     suspend fun downloadAdmitCardPdf(context: Context, info: AdmitCardInfo = AdmitCardInfo()): Uri? = withContext(Dispatchers.IO) {
         try {
-            val fileName = "NSUT_AdmitCard_${info.rollNumber}.pdf"
+            val prefs = UserPreferences(context)
+            val effectiveRoll = if (info.rollNumber.isNotBlank()) info.rollNumber else prefs.getRollNumber()
+            val fileName = "NSUT_AdmitCard_${effectiveRoll.ifBlank { "STUDENT" }}.pdf"
             var outputStream: OutputStream? = null
             var savedUri: Uri? = null
 
@@ -112,13 +120,16 @@ object AdmitCardManager {
                 savedUri = Uri.fromFile(targetFile)
             }
 
-            // Check if authentic official PDF exists in assets
-            val hasAssetPdf = try {
-                context.assets.open("admit_card_actual.pdf").close()
-                true
-            } catch (e: Exception) {
-                false
-            }
+            val isRohit = effectiveRoll.equals("2024UCO1500", ignoreCase = true)
+            // Check if authentic official PDF exists in assets (for Rohit only)
+            val hasAssetPdf = if (isRohit) {
+                try {
+                    context.assets.open("admit_card_actual.pdf").close()
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+            } else false
 
             if (hasAssetPdf && outputStream != null) {
                 context.assets.open("admit_card_actual.pdf").use { input ->
