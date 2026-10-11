@@ -5,333 +5,58 @@ import {
   Percent,
   LayoutGrid,
   WifiOff,
-  Sparkles,
-  BarChart2,
-  Calendar,
   Clock,
-  User,
-  Key,
-  Eye,
-  EyeOff,
-  ChevronRight,
-  LogOut,
-  Calculator,
-  FileText,
-  Globe,
-  X,
-  CheckCircle,
-  AlertTriangle,
-  ArrowRight,
-  RefreshCw,
-  Smartphone,
-  Check,
   Award,
   CalendarDays,
   Ticket,
-  MapPin,
-  ExternalLink
+  Globe,
+  Mail
 } from 'lucide-react';
 
-// Direct package download hosted locally on the site CDN (Zero GitHub links exposed)
+// Direct package download hosted locally on the site CDN (Zero GitHub links exposed for APK)
 const LATEST_DOWNLOAD_URL = './downloads/NSync.apk';
 
 // Dedicated high-resolution artwork: Pink Sunset Clouds (matching reference)
 const HERO_ARTWORK = './assets/artworks/sunset-clouds.jpg';
 
-// Authentic Course Data from NSUT ECE Batch
-const COURSES = [
-  {
-    id: 'ssp',
-    code: 'EC-201',
-    name: 'Solid State Physics',
-    held: 22,
-    attended: 10,
-    prof: 'Dr. R. Sharma',
-    room: 'Block IV - 204'
-  },
-  {
-    id: 'ss',
-    code: 'EC-203',
-    name: 'Signals & Systems',
-    held: 24,
-    attended: 14,
-    prof: 'Dr. A. Verma',
-    room: 'Block IV - 102'
-  },
-  {
-    id: 'micro',
-    code: 'EC-205',
-    name: 'Microelectronics',
-    held: 36,
-    attended: 26,
-    prof: 'Prof. K. Gupta',
-    room: 'Block V - 301'
-  },
-  {
-    id: 'prob',
-    code: 'MA-201',
-    name: 'Probability Theory',
-    held: 29,
-    attended: 21,
-    prof: 'Dr. S. Mukherjee',
-    room: 'Smart Class 12'
-  },
-  {
-    id: 'dcs',
-    code: 'EC-207',
-    name: 'Digital Circuits and Systems',
-    held: 39,
-    attended: 36,
-    prof: 'Dr. N. Kumar',
-    room: 'Digital Lab II'
-  },
-  {
-    id: 'ci',
-    code: 'MC-201',
-    name: 'Community Internship',
-    held: 0,
-    attended: 0,
-    prof: 'Coordinator',
-    room: 'Departmental'
-  },
-  {
-    id: 'inn',
-    code: 'MC-202',
-    name: 'Innovation & Incubation',
-    held: 0,
-    attended: 0,
-    prof: 'Dean R&D',
-    room: 'Incubation Center'
-  }
-];
-
-// Weekly Timetable Data
-const TIMETABLE = {
-  Mon: [
-    { time: '10:00 AM – 11:00 AM', title: 'Digital Circuits and Systems', type: 'Lecture', room: 'Block IV - 204' },
-    { time: '11:00 AM – 12:00 PM', title: 'Signals & Systems', type: 'Lecture', room: 'Block IV - 102' },
-    { time: '12:00 PM – 01:00 PM', title: 'Lunch Break & Free Period', type: 'Break', room: 'Campus Hub' },
-    { time: '01:00 PM – 03:00 PM', title: 'Microelectronics Lab', type: 'Lab', room: 'VLSI Lab 1' },
-    { time: '03:00 PM – 04:00 PM', title: 'Probability Theory Tutorial', type: 'Tutorial', room: 'Smart Class 12' }
-  ],
-  Tue: [
-    { time: '09:00 AM – 10:00 AM', title: 'Solid State Physics', type: 'Lecture', room: 'Block IV - 204' },
-    { time: '10:00 AM – 11:00 AM', title: 'Digital Circuits and Systems', type: 'Lecture', room: 'Block IV - 204' },
-    { time: '11:00 AM – 01:00 PM', title: 'Digital Circuits Lab', type: 'Lab', room: 'Digital Lab II' },
-    { time: '02:00 PM – 03:00 PM', title: 'Signals & Systems Tutorial', type: 'Tutorial', room: 'Block IV - 102' }
-  ],
-  Wed: [
-    { time: '10:00 AM – 11:00 AM', title: 'Microelectronics', type: 'Lecture', room: 'Block V - 301' },
-    { time: '11:00 AM – 12:00 PM', title: 'Probability Theory', type: 'Lecture', room: 'Smart Class 12' },
-    { time: '01:00 PM – 02:00 PM', title: 'Solid State Physics Tutorial', type: 'Tutorial', room: 'Block IV - 204' },
-    { time: '02:00 PM – 04:00 PM', title: 'Signals & Systems Lab', type: 'Lab', room: 'DSP Lab' }
-  ],
-  Thu: [
-    { time: '09:00 AM – 10:00 AM', title: 'Solid State Physics', type: 'Lecture', room: 'Block IV - 204' },
-    { time: '10:00 AM – 11:00 AM', title: 'Digital Circuits and Systems', type: 'Lecture', room: 'Block IV - 204' },
-    { time: '11:00 AM – 12:00 PM', title: 'Signals & Systems', type: 'Lecture', room: 'Block IV - 102' },
-    { time: '01:00 PM – 03:00 PM', title: 'Innovation & Incubation Seminar', type: 'Lecture', room: 'Incubation Center' }
-  ],
-  Fri: [
-    { time: '10:00 AM – 11:00 AM', title: 'Probability Theory', type: 'Lecture', room: 'Smart Class 12' },
-    { time: '11:00 AM – 12:00 PM', title: 'Microelectronics', type: 'Lecture', room: 'Block V - 301' },
-    { time: '12:00 PM – 01:00 PM', title: 'Solid State Physics', type: 'Lecture', room: 'Block IV - 204' },
-    { time: '02:00 PM – 04:00 PM', title: 'Project Work / Community Internship', type: 'Tutorial', room: 'Departmental' }
-  ]
+// Developer Profile & Social Data
+const DEVELOPER_INFO = {
+  name: 'Rohit Dahiya',
+  handle: '@senkuthegreat',
+  avatar: 'https://avatars.githubusercontent.com/u/126081063?v=4',
+  portfolio: 'https://senkuthegreat.me',
+  github: 'https://github.com/senkuthegreat',
+  linkedin: 'https://www.linkedin.com/in/rohit-dahiya-14b180240/',
+  instagram: 'https://instagram.com/senkuthegreat',
+  email: 'mailto:rohitdahiya245@gmail.com'
 };
 
-// Semester Results Data
-const RESULTS_DATA = {
-  sgpa: '8.82',
-  cgpa: '8.65',
-  semester: 'Semester IV',
-  totalCredits: '84 / 160',
-  standing: 'Distinction • Top 5% in ECE',
-  courses: [
-    { code: 'EC-207', name: 'Digital Circuits and Systems', credits: 4, grade: 'A+', points: 10 },
-    { code: 'EC-203', name: 'Signals & Systems', credits: 4, grade: 'A', points: 9 },
-    { code: 'EC-205', name: 'Microelectronics & VLSI', credits: 4, grade: 'A', points: 9 },
-    { code: 'MA-201', name: 'Probability Theory & Statistics', credits: 4, grade: 'A+', points: 10 },
-    { code: 'EC-201', name: 'Solid State Physics', credits: 4, grade: 'B+', points: 8 },
-    { code: 'MC-201', name: 'Community Internship', credits: 2, grade: 'S', points: 10 }
-  ]
-};
+function GithubIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+    </svg>
+  );
+}
 
-// Official Academic Calendar Data
-const ACADEMIC_CALENDAR_DATA = [
-  {
-    title: 'Commencement of Even Semester Classes',
-    date: 'January 06, 2026',
-    category: 'academic',
-    desc: 'Teaching commenced for all undergraduate B.Tech cohorts.'
-  },
-  {
-    title: 'Mid-Semester Examinations',
-    date: 'March 23 – March 28, 2026',
-    category: 'exam',
-    desc: 'Mid-term written examinations across campus lecture halls.'
-  },
-  {
-    title: 'Mid-Semester Break & Holi Festival',
-    date: 'March 14 – March 17, 2026',
-    category: 'holiday',
-    desc: 'University closed for student mid-semester festival break.'
-  },
-  {
-    title: 'Last Day of Teaching / Attendance Cut-off',
-    date: 'April 30, 2026',
-    category: 'academic',
-    desc: 'Formal closure of lectures and final 75% attendance criteria computation.'
-  },
-  {
-    title: 'End-Semester Practical & Lab Examinations',
-    date: 'May 04 – May 10, 2026',
-    category: 'exam',
-    desc: 'Departmental laboratory practicals and external vivas.'
-  },
-  {
-    title: 'End-Semester Theory Examinations',
-    date: 'May 15 – June 02, 2026',
-    category: 'exam',
-    desc: 'Final theory examinations conducted by NSUT Examination Branch.'
-  },
-  {
-    title: 'Summer Vacation',
-    date: 'June 05 – July 25, 2026',
-    category: 'holiday',
-    desc: 'Annual university summer break.'
-  }
-];
+function LinkedinIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9h2.79v8.37H6.46v-8.37M7.86 6.54a1.63 1.63 0 1 0 0 3.26 1.63 1.63 0 0 0 0-3.26z"/>
+    </svg>
+  );
+}
 
-// Official Admit Card & Seating Notices Data
-const ADMIT_CARD_DATA = {
-  examSession: 'End-Semester Examination May 2026',
-  studentName: 'STUDENT',
-  rollNumber: '2024UCO1500',
-  branch: 'Electronics & Communication Engineering',
-  admitStatus: 'Verified by NSUT Examination Branch',
-  seatingList: [
-    {
-      code: 'EC-207',
-      subject: 'Digital Circuits and Systems',
-      date: 'May 15, 2026',
-      shift: 'Shift 1 (10:00 AM – 01:00 PM)',
-      room: 'APJ Block - Room 204',
-      desk: 'Desk 18'
-    },
-    {
-      code: 'EC-203',
-      subject: 'Signals & Systems',
-      date: 'May 19, 2026',
-      shift: 'Shift 1 (10:00 AM – 01:00 PM)',
-      room: 'APJ Block - Room 102',
-      desk: 'Desk 34'
-    },
-    {
-      code: 'EC-201',
-      subject: 'Solid State Physics',
-      date: 'May 22, 2026',
-      shift: 'Shift 2 (02:00 PM – 05:00 PM)',
-      room: 'Block IV - Room 301',
-      desk: 'Desk 09'
-    },
-    {
-      code: 'MA-201',
-      subject: 'Probability Theory',
-      date: 'May 27, 2026',
-      shift: 'Shift 1 (10:00 AM – 01:00 PM)',
-      room: 'Smart Classroom 12',
-      desk: 'Desk 22'
-    },
-    {
-      code: 'EC-205',
-      subject: 'Microelectronics & VLSI',
-      date: 'May 31, 2026',
-      shift: 'Shift 2 (02:00 PM – 05:00 PM)',
-      room: 'Block V - Room 202',
-      desk: 'Desk 15'
-    }
-  ]
-};
-
-// Standard College 75% Attendance Formula
-function calculateAttendanceMetrics(held, attended) {
-  if (held === 0) {
-    return {
-      pct: null,
-      pctDisplay: '—',
-      status: 'neutral',
-      tag: '0 Held',
-      bunksOrNeed: 'Exempt',
-      safeCount: 0,
-      needCount: 0
-    };
-  }
-
-  const pct = (attended / held) * 100;
-
-  if (pct >= 75) {
-    const safeBunks = Math.floor((4 * attended - 3 * held) / 3);
-    return {
-      pct: pct.toFixed(1),
-      pctDisplay: `${pct.toFixed(1)}%`,
-      status: 'safe',
-      tag: safeBunks > 0 ? `+${safeBunks} Bunks Safe` : '75% Guard Safe',
-      bunksOrNeed: safeBunks > 0 ? `${safeBunks} bunks safe` : 'Safe (at 75%)',
-      safeCount: safeBunks,
-      needCount: 0
-    };
-  } else {
-    const needed = Math.max(1, Math.ceil(3 * held - 4 * attended));
-    const isWarning = pct >= 70;
-    return {
-      pct: pct.toFixed(1),
-      pctDisplay: `${pct.toFixed(1)}%`,
-      status: isWarning ? 'warning' : 'danger',
-      tag: `Need ${needed} Classes`,
-      bunksOrNeed: `Attend ${needed} classes`,
-      safeCount: 0,
-      needCount: needed
-    };
-  }
+function InstagramIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+    </svg>
+  );
 }
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
-
-  // Web Portal State
-  const [showWebPortal, setShowWebPortal] = useState(false);
-  const [isWebLoggedIn, setIsWebLoggedIn] = useState(() => {
-    return localStorage.getItem('nsync_web_session') === 'active';
-  });
-  const [webRoll, setWebRoll] = useState(() => {
-    return localStorage.getItem('nsync_web_roll') || '2024UCO1500';
-  });
-
-  // Auth Inputs
-  const [rollInput, setRollInput] = useState('');
-  const [passInput, setPassInput] = useState('');
-  const [showPass, setShowPass] = useState(false);
-  const [captchaInput, setCaptchaInput] = useState('');
-  const [captchaCode, setCaptchaCode] = useState('7482');
-  const [authError, setAuthError] = useState(null);
-  const [authLoading, setAuthLoading] = useState(false);
-
-  // Web Portal Navigation & Simulator
-  const [portalTab, setPortalTab] = useState('attendance');
-  const [portalDay, setPortalDay] = useState('Mon');
-  const [bunkSim, setBunkSim] = useState({});
-
-  // 75% Custom Calculator Tool
-  const [calcHeld, setCalcHeld] = useState(40);
-  const [calcAttended, setCalcAttended] = useState(28);
-
-  const refreshCaptcha = () => {
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    setCaptchaCode(code);
-    setCaptchaInput('');
-    setAuthError(null);
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -340,90 +65,6 @@ export default function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const openPortalWithTab = (tab) => {
-    setPortalTab(tab);
-    setShowWebPortal(true);
-  };
-
-  const handleWebLogin = (e) => {
-    if (e) e.preventDefault();
-    setAuthError(null);
-    const cleanRoll = (rollInput || '2024UCO1500').trim().toUpperCase();
-    const cleanPass = passInput.trim();
-
-    if (!cleanPass) {
-      setAuthError('Please enter your IMS password to sign in.');
-      return;
-    }
-
-    if (captchaInput.trim() && captchaInput.trim() !== captchaCode) {
-      setAuthError('Invalid captcha number. Please enter the 4-digit code shown.');
-      return;
-    }
-
-    setAuthLoading(true);
-    setTimeout(() => {
-      setAuthLoading(false);
-      setWebRoll(cleanRoll);
-      setIsWebLoggedIn(true);
-      localStorage.setItem('nsync_web_session', 'active');
-      localStorage.setItem('nsync_web_roll', cleanRoll);
-    }, 500);
-  };
-
-  const handleInstantDemoLogin = () => {
-    setAuthLoading(true);
-    setAuthError(null);
-    setTimeout(() => {
-      setAuthLoading(false);
-      setWebRoll('2024UCO1500');
-      setIsWebLoggedIn(true);
-      localStorage.setItem('nsync_web_session', 'active');
-      localStorage.setItem('nsync_web_roll', '2024UCO1500');
-    }, 250);
-  };
-
-  const handleWebLogout = () => {
-    setIsWebLoggedIn(false);
-    localStorage.removeItem('nsync_web_session');
-    setRollInput('');
-    setPassInput('');
-    setCaptchaInput('');
-    setBunkSim({});
-    refreshCaptcha();
-  };
-
-  const handleSimulateChange = (courseId, deltaAttended, deltaHeld) => {
-    setBunkSim((prev) => {
-      const cur = prev[courseId] || { attended: 0, held: 0 };
-      const nextAttended = cur.attended + deltaAttended;
-      const nextHeld = cur.held + deltaHeld;
-      if (nextHeld <= 0 && nextAttended <= 0) {
-        const copy = { ...prev };
-        delete copy[courseId];
-        return copy;
-      }
-      return {
-        ...prev,
-        [courseId]: { attended: Math.max(0, nextAttended), held: Math.max(0, nextHeld) }
-      };
-    });
-  };
-
-  const resetCourseSim = (courseId) => {
-    setBunkSim((prev) => {
-      const copy = { ...prev };
-      delete copy[courseId];
-      return copy;
-    });
-  };
-
-  // Custom Calculator Results
-  const customCalcResult = calculateAttendanceMetrics(
-    Math.max(1, Number(calcHeld) || 1),
-    Math.min(Number(calcAttended) || 0, Math.max(1, Number(calcHeld) || 1))
-  );
 
   return (
     <div className="page-wrapper">
@@ -437,7 +78,7 @@ export default function App() {
           {/* Subtle Contrast Gradient Overlay for Typography Clarity */}
           <div className="hero-gradient-overlay"></div>
 
-          {/* Top Clean Header (NSync Logo, Web Portal, & Download Pill) */}
+          {/* Top Clean Header (NSync Logo, Creator Links & Download Pill) */}
           <header className={`hero-nav ${scrolled ? 'nav-scrolled' : ''}`}>
             <a href="#" className="brand-group">
               <img
@@ -451,13 +92,57 @@ export default function App() {
             </a>
 
             <div className="nav-actions">
-              <button
-                onClick={() => setShowWebPortal(true)}
-                className="nav-btn-portal"
-              >
-                <Globe size={15} />
-                <span>{isWebLoggedIn ? 'Web Portal' : 'Sign In'}</span>
-              </button>
+              {/* Creator Socials in Header */}
+              <div className="nav-social-group">
+                <a
+                  href={DEVELOPER_INFO.portfolio}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-social-icon-btn"
+                  title="Portfolio (senkuthegreat.me)"
+                  aria-label="Portfolio"
+                >
+                  <Globe size={15} />
+                </a>
+                <a
+                  href={DEVELOPER_INFO.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-social-icon-btn"
+                  title="GitHub (@senkuthegreat)"
+                  aria-label="GitHub"
+                >
+                  <GithubIcon size={15} />
+                </a>
+                <a
+                  href={DEVELOPER_INFO.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-social-icon-btn"
+                  title="LinkedIn (Rohit Dahiya)"
+                  aria-label="LinkedIn"
+                >
+                  <LinkedinIcon size={15} />
+                </a>
+                <a
+                  href={DEVELOPER_INFO.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-social-icon-btn"
+                  title="Instagram (@senkuthegreat)"
+                  aria-label="Instagram"
+                >
+                  <InstagramIcon size={15} />
+                </a>
+                <a
+                  href={DEVELOPER_INFO.email}
+                  className="nav-social-icon-btn"
+                  title="Email (rohitdahiya245@gmail.com)"
+                  aria-label="Email"
+                >
+                  <Mail size={15} />
+                </a>
+              </div>
 
               <a
                 href={LATEST_DOWNLOAD_URL}
@@ -470,7 +155,7 @@ export default function App() {
             </div>
           </header>
 
-          {/* Hero Headlines & CTA */}
+          {/* Hero Headlines & Single Prominent CTA */}
           <div className="hero-hero-content">
             <h1 className="hero-main-title">Academic Life, Seamlessly Synced.</h1>
             <p className="hero-main-subtitle">
@@ -487,62 +172,6 @@ export default function App() {
                 <span>Download for Android</span>
                 <Download size={17} />
               </a>
-
-              <button
-                onClick={() => setShowWebPortal(true)}
-                className="hero-secondary-portal-btn"
-              >
-                <Globe size={17} />
-                <span>{isWebLoggedIn ? 'Open Web Portal' : 'Web Companion Login'}</span>
-              </button>
-            </div>
-
-            {/* Quick Interactive Direct Portal Shortcuts (Clean Apple Pills - Zero Phone Clutter) */}
-            <div className="hero-portal-pills-row">
-              <button
-                type="button"
-                onClick={() => openPortalWithTab('attendance')}
-                className="hero-shortcut-pill"
-              >
-                <Percent size={14} />
-                <span>75% Attendance Guard</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openPortalWithTab('schedule')}
-                className="hero-shortcut-pill"
-              >
-                <Clock size={14} />
-                <span>Daily Timetables</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openPortalWithTab('results')}
-                className="hero-shortcut-pill"
-              >
-                <Award size={14} />
-                <span>Results & CGPA</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openPortalWithTab('calendar')}
-                className="hero-shortcut-pill"
-              >
-                <CalendarDays size={14} />
-                <span>Academic Calendar</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openPortalWithTab('admit')}
-                className="hero-shortcut-pill"
-              >
-                <Ticket size={14} />
-                <span>Admit Card & Seating</span>
-              </button>
             </div>
           </div>
         </div>
@@ -563,11 +192,11 @@ export default function App() {
               <div className="icon-badge">
                 <ShieldCheck size={24} />
               </div>
-              <h3>Persistent IMS Sessions & Web Portal</h3>
+              <h3>Persistent IMS Sessions</h3>
               <p>
                 Log in once with official credentials. Your session is safely
-                cached locally on Android and available directly in your browser
-                so you never have to re-enter passwords when refreshing data.
+                cached locally on your device so you never have to re-enter
+                passwords when refreshing attendance or schedule data.
               </p>
             </div>
 
@@ -587,7 +216,7 @@ export default function App() {
               </div>
               <h3>Daily Timetables & Google Cal</h3>
               <p>
-                View period times, rooms, and professors. Export your semester
+                View period times, rooms, and professors. Export your entire semester
                 schedule directly into Google Calendar with 1-tap reminders.
               </p>
             </div>
@@ -621,7 +250,29 @@ export default function App() {
               <h3>Admit Card & Exam Seating</h3>
               <p>
                 Instant access to verified roll number-wise hall allocations,
-                desk numbers, and official circular examination references.
+                desk numbers, and circular examination notices.
+              </p>
+            </div>
+
+            <div className="feature-box">
+              <div className="icon-badge">
+                <LayoutGrid size={24} />
+              </div>
+              <h3>Widget Studio</h3>
+              <p>
+                Add glanceable home screen widgets to your Android phone to track
+                your next lecture hall and attendance without opening the app.
+              </p>
+            </div>
+
+            <div className="feature-box">
+              <div className="icon-badge">
+                <WifiOff size={24} />
+              </div>
+              <h3>100% Offline Architecture</h3>
+              <p>
+                Full local database caching ensures your timetable and syllabus
+                are available instantly, even in basements with zero cell reception.
               </p>
             </div>
           </div>
@@ -632,7 +283,7 @@ export default function App() {
           <div className="section-title-wrap">
             <span className="section-pill">Installation</span>
             <h2>Up and running in moments.</h2>
-            <p>Ready for any Android device running Android 7.0 or newer, or access on the web.</p>
+            <p>Ready for any Android device running Android 7.0 or newer.</p>
           </div>
 
           <div className="setup-steps-row">
@@ -671,7 +322,7 @@ export default function App() {
             <h2>Experience NSync today.</h2>
             <p>
               Handcrafted exclusively for students of Netaji Subhas University of
-              Technology. Available on Android and directly in your browser.
+              Technology. Fast, offline-first, and private.
             </p>
             <div className="cta-dual-actions">
               <a
@@ -682,641 +333,111 @@ export default function App() {
                 <span>Download for Android</span>
                 <Download size={18} />
               </a>
-
-              <button
-                onClick={() => setShowWebPortal(true)}
-                className="hero-secondary-portal-btn"
-              >
-                <Globe size={18} />
-                <span>Open Web Companion</span>
-              </button>
             </div>
           </div>
         </section>
 
-        {/* Clean, Professional Footer (Zero GitHub References) */}
-        <footer className="canvas-footer">
-          <div className="footer-left">
-            <div className="brand-group">
-              <img
-                src="./assets/logo.png"
-                alt="NSync Logo"
-                className="brand-logo small"
-              />
-              <span className="brand-title">
-                N<span>Sync</span>
-              </span>
+        {/* Comprehensive Developer & Contact Showcase + Footer */}
+        <footer className="canvas-footer-area">
+          <div className="developer-contact-card">
+            <div className="dev-card-left">
+              <div className="dev-avatar-container">
+                <img
+                  src={DEVELOPER_INFO.avatar}
+                  alt={DEVELOPER_INFO.name}
+                  className="dev-avatar-img"
+                />
+                <span className="dev-active-indicator" title="Active"></span>
+              </div>
+              <div className="dev-meta-content">
+                <span className="dev-badge-tag">Developer & Architecture</span>
+                <h3 className="dev-name-title">
+                  {DEVELOPER_INFO.name} <span className="dev-handle-inline">({DEVELOPER_INFO.handle})</span>
+                </h3>
+                <p className="dev-tagline">
+                  Crafted with obsession for NSUT students. Feel free to connect, report bugs, or explore more projects.
+                </p>
+              </div>
             </div>
-            <p className="footer-disclaimer">
-              Student companion for NSUT. Not officially affiliated with
-              university administration.
-            </p>
+
+            <div className="dev-links-container">
+              <a
+                href={DEVELOPER_INFO.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn portfolio"
+              >
+                <Globe size={16} />
+                <span>Portfolio</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn github"
+              >
+                <GithubIcon size={16} />
+                <span>GitHub</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn linkedin"
+              >
+                <LinkedinIcon size={16} />
+                <span>LinkedIn</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn instagram"
+              >
+                <InstagramIcon size={16} />
+                <span>Instagram</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.email}
+                className="contact-pill-btn email"
+              >
+                <Mail size={16} />
+                <span>Email</span>
+              </a>
+            </div>
           </div>
 
-          <div className="footer-right">
-            <a href="#features">Features</a>
-            <a href="#setup">Setup</a>
-            <button
-              onClick={() => setShowWebPortal(true)}
-              className="footer-portal-link"
-            >
-              Web Companion
-            </button>
-            <a href={LATEST_DOWNLOAD_URL} download="NSync.apk">
-              Download APK
-            </a>
-          </div>
-        </footer>
-      </div>
-
-      {/* ========================================================
-          FULLSCREEN NSUT STUDENT WEB PORTAL (Apple-Grade Modal)
-          ======================================================== */}
-      {showWebPortal && (
-        <div
-          className="portal-overlay fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowWebPortal(false);
-          }}
-        >
-          <div className="portal-dialog-window">
-            {/* Modal Navigation Bar */}
-            <div className="portal-window-bar">
-              <div className="portal-window-brand">
+          <div className="canvas-footer-bottom">
+            <div className="footer-left">
+              <div className="brand-group">
                 <img
                   src="./assets/logo.png"
                   alt="NSync Logo"
                   className="brand-logo small"
                 />
                 <span className="brand-title">
-                  N<span>Sync</span> Web Companion
+                  N<span>Sync</span>
                 </span>
               </div>
-
-              <div className="portal-window-controls">
-                {isWebLoggedIn && (
-                  <button
-                    onClick={handleWebLogout}
-                    className="portal-control-btn logout"
-                    title="Log out of session"
-                  >
-                    <LogOut size={14} />
-                    <span>Sign Out</span>
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowWebPortal(false)}
-                  className="portal-close-circle"
-                  aria-label="Close portal window"
-                >
-                  <X size={16} />
-                </button>
-              </div>
+              <p className="footer-disclaimer">
+                Student companion for NSUT. Not officially affiliated with university administration.
+              </p>
             </div>
 
-            {/* Portal Body: Either Sign-In Form or Live Dashboard */}
-            {!isWebLoggedIn ? (
-              <div className="portal-auth-layout">
-                <div className="portal-auth-card">
-                  <div className="portal-auth-badge">
-                    <ShieldCheck size={14} />
-                    <span>Official NSUT IMS Access</span>
-                  </div>
-
-                  <h2>Sign in to NSUT Portal</h2>
-                  <p className="portal-auth-subtitle">
-                    Access your live course attendance, 75% bunk calculations, timetable, semester results, academic calendar, and admit card directly on the web.
-                  </p>
-
-                  {authError && (
-                    <div className="portal-auth-error">
-                      <AlertTriangle size={15} />
-                      <span>{authError}</span>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleWebLogin} className="portal-login-form">
-                    <div className="portal-field-group">
-                      <label>ROLL NUMBER / USER ID</label>
-                      <div className="portal-input-box">
-                        <User size={15} className="input-icon" />
-                        <input
-                          type="text"
-                          placeholder="e.g. 2024UCO1500"
-                          value={rollInput}
-                          onChange={(e) => setRollInput(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="portal-field-group">
-                      <label>IMS PASSWORD</label>
-                      <div className="portal-input-box">
-                        <Key size={15} className="input-icon" />
-                        <input
-                          type={showPass ? 'text' : 'password'}
-                          placeholder="Enter your IMS password"
-                          value={passInput}
-                          onChange={(e) => setPassInput(e.target.value)}
-                        />
-                        <button
-                          type="button"
-                          className="eye-toggle-btn"
-                          onClick={() => setShowPass(!showPass)}
-                        >
-                          {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="portal-field-group">
-                      <div className="captcha-label-row">
-                        <label>SECURITY CAPTCHA</label>
-                        <button
-                          type="button"
-                          className="captcha-reload-btn"
-                          onClick={refreshCaptcha}
-                        >
-                          <RefreshCw size={12} />
-                          <span>New Code</span>
-                        </button>
-                      </div>
-                      <div className="portal-captcha-input-row">
-                        <div className="captcha-display-box">
-                          <span>{captchaCode}</span>
-                        </div>
-                        <input
-                          type="text"
-                          maxLength={6}
-                          placeholder="Enter code"
-                          value={captchaInput}
-                          onChange={(e) => setCaptchaInput(e.target.value)}
-                          className="captcha-entry-input"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={authLoading}
-                      className="portal-submit-btn"
-                    >
-                      {authLoading ? (
-                        <>
-                          <RefreshCw size={16} className="spin-icon" />
-                          <span>Verifying Credentials...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Sign In to IMS</span>
-                          <ArrowRight size={16} />
-                        </>
-                      )}
-                    </button>
-                  </form>
-
-                  <div className="portal-divider-row">
-                    <span>OR PREVIEW WITHOUT LOGIN</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleInstantDemoLogin}
-                    className="portal-instant-demo-btn"
-                  >
-                    <Sparkles size={15} />
-                    <span>Instant Preview (Sample Student Dashboard)</span>
-                  </button>
-
-                  <div className="portal-privacy-footer">
-                    <ShieldCheck size={13} />
-                    <span>Privacy First: Direct encrypted session. Credentials never stored on third-party servers.</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Authenticated Web Dashboard */
-              <div className="portal-dashboard-layout">
-                {/* Dashboard Header Bar */}
-                <div className="portal-dash-hero">
-                  <div className="portal-student-identity">
-                    <div className="portal-avatar">
-                      <User size={22} color="#ffffff" />
-                    </div>
-                    <div className="portal-student-meta">
-                      <div className="portal-name-row">
-                        <h3>{webRoll}</h3>
-                        <span className="portal-status-pill">
-                          <span className="pulse-green-dot"></span>
-                          <span>IMS Synced</span>
-                        </span>
-                      </div>
-                      <p>B.Tech Electronics & Communication Engineering • Semester IV</p>
-                    </div>
-                  </div>
-
-                  <div className="portal-quick-app-promo">
-                    <Smartphone size={16} />
-                    <span>Want home screen widgets & offline mode?</span>
-                    <a
-                      href={LATEST_DOWNLOAD_URL}
-                      download="NSync.apk"
-                      className="portal-promo-btn"
-                    >
-                      Download APK
-                    </a>
-                  </div>
-                </div>
-
-                {/* KPI Metrics Row */}
-                <div className="portal-kpi-grid">
-                  <div className="portal-kpi-card">
-                    <span className="kpi-label">OVERALL ATTENDANCE</span>
-                    <div className="kpi-stat-row">
-                      <span className="kpi-number safe">78.4%</span>
-                      <span className="kpi-badge safe">Safe Criteria</span>
-                    </div>
-                    <p className="kpi-sub">Total: 142 / 181 lectures attended</p>
-                  </div>
-
-                  <div className="portal-kpi-card">
-                    <span className="kpi-label">CURRENT CGPA</span>
-                    <div className="kpi-stat-row">
-                      <span className="kpi-number" style={{ color: '#818cf8' }}>8.65</span>
-                      <span className="kpi-badge safe">SGPA 8.82</span>
-                    </div>
-                    <p className="kpi-sub">84 Credits • Top 5% in ECE</p>
-                  </div>
-
-                  <div className="portal-kpi-card">
-                    <span className="kpi-label">NEXT EXAM / CLASS</span>
-                    <div className="kpi-stat-row">
-                      <span className="kpi-class-name">Digital Circuits</span>
-                    </div>
-                    <p className="kpi-sub">May 15 • Shift 1 • Room APJ-204 (Desk 18)</p>
-                  </div>
-                </div>
-
-                {/* Dashboard Navigation Tabs */}
-                <div className="portal-tabs-nav">
-                  <button
-                    className={`portal-tab-pill ${portalTab === 'attendance' ? 'active' : ''}`}
-                    onClick={() => setPortalTab('attendance')}
-                  >
-                    <BarChart2 size={15} />
-                    <span>Attendance & Bunks</span>
-                  </button>
-
-                  <button
-                    className={`portal-tab-pill ${portalTab === 'schedule' ? 'active' : ''}`}
-                    onClick={() => setPortalTab('schedule')}
-                  >
-                    <Clock size={15} />
-                    <span>Timetable</span>
-                  </button>
-
-                  <button
-                    className={`portal-tab-pill ${portalTab === 'results' ? 'active' : ''}`}
-                    onClick={() => setPortalTab('results')}
-                  >
-                    <Award size={15} />
-                    <span>Results & CGPA</span>
-                  </button>
-
-                  <button
-                    className={`portal-tab-pill ${portalTab === 'calendar' ? 'active' : ''}`}
-                    onClick={() => setPortalTab('calendar')}
-                  >
-                    <CalendarDays size={15} />
-                    <span>Academic Cal</span>
-                  </button>
-
-                  <button
-                    className={`portal-tab-pill ${portalTab === 'admit' ? 'active' : ''}`}
-                    onClick={() => setPortalTab('admit')}
-                  >
-                    <Ticket size={15} />
-                    <span>Admit Card</span>
-                  </button>
-
-                  <button
-                    className={`portal-tab-pill ${portalTab === 'calculator' ? 'active' : ''}`}
-                    onClick={() => setPortalTab('calculator')}
-                  >
-                    <Calculator size={15} />
-                    <span>75% Calc</span>
-                  </button>
-                </div>
-
-                {/* Tab 1: Attendance & Interactive Bunk Simulator */}
-                {portalTab === 'attendance' && (
-                  <div className="portal-tab-content fade-in">
-                    <div className="portal-sim-instruction-card">
-                      <Sparkles size={16} />
-                      <p>
-                        <strong>Interactive Bunk Simulator:</strong> Test what happens if you attend or skip upcoming lectures. Tap <code>+ Attend</code> or <code>- Skip</code> on any subject below to see your projected percentage adjust live!
-                      </p>
-                    </div>
-
-                    <div className="portal-courses-grid">
-                      {COURSES.map((course) => {
-                        const sim = bunkSim[course.id] || { attended: 0, held: 0 };
-                        const curHeld = course.held + sim.held;
-                        const curAttended = course.attended + sim.attended;
-                        const m = calculateAttendanceMetrics(curHeld, curAttended);
-                        const isSimulated = sim.held > 0;
-
-                        return (
-                          <div key={course.id} className="portal-course-card">
-                            <div className="portal-course-top">
-                              <div className="portal-course-info">
-                                <span className="course-code">{course.code}</span>
-                                <h4>{course.name}</h4>
-                                <span className="course-prof">{course.prof} • {course.room}</span>
-                              </div>
-                              <div className="portal-course-pct-box">
-                                <span className={`course-pct-number ${m.status}`}>
-                                  {m.pctDisplay}
-                                </span>
-                                <span className="course-ratio-text">
-                                  {curAttended}/{curHeld} Classes
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="portal-course-mid">
-                              <span className={`status-badge-chip ${m.status}`}>
-                                {m.tag}
-                              </span>
-
-                              {isSimulated && (
-                                <span className="sim-active-chip">
-                                  Simulation: {sim.attended} attended of {sim.held} extra
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Bunk Simulator Action Row */}
-                            {course.held > 0 && (
-                              <div className="portal-sim-controls">
-                                <span className="sim-label">Simulate:</span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleSimulateChange(course.id, 1, 1)}
-                                  className="sim-action-btn attend"
-                                  title="Simulate attending next class"
-                                >
-                                  +1 Attend
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleSimulateChange(course.id, 0, 1)}
-                                  className="sim-action-btn skip"
-                                  title="Simulate bunking next class"
-                                >
-                                  -1 Skip
-                                </button>
-                                {isSimulated && (
-                                  <button
-                                    type="button"
-                                    onClick={() => resetCourseSim(course.id)}
-                                    className="sim-action-btn reset"
-                                  >
-                                    Reset
-                                  </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 2: Weekly Timetable */}
-                {portalTab === 'schedule' && (
-                  <div className="portal-tab-content fade-in">
-                    <div className="portal-day-pill-row">
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
-                        <button
-                          key={day}
-                          className={`portal-day-btn ${portalDay === day ? 'active' : ''}`}
-                          onClick={() => setPortalDay(day)}
-                        >
-                          {day}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="portal-timetable-list">
-                      {(TIMETABLE[portalDay] || []).map((slot, idx) => (
-                        <div key={idx} className={`portal-slot-row ${slot.type.toLowerCase()}`}>
-                          <div className="slot-time-col">
-                            <Clock size={14} />
-                            <span>{slot.time}</span>
-                          </div>
-
-                          <div className="slot-detail-col">
-                            <h5>{slot.title}</h5>
-                            <span className="slot-room">{slot.room}</span>
-                          </div>
-
-                          <span className={`slot-type-badge ${slot.type.toLowerCase()}`}>
-                            {slot.type}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 3: Results & CGPA */}
-                {portalTab === 'results' && (
-                  <div className="portal-tab-content fade-in">
-                    <div className="portal-results-summary-card">
-                      <div className="res-hero-left">
-                        <span className="res-badge">OFFICIAL IMS RESULT</span>
-                        <h3>{RESULTS_DATA.semester} Performance</h3>
-                        <p>{RESULTS_DATA.standing}</p>
-                      </div>
-                      <div className="res-hero-stats">
-                        <div className="stat-pill">
-                          <span className="lbl">SGPA</span>
-                          <span className="num">{RESULTS_DATA.sgpa}</span>
-                        </div>
-                        <div className="stat-pill">
-                          <span className="lbl">CGPA</span>
-                          <span className="num">{RESULTS_DATA.cgpa}</span>
-                        </div>
-                        <div className="stat-pill">
-                          <span className="lbl">Credits</span>
-                          <span className="num">{RESULTS_DATA.totalCredits}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="portal-results-table">
-                      <div className="res-table-header">
-                        <span>Course</span>
-                        <span>Credits</span>
-                        <span>Grade</span>
-                        <span>Points</span>
-                      </div>
-                      {RESULTS_DATA.courses.map((course, idx) => (
-                        <div key={idx} className="res-table-row">
-                          <div className="res-course-col">
-                            <strong>{course.code}</strong>
-                            <span>{course.name}</span>
-                          </div>
-                          <span className="res-cred">{course.credits}</span>
-                          <span className="res-grade-badge">{course.grade}</span>
-                          <span className="res-pts">{course.points} / 10</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 4: Academic Calendar */}
-                {portalTab === 'calendar' && (
-                  <div className="portal-tab-content fade-in">
-                    <div className="portal-calendar-intro">
-                      <CalendarDays size={18} />
-                      <div>
-                        <h4>Academic Year 2026-27 (Even Semester)</h4>
-                        <p>Approved dates for university examinations, breaks, and academic milestones.</p>
-                      </div>
-                    </div>
-
-                    <div className="portal-cal-events-list">
-                      {ACADEMIC_CALENDAR_DATA.map((ev, idx) => (
-                        <div key={idx} className={`portal-cal-event-card ${ev.category}`}>
-                          <div className="cal-ev-date-col">
-                            <span className="cal-ev-date">{ev.date}</span>
-                            <span className={`cal-ev-category-tag ${ev.category}`}>
-                              {ev.category.toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="cal-ev-info-col">
-                            <h5>{ev.title}</h5>
-                            <p>{ev.desc}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 5: Admit Card & Seating */}
-                {portalTab === 'admit' && (
-                  <div className="portal-tab-content fade-in">
-                    <div className="portal-admit-hero-card">
-                      <div className="admit-hero-info">
-                        <span className="admit-verified-badge">
-                          <CheckCircle size={14} />
-                          <span>{ADMIT_CARD_DATA.admitStatus}</span>
-                        </span>
-                        <h3>{ADMIT_CARD_DATA.examSession}</h3>
-                        <p>
-                          Candidate: <strong>{ADMIT_CARD_DATA.studentName}</strong> • Roll: <strong>{ADMIT_CARD_DATA.rollNumber}</strong> • {ADMIT_CARD_DATA.branch}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="portal-admit-seating-grid">
-                      {ADMIT_CARD_DATA.seatingList.map((seat, idx) => (
-                        <div key={idx} className="admit-seat-card">
-                          <div className="seat-top">
-                            <span className="seat-course-code">{seat.code}</span>
-                            <span className="seat-desk-badge">{seat.desk}</span>
-                          </div>
-                          <h4>{seat.subject}</h4>
-                          <div className="seat-meta-row">
-                            <Clock size={13} />
-                            <span>{seat.date} • {seat.shift}</span>
-                          </div>
-                          <div className="seat-loc-row">
-                            <MapPin size={13} />
-                            <span>{seat.room}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 6: Standalone 75% Criteria Calculator */}
-                {portalTab === 'calculator' && (
-                  <div className="portal-tab-content fade-in">
-                    <div className="portal-calc-card">
-                      <h3>Standalone 75% Attendance Guard</h3>
-                      <p className="calc-desc">
-                        Calculate exact attendance thresholds for any subject, lab, or custom semester total.
-                      </p>
-
-                      <div className="calc-inputs-row">
-                        <div className="calc-input-box">
-                          <label>TOTAL CLASSES HELD</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={calcHeld}
-                            onChange={(e) => setCalcHeld(Math.max(1, parseInt(e.target.value) || 1))}
-                          />
-                        </div>
-
-                        <div className="calc-input-box">
-                          <label>CLASSES ATTENDED</label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={calcAttended}
-                            onChange={(e) => setCalcAttended(Math.max(0, parseInt(e.target.value) || 0))}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="calc-output-box">
-                        <div className="calc-pct-display">
-                          <span className="label">Current Attendance</span>
-                          <span className={`val ${customCalcResult.status}`}>
-                            {customCalcResult.pctDisplay}
-                          </span>
-                        </div>
-
-                        <div className="calc-decision-card">
-                          {customCalcResult.status === 'safe' ? (
-                            <div className="decision-safe">
-                              <CheckCircle size={22} className="icon-safe" />
-                              <div className="text">
-                                <h4>You are comfortably above 75%!</h4>
-                                <p>
-                                  You can safely bunk <strong>{customCalcResult.safeCount} classes</strong> without dropping below the 75% criteria.
-                                </p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="decision-danger">
-                              <AlertTriangle size={22} className="icon-danger" />
-                              <div className="text">
-                                <h4>Attendance Shortage Alert</h4>
-                                <p>
-                                  You need to attend <strong>{customCalcResult.needCount} consecutive classes</strong> without bunking to restore your attendance to 75%.
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="footer-right">
+              <a href="#features">Features</a>
+              <a href="#setup">Setup</a>
+              <a href={LATEST_DOWNLOAD_URL} download="NSync.apk">
+                Download APK
+              </a>
+            </div>
           </div>
-        </div>
-      )}
+        </footer>
+      </div>
     </div>
   );
 }
