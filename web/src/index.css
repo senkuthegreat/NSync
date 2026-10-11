@@ -72,14 +72,14 @@ body {
 /* Hero Container with Dedicated Scenery Artwork */
 .hero-container {
   position: relative;
-  min-height: 860px;
+  min-height: 520px;
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 70px;
+  padding-bottom: 56px;
   transition: background-image 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -292,16 +292,45 @@ body {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
 }
 
-/* Flagship Mobile Device Showcase */
-.hero-device-stage {
-  position: relative;
-  z-index: 25;
-  width: 100%;
+/* Hero Direct Portal Shortcuts (Clean Apple Pills - Zero Phone Clutter) */
+.hero-portal-pills-row {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 10px;
-  margin-bottom: -70px;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 20;
+}
+
+.hero-shortcut-pill {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-shortcut-pill:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Central Flagship Smartphone Device */
@@ -773,7 +802,7 @@ body {
 
 /* Content Sections (Below Hero Frame) */
 .content-section {
-  padding: 110px 48px 50px;
+  padding: 70px 48px 50px;
 }
 
 .section-title-wrap {
@@ -2031,9 +2060,329 @@ body {
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* ==========================================================
+   PORTAL TAB: RESULTS & CGPA
+   ========================================================== */
+.portal-results-summary-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 20px;
+  padding: 22px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.res-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.res-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #6366f1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.res-hero-left h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.res-hero-left p {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.res-hero-stats {
+  display: flex;
+  gap: 14px;
+}
+
+.stat-pill {
+  background: #181820;
+  border: 1px solid #242430;
+  border-radius: 14px;
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-pill .lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.stat-pill .num {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.portal-results-table {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.res-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 12px 20px;
+  background: #16161c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #1e1e26;
+}
+
+.res-table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.84rem;
+}
+
+.res-table-row:last-child {
+  border-bottom: none;
+}
+
+.res-course-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.res-course-col strong {
+  color: #6366f1;
+  font-size: 0.72rem;
+}
+
+.res-course-col span {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.res-cred {
+  color: #a1a1aa;
+}
+
+.res-grade-badge {
+  background: #0e2a18;
+  color: #22c55e;
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.res-pts {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ==========================================================
+   PORTAL TAB: ACADEMIC CALENDAR
+   ========================================================== */
+.portal-calendar-intro {
+  background: #14141e;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #c7d2fe;
+  margin-bottom: 16px;
+}
+
+.portal-calendar-intro h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.portal-calendar-intro p {
+  font-size: 0.78rem;
+  color: #a1a1aa;
+}
+
+.portal-cal-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.portal-cal-event-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cal-ev-date-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+}
+
+.cal-ev-date {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cal-ev-category-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.cal-ev-category-tag.exam {
+  background: #2b1010;
+  color: #ef4444;
+}
+
+.cal-ev-category-tag.academic {
+  background: #1e203b;
+  color: #6366f1;
+}
+
+.cal-ev-category-tag.holiday {
+  background: #2b1d08;
+  color: #f59e0b;
+}
+
+.cal-ev-info-col {
+  flex: 1;
+}
+
+.cal-ev-info-col h5 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+
+.cal-ev-info-col p {
+  font-size: 0.78rem;
+  color: #a1a1aa;
+}
+
+/* ==========================================================
+   PORTAL TAB: ADMIT CARD & SEATING
+   ========================================================== */
+.portal-admit-hero-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.admit-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0e2a18;
+  color: #22c55e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.admit-hero-info h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.admit-hero-info p {
+  font-size: 0.82rem;
+  color: #a1a1aa;
+}
+
+.portal-admit-seating-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.admit-seat-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.seat-course-code {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #6366f1;
+}
+
+.seat-desk-badge {
+  background: #1e203b;
+  color: #818cf8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+.admit-seat-card h4 {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.seat-meta-row,
+.seat-loc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: #a1a1aa;
+}
+
+.seat-loc-row {
+  color: #22c55e;
+  font-weight: 600;
 }
 
 /* Responsive Adaptations */
