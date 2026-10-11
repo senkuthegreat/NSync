@@ -52,24 +52,30 @@ object AppUpdateManager {
         .readTimeout(25, TimeUnit.SECONDS)
         .build()
 
+    private const val DIRECT_EDGE_APK_URL = "https://nsync-app.vercel.app/downloads/NSync.apk"
+    private const val DIRECT_EDGE_VERSION_URL = "https://nsync-app.vercel.app/version.json"
+
     /**
-     * Resolves high-speed CDN and Cloudflare edge mirror candidates for GitHub release assets.
-     * Directs traffic to Cloudflare edge in Delhi/Mumbai for line-rate 5G speed,
-     * with transparent fallback to backup CDN and original GitHub URL.
+     * Resolves high-speed CDN and Cloudflare edge mirror candidates for release assets.
+     * Directs traffic to Vercel and Cloudflare edges in Delhi/Mumbai for line-rate 5G speed,
+     * with transparent fallback to backup CDN and original URL.
      */
     fun getCandidateUrls(sourceUrl: String): List<String> {
-        if (!sourceUrl.contains("github.com", ignoreCase = true)) {
-            return listOf(sourceUrl)
+        val candidates = mutableListOf<String>()
+        candidates.add(DIRECT_EDGE_APK_URL)
+        if (sourceUrl.isNotBlank() && sourceUrl != DIRECT_EDGE_APK_URL) {
+            if (sourceUrl.contains("github.com", ignoreCase = true)) {
+                candidates.add("https://gh-proxy.com/$sourceUrl")
+                candidates.add("https://ghproxy.net/$sourceUrl")
+            }
+            candidates.add(sourceUrl)
         }
-        return listOf(
-            "https://gh-proxy.com/$sourceUrl",
-            "https://ghproxy.net/$sourceUrl",
-            sourceUrl
-        )
+        return candidates
     }
 
     /**
-     * Checks if a newer version of NSync is available on GitHub Releases.
+     * Checks if a newer version of NSync is available.
+     * Prioritizes direct Vercel edge endpoint, with fallback to GitHub Releases.
      */
     suspend fun checkForUpdates(context: Context): AppUpdateInfo = withContext(Dispatchers.IO) {
         try {
@@ -79,38 +85,63 @@ object AppUpdateManager {
             var publishedAt = ""
             var apkUrl = ""
 
-            // Strategy 1: Try GitHub REST API
-            val request = Request.Builder()
-                .url(GITHUB_LATEST_RELEASE_URL)
-                .header("Accept", "application/vnd.github.v3+json")
-                .header("User-Agent", "NSync-Android-App/${BuildConfig.VERSION_NAME}")
-                .build()
+            // Strategy 1: Check high-speed direct edge version endpoint
+            try {
+                val edgeReq = Request.Builder()
+                    .url(DIRECT_EDGE_VERSION_URL)
+                    .header("Accept", "application/json")
+                    .header("User-Agent", "NSync-Android-App/${BuildConfig.VERSION_NAME}")
+                    .build()
+                val edgeResp = httpClient.newCall(edgeReq).execute()
+                if (edgeResp.isSuccessful) {
+                    val body = edgeResp.body?.string()
+                    if (!body.isNullOrBlank()) {
+                        val json = JSONObject(body)
+                        tagName = json.optString("version", "").removePrefix("v").trim()
+                        releaseTitle = json.optString("name", "Update Available")
+                        releaseNotes = json.optString("notes", releaseNotes)
+                        publishedAt = json.optString("publishedAt", "")
+                        apkUrl = json.optString("downloadUrl", DIRECT_EDGE_APK_URL)
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore edge check failure and proceed to GitHub fallback
+            }
 
-            val response = try { httpClient.newCall(request).execute() } catch (e: Exception) { null }
-            if (response != null && response.isSuccessful) {
-                val body = response.body?.string()
-                if (!body.isNullOrBlank()) {
-                    val json = JSONObject(body)
-                    tagName = json.optString("tag_name", "").removePrefix("v").trim()
-                    releaseTitle = json.optString("name", "Update Available")
-                    releaseNotes = json.optString("body", releaseNotes)
-                    publishedAt = json.optString("published_at", "")
+            // Strategy 2: Try GitHub REST API (if edge endpoint was unreachable or blank)
+            if (tagName.isBlank()) {
+                val request = Request.Builder()
+                    .url(GITHUB_LATEST_RELEASE_URL)
+                    .header("Accept", "application/vnd.github.v3+json")
+                    .header("User-Agent", "NSync-Android-App/${BuildConfig.VERSION_NAME}")
+                    .build()
 
-                    val assets = json.optJSONArray("assets")
-                    if (assets != null) {
-                        for (i in 0 until assets.length()) {
-                            val asset = assets.getJSONObject(i)
-                            val name = asset.optString("name", "")
-                            if (name.endsWith(".apk", ignoreCase = true)) {
-                                apkUrl = asset.optString("browser_download_url", "")
-                                break
+                val response = try { httpClient.newCall(request).execute() } catch (e: Exception) { null }
+                if (response != null && response.isSuccessful) {
+                    val body = response.body?.string()
+                    if (!body.isNullOrBlank()) {
+                        val json = JSONObject(body)
+                        tagName = json.optString("tag_name", "").removePrefix("v").trim()
+                        releaseTitle = json.optString("name", "Update Available")
+                        releaseNotes = json.optString("body", releaseNotes)
+                        publishedAt = json.optString("published_at", "")
+
+                        val assets = json.optJSONArray("assets")
+                        if (assets != null) {
+                            for (i in 0 until assets.length()) {
+                                val asset = assets.getJSONObject(i)
+                                val name = asset.optString("name", "")
+                                if (name.endsWith(".apk", ignoreCase = true)) {
+                                    apkUrl = asset.optString("browser_download_url", "")
+                                    break
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // Strategy 2: Fallback to GitHub Web redirect if API was rate-limited (403) or failed
+            // Strategy 3: Fallback to GitHub Web redirect if API was rate-limited (403) or failed
             if (tagName.isBlank()) {
                 val noRedirectClient = httpClient.newBuilder().followRedirects(false).build()
                 val webRequest = Request.Builder()

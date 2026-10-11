@@ -13,9 +13,8 @@ import {
   Mail
 } from 'lucide-react';
 
-// High-Speed Cloudflare Edge CDN Download (line-rate 5G speeds via Delhi & Mumbai PoPs)
-const DEFAULT_CDN_DOWNLOAD_URL = 'https://gh-proxy.com/https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk';
-const LOCAL_FALLBACK_DOWNLOAD_URL = './downloads/NSync.apk';
+// Direct edge CDN download hosted directly on the site (Zero GitHub dependence)
+const DIRECT_DOWNLOAD_URL = './downloads/NSync.apk';
 
 // Dedicated high-resolution artwork: Pink Sunset Clouds (matching reference)
 const HERO_ARTWORK = './assets/artworks/sunset-clouds.jpg';
@@ -59,37 +58,7 @@ function InstagramIcon({ size = 16, className = '' }) {
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const [releaseInfo, setReleaseInfo] = useState({
-    version: 'Latest',
-    downloadUrl: DEFAULT_CDN_DOWNLOAD_URL,
-    size: '11.4 MB'
-  });
   const contactRef = useRef(null);
-
-  // Auto-fetch latest GitHub release metadata to keep site updated automatically
-  useEffect(() => {
-    fetch('https://api.github.com/repos/senkuthegreat/NSync/releases/latest')
-      .then((res) => {
-        if (!res.ok) throw new Error('Release API unavailable');
-        return res.json();
-      })
-      .then((data) => {
-        if (data && data.tag_name) {
-          const apkAsset = data.assets?.find((a) => a.name?.endsWith('.apk'));
-          const directUrl = apkAsset?.browser_download_url || `https://github.com/senkuthegreat/NSync/releases/download/${data.tag_name}/NSync-latest.apk`;
-          const acceleratedUrl = `https://gh-proxy.com/${directUrl}`;
-          const sizeMb = apkAsset?.size ? `${(apkAsset.size / (1024 * 1024)).toFixed(1)} MB` : '11.4 MB';
-          setReleaseInfo({
-            version: data.tag_name,
-            downloadUrl: acceleratedUrl,
-            size: sizeMb
-          });
-        }
-      })
-      .catch(() => {
-        // Fallback remains active
-      });
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -254,7 +223,7 @@ export default function App() {
 
               {/* Download Pill in Header */}
               <a
-                href={releaseInfo.downloadUrl}
+                href={DIRECT_DOWNLOAD_URL}
                 download="NSync.apk"
                 className="nav-btn-pill"
               >
@@ -274,7 +243,7 @@ export default function App() {
 
             <div className="hero-cta-wrapper">
               <a
-                href={releaseInfo.downloadUrl}
+                href={DIRECT_DOWNLOAD_URL}
                 download="NSync.apk"
                 className="hero-get-started-btn"
               >
@@ -429,7 +398,7 @@ export default function App() {
             </p>
             <div className="cta-dual-actions">
               <a
-                href={releaseInfo.downloadUrl}
+                href={DIRECT_DOWNLOAD_URL}
                 download="NSync.apk"
                 className="hero-get-started-btn"
               >
@@ -534,7 +503,7 @@ export default function App() {
             <div className="footer-right">
               <a href="#features">Features</a>
               <a href="#setup">Setup</a>
-              <a href={releaseInfo.downloadUrl} download="NSync.apk">
+              <a href={DIRECT_DOWNLOAD_URL} download="NSync.apk">
                 Download APK
               </a>
             </div>
