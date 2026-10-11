@@ -1,0 +1,6 @@
+android/
+server/
+.gradle/
+.idea/
+*.apk
+*.log
