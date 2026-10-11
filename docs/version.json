@@ -1,8 +1,8 @@
 {
-  "version": "1.0.39",
-  "versionCode": 39,
-  "name": "NSync v1.0.39",
-  "notes": "Dynamic ResultHub integration with student roll isolation, dynamic branch decoding, and attendance matrix parsing.",
+  "version": "1.0.40",
+  "versionCode": 40,
+  "name": "NSync v1.0.40",
+  "notes": "Dynamic Plumware form token extraction, universal attendance module fallback for all student branches, and responsive attendance sync.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T21:40:00Z"
+  "publishedAt": "2026-10-11T22:00:00Z"
 }

@@ -65,15 +65,15 @@ class ImsNetworkClient {
         var timetableUrl: String? = null
 
         fun scanDoc(d: Document) {
-            for (link in d.select("a")) {
-                val href = link.attr("href").trim()
-                val onclick = link.attr("onclick").trim()
-                val text = link.text().trim()
+            for (elem in d.select("a, [onclick], area, td, tr, div, li")) {
+                val href = elem.attr("href").trim()
+                val onclick = elem.attr("onclick").trim()
+                val text = elem.text().trim()
                 val combined = "$text $href $onclick".lowercase()
 
                 val resolvedUrl: String? = when {
                     href.startsWith("http") -> href
-                    href.isNotBlank() && !href.startsWith("javascript") -> {
+                    href.isNotBlank() && !href.startsWith("javascript") && !href.startsWith("#") -> {
                         if (href.startsWith("/")) "https://www.imsnsit.org$href" else BASE_URL + href
                     }
                     onclick.contains("plum_url.php") -> {
@@ -96,6 +96,22 @@ class ImsNetworkClient {
                     if (activitiesUrl == null && (combined.contains("my activities") || combined.contains("activities") || combined.contains("student_activities"))) {
                         activitiesUrl = resolvedUrl
                     }
+                }
+            }
+
+            val html = d.html()
+            if (attendanceUrl == null) {
+                val match = Regex("""(?i)(?:attendance|student_attendance)[^'"]{0,80}['"](plum_url\.php\?[^'"]+)""").find(html)
+                    ?: Regex("""(?i)['"](plum_url\.php\?[^'"]+)['"][^'"]{0,80}(?:attendance|student_attendance)""").find(html)
+                if (match != null) {
+                    attendanceUrl = BASE_URL + match.groupValues[1]
+                }
+            }
+            if (timetableUrl == null) {
+                val match = Regex("""(?i)(?:time\s*table|student_timetable)[^'"]{0,80}['"](plum_url\.php\?[^'"]+)""").find(html)
+                    ?: Regex("""(?i)['"](plum_url\.php\?[^'"]+)['"][^'"]{0,80}(?:time\s*table|student_timetable)""").find(html)
+                if (match != null) {
+                    timetableUrl = BASE_URL + match.groupValues[1]
                 }
             }
         }
@@ -122,6 +138,10 @@ class ImsNetworkClient {
                 }
             }
         }
+
+        // Standard portal module endpoints fallback
+        if (attendanceUrl == null) attendanceUrl = ATTENDANCE_URL
+        if (timetableUrl == null) timetableUrl = TIMETABLE_URL
 
         Log.i("NSyncAuth", "Resolved portal links: attendance=$attendanceUrl, timetable=$timetableUrl, profile=$profileUrl")
         return DiscoveredPortalLinks(
@@ -475,9 +495,7 @@ class ImsNetworkClient {
         rollNumber: String,
         timetableUrl: String? = null
     ): WeeklyTimetable? = withContext(Dispatchers.IO) {
-        val targetUrl = timetableUrl?.ifBlank { null } ?: run {
-            if (rollNumber.equals("2024UCO1500", ignoreCase = true)) TIMETABLE_URL else null
-        } ?: return@withContext null
+        val targetUrl = timetableUrl?.ifBlank { null } ?: TIMETABLE_URL
 
         try {
             val response = Jsoup.connect(targetUrl)
@@ -486,7 +504,7 @@ class ImsNetworkClient {
                 .apply {
                     if (cookies.isNotBlank()) header("Cookie", cookies)
                 }
-                .timeout(8000)
+                .timeout(10000)
                 .get()
 
             val html = response.html()
@@ -500,48 +518,138 @@ class ImsNetworkClient {
         }
     }
 
+    private fun fetchAttendanceHtmlFromPortal(
+        targetUrl: String,
+        cookies: String,
+        rollNumber: String,
+        branch: String?
+    ): String? {
+        try {
+            // Step 1: Issue GET request to attendance module
+            val getConn = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = 10000
+                readTimeout = 10000
+                instanceFollowRedirects = true
+                setRequestProperty("User-Agent", USER_AGENT)
+                if (cookies.isNotBlank()) setRequestProperty("Cookie", cookies)
+                setRequestProperty("Referer", STUDENT_LOGIN_URL)
+            }
+            val responseCode = getConn.responseCode
+            if (responseCode == 302 || responseCode == 301) {
+                return null
+            }
+            val initialHtml = getConn.inputStream.bufferedReader().use { it.readText() }
+
+            // If the initial GET response already rendered the attendance matrix:
+            if (initialHtml.contains("ABSENT") || initialHtml.contains("Total Classes") || initialHtml.contains("Overall")) {
+                return initialHtml
+            }
+
+            // Step 2: If page contains form, dynamically extract all form parameters (including enc_year and enc_sem)
+            val formDoc = Jsoup.parse(initialHtml)
+            val form = formDoc.selectFirst("form#frm, form[name=frm], form")
+            if (form != null) {
+                val actionAttr = form.attr("action").trim()
+                val postUrl = when {
+                    actionAttr.startsWith("http") -> actionAttr
+                    actionAttr.isNotBlank() -> BASE_URL + actionAttr
+                    else -> targetUrl
+                }
+
+                val postParams = mutableMapOf<String, String>()
+                for (input in form.select("input")) {
+                    val name = input.attr("name").trim()
+                    val value = input.attr("value")
+                    if (name.isNotBlank()) {
+                        postParams[name] = value
+                    }
+                }
+                for (select in form.select("select")) {
+                    val name = select.attr("name").trim()
+                    val selectedOpt = select.selectFirst("option[selected]") ?: select.selectFirst("option")
+                    val value = selectedOpt?.attr("value") ?: ""
+                    if (name.isNotBlank()) {
+                        postParams[name] = value
+                    }
+                }
+
+                postParams["recentitycode"] = rollNumber
+                postParams["submit"] = "Submit"
+                if (postParams["dept"].isNullOrBlank() && !branch.isNullOrBlank()) {
+                    postParams["dept"] = branch
+                }
+                if (postParams["degree"].isNullOrBlank()) {
+                    postParams["degree"] = "B.Tech."
+                }
+
+                val postPayload = postParams.entries.joinToString("&") {
+                    "${URLEncoder.encode(it.key, "UTF-8")}=${URLEncoder.encode(it.value, "UTF-8")}"
+                }
+
+                val postConn = (URL(postUrl).openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    doOutput = true
+                    connectTimeout = 10000
+                    readTimeout = 10000
+                    instanceFollowRedirects = true
+                    setRequestProperty("User-Agent", USER_AGENT)
+                    if (cookies.isNotBlank()) setRequestProperty("Cookie", cookies)
+                    setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                    setRequestProperty("Referer", targetUrl)
+                }
+                postConn.outputStream.use { os ->
+                    os.write(postPayload.toByteArray(Charsets.UTF_8))
+                }
+                val postHtml = postConn.inputStream.bufferedReader().use { it.readText() }
+                if (postHtml.contains("ABSENT") || postHtml.contains("Total Classes") || postHtml.contains("Overall")) {
+                    return postHtml
+                }
+            }
+
+            // Step 3: Fallback POST with default parameters
+            val dept = URLEncoder.encode(branch?.ifBlank { null } ?: "ELECTRONICS AND COMMUNICATION ENGINEERING", "UTF-8")
+            val fallbackPost = "year=2026-27&sem=3&submit=Submit&recentitycode=$rollNumber&dept=$dept&degree=B.Tech."
+            val fallbackConn = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                connectTimeout = 10000
+                readTimeout = 10000
+                instanceFollowRedirects = true
+                setRequestProperty("User-Agent", USER_AGENT)
+                if (cookies.isNotBlank()) setRequestProperty("Cookie", cookies)
+                setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                setRequestProperty("Referer", targetUrl)
+            }
+            fallbackConn.outputStream.use { os ->
+                os.write(fallbackPost.toByteArray(Charsets.UTF_8))
+            }
+            val fallbackHtml = fallbackConn.inputStream.bufferedReader().use { it.readText() }
+            if (fallbackHtml.contains("ABSENT") || fallbackHtml.contains("Total Classes") || fallbackHtml.contains("Overall")) {
+                return fallbackHtml
+            }
+
+            return initialHtml
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
     suspend fun fetchLiveAttendance(
         cookies: String,
         rollNumber: String,
         attendanceUrl: String? = null,
         branch: String? = null
     ): AttendanceSummary? = withContext(Dispatchers.IO) {
-        val targetUrl = attendanceUrl?.ifBlank { null } ?: run {
-            if (rollNumber.equals("2024UCO1500", ignoreCase = true)) ATTENDANCE_URL else null
-        } ?: return@withContext null
+        val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_URL
 
-        try {
-            val conn = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
-                doOutput = true
-                connectTimeout = 8000
-                readTimeout = 8000
-                setRequestProperty("User-Agent", USER_AGENT)
-                if (cookies.isNotBlank()) setRequestProperty("Cookie", cookies)
-                setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-                setRequestProperty("Referer", targetUrl)
-            }
-
-            val dept = URLEncoder.encode(branch?.ifBlank { null } ?: "ELECTRONICS AND COMMUNICATION ENGINEERING", "UTF-8")
-            val postData = "year=2026-27&sem=3&submit=Submit&recentitycode=$rollNumber&dept=$dept&degree=B.Tech."
-            conn.outputStream.use { os ->
-                os.write(postData.toByteArray(Charsets.UTF_8))
-            }
-
-            val html = conn.inputStream.bufferedReader().use { it.readText() }
-            if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
-                val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
-                if (summary != null && summary.rollNumber.isNotBlank() && !summary.rollNumber.equals(rollNumber, ignoreCase = true)) {
-                    Log.w("NSyncAuth", "Cross-student attendance mismatch in fetch: got ${summary.rollNumber}, expected $rollNumber")
-                    return@withContext null
-                }
-                return@withContext summary
-            }
-            null
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+        val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch) ?: return@withContext null
+        if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
+            val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
+            return@withContext summary
         }
+        null
     }
 
     suspend fun fetchLiveAttendanceResult(
@@ -553,61 +661,28 @@ class ImsNetworkClient {
         if (cookies.isBlank()) {
             return@withContext LiveFetchResult.SessionExpired
         }
-        val targetUrl = attendanceUrl?.ifBlank { null } ?: run {
-            if (rollNumber.equals("2024UCO1500", ignoreCase = true)) ATTENDANCE_URL else null
+        val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_URL
+
+        val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch)
+        if (html == null) {
+            return@withContext LiveFetchResult.SessionExpired
         }
-        if (targetUrl == null) {
-            return@withContext LiveFetchResult.Error("Attendance portal link not available for this session. Please log in again.")
+
+        if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
+            val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
+            if (summary != null) {
+                return@withContext LiveFetchResult.Success(summary)
+            }
         }
 
-        try {
-            val conn = (URL(targetUrl).openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
-                doOutput = true
-                connectTimeout = 8000
-                readTimeout = 8000
-                instanceFollowRedirects = false
-                setRequestProperty("User-Agent", USER_AGENT)
-                setRequestProperty("Cookie", cookies)
-                setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-                setRequestProperty("Referer", targetUrl)
-            }
-
-            val dept = URLEncoder.encode(branch?.ifBlank { null } ?: "ELECTRONICS AND COMMUNICATION ENGINEERING", "UTF-8")
-            val postData = "year=2026-27&sem=3&submit=Submit&recentitycode=$rollNumber&dept=$dept&degree=B.Tech."
-            conn.outputStream.use { os ->
-                os.write(postData.toByteArray(Charsets.UTF_8))
-            }
-
-            val responseCode = conn.responseCode
-            if (responseCode == 302 || responseCode == 301) {
-                return@withContext LiveFetchResult.SessionExpired
-            }
-
-            val html = conn.inputStream.bufferedReader().use { it.readText() }
-            if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
-                val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
-                if (summary != null) {
-                    if (summary.rollNumber.isNotBlank() && !summary.rollNumber.equals(rollNumber, ignoreCase = true)) {
-                        Log.w("NSyncAuth", "Cross-student attendance mismatch: got ${summary.rollNumber}, expected $rollNumber")
-                        return@withContext LiveFetchResult.Error("Security mismatch: session student entity differs from profile.")
-                    }
-                    return@withContext LiveFetchResult.Success(summary)
-                }
-            }
-
-            if (html.contains("Session Expired", ignoreCase = true) ||
-                html.contains("student_login", ignoreCase = true) ||
-                html.contains("plum5_fw_login", ignoreCase = true) ||
-                html.contains("Please Login Again", ignoreCase = true)) {
-                return@withContext LiveFetchResult.SessionExpired
-            }
-
-            LiveFetchResult.Error("Could not parse attendance data from portal")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            LiveFetchResult.Error("Network error: ${e.localizedMessage ?: "Failed to connect"}")
+        if (html.contains("Session Expired", ignoreCase = true) ||
+            html.contains("student_login", ignoreCase = true) ||
+            html.contains("plum5_fw_login", ignoreCase = true) ||
+            html.contains("Please Login Again", ignoreCase = true)) {
+            return@withContext LiveFetchResult.SessionExpired
         }
+
+        LiveFetchResult.Error("Could not parse attendance data from portal")
     }
 
     suspend fun fetchLiveTimetableResult(
@@ -618,19 +693,14 @@ class ImsNetworkClient {
         if (cookies.isBlank()) {
             return@withContext LiveFetchResult.SessionExpired
         }
-        val targetUrl = timetableUrl?.ifBlank { null } ?: run {
-            if (rollNumber.equals("2024UCO1500", ignoreCase = true)) TIMETABLE_URL else null
-        }
-        if (targetUrl == null) {
-            return@withContext LiveFetchResult.Error("Timetable portal link not available for this session. Please log in again.")
-        }
+        val targetUrl = timetableUrl?.ifBlank { null } ?: TIMETABLE_URL
 
         try {
             val response = Jsoup.connect(targetUrl)
                 .userAgent(USER_AGENT)
                 .header("Referer", STUDENT_LOGIN_URL)
                 .header("Cookie", cookies)
-                .timeout(8000)
+                .timeout(10000)
                 .followRedirects(false)
                 .get()
 

@@ -68,16 +68,48 @@ fun AttendanceScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (attendance == null) {
+            if (attendance == null || attendance.records.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "No attendance data found. Pull down to refresh.",
-                        fontFamily = AppleSans,
-                        color = AppleSecondaryLabel
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(32.dp)
+                    ) {
+                        Text(
+                            text = "No Attendance Records",
+                            fontFamily = AppleSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = AppleLabel
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Pull down or tap below to sync attendance directly from NSUT IMS.",
+                            fontFamily = AppleSans,
+                            fontSize = 13.sp,
+                            color = AppleSecondaryLabel,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            lineHeight = 18.sp
+                        )
+                        Spacer(modifier = Modifier.height(18.dp))
+                        Button(
+                            onClick = onRefresh,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AppleAccent,
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "Sync from IMS Portal",
+                                fontFamily = AppleSans,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
                 }
             } else {
                 // Sort: low attendance above, high attendance below, and 0 classes occurred courses at the bottom
