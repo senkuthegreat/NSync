@@ -6,359 +6,455 @@ import {
   LayoutGrid,
   WifiOff,
   Sparkles,
-  ArrowRight,
+  Search,
+  Plus,
   Clock,
   MapPin,
   Calendar,
-  ScanLine,
   CheckCircle2,
-  BookOpen
+  Layers,
+  Image as ImageIcon,
+  Upload,
+  BookOpen,
+  ArrowRight,
+  TrendingUp,
+  AlertCircle
 } from 'lucide-react';
 
-// Always points directly to the latest released APK on GitHub
-const LATEST_DOWNLOAD_URL =
-  'https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk';
+// Direct package download hosted locally on the site CDN (Zero GitHub links exposed)
+const LATEST_DOWNLOAD_URL = './downloads/NSync.apk';
+
+// High-resolution candidate artworks
+const PRESET_ARTWORKS = [
+  {
+    id: 'sunset',
+    name: 'Pink Sunset Clouds',
+    desc: 'Golden hour anime clouds over mountains',
+    src: './assets/artworks/sunset-clouds.jpg'
+  },
+  {
+    id: 'ghibli',
+    name: 'Ghibli Valley (4K)',
+    desc: 'Lush green alpine hills and billowing clouds',
+    src: './assets/artworks/ghibli-valley.jpg'
+  },
+  {
+    id: 'alpine',
+    name: 'Alpine Cloud Sea',
+    desc: 'Majestic mountain peak rising through clouds',
+    src: './assets/artworks/alpine-clouds.jpg'
+  },
+  {
+    id: 'shinkai',
+    name: 'Shinkai Meadow',
+    desc: 'Vivid azure sky, cumulus clouds & meadow',
+    src: './assets/artworks/shinkai-meadow.jpg'
+  },
+  {
+    id: 'plateau',
+    name: 'Sunlit Plateau',
+    desc: 'Sunny mountain plateau and rocky slopes',
+    src: './assets/artworks/mountain-plateau.jpg'
+  }
+];
 
 export default function App() {
+  const [currentArtwork, setCurrentArtwork] = useState(PRESET_ARTWORKS[0].src);
+  const [artworkMenuOpen, setArtworkMenuOpen] = useState(false);
+  const [activeSidebarTab, setActiveSidebarTab] = useState('attendance');
   const [scrolled, setScrolled] = useState(false);
-  const [activeTab, setActiveTab] = useState('attendance');
-  const [activeDay, setActiveDay] = useState('Wed');
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const fileInputRef = useRef(null);
 
-  const phoneRef = useRef(null);
-
-  // Scroll listener for subtle header elevation
+  // Header scroll state
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 15);
+      setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 3D Parallax Tilt Handler
-  const handleMouseMove = (e) => {
-    if (!phoneRef.current) return;
-    const rect = phoneRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const tiltX = -((y - centerY) / centerY) * 10;
-    const tiltY = ((x - centerX) / centerX) * 12;
-
-    setTilt({ x: tiltX, y: tiltY });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
+  // Custom artwork uploader handler (for ChatGPT/DALL-E image uploads)
+  const handleCustomArtworkUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setCurrentArtwork(objectUrl);
+      setArtworkMenuOpen(false);
+    }
   };
 
   return (
-    <div className="app-container">
-      {/* Cinematic Ambient Lighting (Zero Grids, Pure Apple Obsidian Depth) */}
-      <div className="bg-ambient">
-        <div className="ambient-glow-center"></div>
-      </div>
+    <div className="page-wrapper">
+      {/* Outer Floating Device Window Container (Matching Reference Aesthetic) */}
+      <div className="canvas-frame">
+        {/* Artwork Quick Switcher Floating Pill */}
+        <div className="artwork-switcher-container">
+          <button
+            className="artwork-switcher-btn"
+            onClick={() => setArtworkMenuOpen(!artworkMenuOpen)}
+            title="Switch Background Artwork"
+          >
+            <ImageIcon size={15} />
+            <span>Artwork</span>
+          </button>
 
-      {/* Header (Minimal, Big Logo, Unkempt Brand, Zero Extra Links, Zero Borders) */}
-      <header className={scrolled ? 'scrolled' : ''}>
-        <div className="nav-container">
-          <a href="#" className="brand">
-            <img src="./assets/logo.png" alt="NSync Logo" className="brand-logo" />
-            <span className="brand-text">
-              N<span>Sync</span>
-            </span>
-          </a>
+          {artworkMenuOpen && (
+            <div className="artwork-dropdown-menu">
+              <div className="dropdown-header">Select High-Res Artwork</div>
+              {PRESET_ARTWORKS.map((art) => (
+                <button
+                  key={art.id}
+                  className={`artwork-option ${
+                    currentArtwork === art.src ? 'active' : ''
+                  }`}
+                  onClick={() => {
+                    setCurrentArtwork(art.src);
+                    setArtworkMenuOpen(false);
+                  }}
+                >
+                  <span className="opt-title">{art.name}</span>
+                  <span className="opt-desc">{art.desc}</span>
+                </button>
+              ))}
 
-          <a href={LATEST_DOWNLOAD_URL} className="nav-cta-btn">
-            <Download size={16} />
-            <span>Download</span>
-          </a>
-        </div>
-      </header>
+              <div className="dropdown-divider"></div>
 
-      {/* Main Content */}
-      <main>
-        {/* Hero Section */}
-        <section className="hero-section">
-          <div className="hero-grid">
-            {/* Left Column: Confident, Editorial Copy */}
-            <div className="hero-content">
-              <h1 className="hero-title">
-                Your campus.
-                <br />
-                <span className="gradient-text">In perfect sync.</span>
-              </h1>
-
-              <p className="hero-subtitle">
-                Attendance tracking with smart bunk projections, live schedules,
-                and exam hall tickets. Zero captchas, 100% offline. Designed
-                exclusively for NSUT students.
-              </p>
-
-              <div className="hero-actions">
-                <a href={LATEST_DOWNLOAD_URL} className="btn-download-primary">
-                  <Download size={19} />
-                  <span>Download for Android</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Right Column: 3D Precision Phone Mockup */}
-            <div className="phone-showcase">
-              <div
-                className="phone-wrapper"
-                ref={phoneRef}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                style={{
-                  transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                }}
+              <button
+                className="artwork-option upload-opt"
+                onClick={() => fileInputRef.current?.click()}
               >
-                <div className="phone-screen">
-                  {/* Dynamic Island */}
-                  <div className="phone-island"></div>
+                <Upload size={14} />
+                <span>Upload Custom Image (ChatGPT / DALL-E)</span>
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept="image/*"
+                onChange={handleCustomArtworkUpload}
+              />
+            </div>
+          )}
+        </div>
 
-                  <div className="screen-content">
-                    {/* Status Bar */}
-                    <div className="mock-status-bar">
-                      <span>09:41</span>
-                      <span>5G • 100%</span>
-                    </div>
+        {/* Hero Section with Immersive Artwork Background */}
+        <div
+          className="hero-container"
+          style={{ backgroundImage: `url(${currentArtwork})` }}
+        >
+          {/* Subtle Contrast Gradient Overlay for Typography Clarity */}
+          <div className="hero-gradient-overlay"></div>
 
-                    {/* App Header */}
-                    <div className="mock-header">
-                      <div className="mock-greeting">
-                        <h4>Hey, Senku 👋</h4>
-                        <p>COE • 6th Semester • NSUT</p>
-                      </div>
-                      <div className="mock-sync-badge">Synced</div>
-                    </div>
+          {/* Top Glass Navigation Bar */}
+          <header className={`hero-nav ${scrolled ? 'nav-scrolled' : ''}`}>
+            <a href="#" className="brand-group">
+              <img
+                src="./assets/logo.png"
+                alt="NSync Logo"
+                className="brand-logo"
+              />
+              <span className="brand-title">
+                N<span>Sync</span>
+              </span>
+            </a>
 
-                    {/* Screen View 1: Attendance */}
-                    {activeTab === 'attendance' && (
-                      <div className="app-screen">
-                        <div className="mock-attendance-card">
-                          <div className="circular-gauge">
-                            <svg className="gauge-svg" viewBox="0 0 100 100">
-                              <circle
-                                className="gauge-bg"
-                                cx="50"
-                                cy="50"
-                                r="40"
-                              />
-                              <circle
-                                className="gauge-progress"
-                                cx="50"
-                                cy="50"
-                                r="40"
-                                style={{ strokeDashoffset: '42' }}
-                              />
-                            </svg>
-                            <div className="gauge-text">
-                              <span className="gauge-number">83.3%</span>
-                              <span className="gauge-status">SAFE</span>
-                            </div>
-                          </div>
-                          <p className="mock-advice">
-                            You can safely skip <strong>4 lecture(s)</strong>{' '}
-                            above 75%.
-                          </p>
-                        </div>
+            <nav className="nav-links">
+              <a href="#dashboard">Dashboard</a>
+              <a href="#features">Features</a>
+              <a href="#setup">Setup</a>
+              <a href="#overview">Overview</a>
+            </nav>
 
-                        <div className="mock-subject-list">
-                          <div className="mock-subject-item">
-                            <div className="subject-header">
-                              <span>Compiler Design</span>
-                              <span style={{ color: '#a5b4fc' }}>91.2%</span>
-                            </div>
-                            <div className="progress-bar-bg">
-                              <div
-                                className="progress-bar-fill"
-                                style={{ width: '91%' }}
-                              ></div>
-                            </div>
-                          </div>
+            <div className="nav-actions">
+              <a
+                href={LATEST_DOWNLOAD_URL}
+                download="NSync.apk"
+                className="nav-btn-pill"
+              >
+                <Download size={15} />
+                <span>Download</span>
+              </a>
+            </div>
+          </header>
 
-                          <div className="mock-subject-item">
-                            <div className="subject-header">
-                              <span>Computer Networks</span>
-                              <span style={{ color: '#a5b4fc' }}>85.7%</span>
-                            </div>
-                            <div className="progress-bar-bg">
-                              <div
-                                className="progress-bar-fill"
-                                style={{ width: '85%' }}
-                              ></div>
-                            </div>
-                          </div>
+          {/* Hero Headlines & CTA */}
+          <div className="hero-hero-content">
+            <h1 className="hero-main-title">From Chaos to Clarity</h1>
+            <p className="hero-main-subtitle">
+              Manage projects and academics effortlessly. Track attendance with smart bunk
+              projections, live timetable sync, and exam hall seating.
+            </p>
 
-                          <div className="mock-subject-item">
-                            <div className="subject-header">
-                              <span>Machine Learning</span>
-                              <span style={{ color: '#f59e0b' }}>76.0%</span>
-                            </div>
-                            <div className="progress-bar-bg">
-                              <div
-                                className="progress-bar-fill"
-                                style={{ width: '76%', background: '#f59e0b' }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+            <div className="hero-cta-wrapper">
+              <a
+                href={LATEST_DOWNLOAD_URL}
+                download="NSync.apk"
+                className="hero-get-started-btn"
+              >
+                <span>Download for Android</span>
+                <Download size={17} />
+              </a>
+            </div>
+          </div>
 
-                    {/* Screen View 2: Timetable */}
-                    {activeTab === 'timetable' && (
-                      <div className="app-screen">
-                        <div className="mock-timetable-container">
-                          <div className="mock-day-pill">
-                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
-                              <div
-                                key={day}
-                                className={`day-badge ${
-                                  activeDay === day ? 'active' : ''
-                                }`}
-                                onClick={() => setActiveDay(day)}
-                              >
-                                {day}
-                              </div>
-                            ))}
-                          </div>
+          {/* Floating Application Dashboard Card (Protruding from Hero into Content) */}
+          <div id="dashboard" className="floating-dashboard-card">
+            {/* Left Sidebar */}
+            <aside className="dash-sidebar">
+              <div className="dash-sidebar-header">
+                <span className="dash-team-title">My Campus</span>
+              </div>
 
-                          <div className="timetable-card">
-                            <div className="tt-time">09:00 - 10:00 AM</div>
-                            <div className="tt-title">Cloud Computing (L)</div>
-                            <div className="tt-room">Hall: APJ-102 • Dr. Verma</div>
-                          </div>
+              <nav className="dash-nav-list">
+                <button
+                  className={`dash-nav-item ${
+                    activeSidebarTab === 'attendance' ? 'active' : ''
+                  }`}
+                  onClick={() => setActiveSidebarTab('attendance')}
+                >
+                  <Layers size={16} />
+                  <span>Dashboard</span>
+                </button>
 
-                          <div className="timetable-card">
-                            <div className="tt-time">10:00 - 11:00 AM</div>
-                            <div className="tt-title">Distributed Systems</div>
-                            <div className="tt-room">Hall: APJ-104 • Prof. Gupta</div>
-                          </div>
+                <button
+                  className={`dash-nav-item ${
+                    activeSidebarTab === 'timetable' ? 'active' : ''
+                  }`}
+                  onClick={() => setActiveSidebarTab('timetable')}
+                >
+                  <Clock size={16} />
+                  <span>Timeline</span>
+                </button>
 
-                          <div className="timetable-card">
-                            <div className="tt-time">11:15 - 01:15 PM</div>
-                            <div className="tt-title">Networks Lab (P2)</div>
-                            <div className="tt-room">Computer Centre • Lab 4</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                <button
+                  className={`dash-nav-item ${
+                    activeSidebarTab === 'exams' ? 'active' : ''
+                  }`}
+                  onClick={() => setActiveSidebarTab('exams')}
+                >
+                  <Calendar size={16} />
+                  <span>Exams & Halls</span>
+                </button>
 
-                    {/* Screen View 3: Exams */}
-                    {activeTab === 'exams' && (
-                      <div className="app-screen">
-                        <div className="mock-exam-container">
-                          <div className="exam-hall-ticket">
-                            <div className="exam-date-tag">
-                              18 NOV 2026 • 10:00 AM
-                            </div>
-                            <div className="exam-course-name">
-                              Mid-Term: Artificial Intelligence
-                            </div>
-                            <div className="exam-seating-meta">
-                              <span>Room: SPS-04</span>
-                              <span>Row: B • Desk: 14</span>
-                            </div>
-                          </div>
+                <button
+                  className={`dash-nav-item ${
+                    activeSidebarTab === 'preferences' ? 'active' : ''
+                  }`}
+                  onClick={() => setActiveSidebarTab('preferences')}
+                >
+                  <ShieldCheck size={16} />
+                  <span>IMS Portal</span>
+                </button>
+              </nav>
 
-                          <div className="exam-hall-ticket">
-                            <div className="exam-date-tag">
-                              21 NOV 2026 • 02:00 PM
-                            </div>
-                            <div className="exam-course-name">
-                              Mid-Term: Compiler Design
-                            </div>
-                            <div className="exam-seating-meta">
-                              <span>Room: APJ-201</span>
-                              <span>Row: C • Desk: 08</span>
-                            </div>
-                          </div>
+              <div className="dash-sidebar-footer">
+                <div className="offline-indicator">
+                  <span className="pulse-dot"></span>
+                  <span>Offline Ready</span>
+                </div>
+              </div>
+            </aside>
 
-                          <div className="exam-hall-ticket">
-                            <div className="exam-date-tag">
-                              24 NOV 2026 • 10:00 AM
-                            </div>
-                            <div className="exam-course-name">
-                              Mid-Term: Operating Systems
-                            </div>
-                            <div className="exam-seating-meta">
-                              <span>Room: SPS-12</span>
-                              <span>Row: A • Desk: 02</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Screen View 4: OCR */}
-                    {activeTab === 'ocr' && (
-                      <div className="app-screen">
-                        <div className="mock-ocr-container">
-                          <div className="ocr-viewport">
-                            <div className="ocr-laser-line"></div>
-                            <div className="ocr-sample-text">
-                              "DEPARTMENT OF COMPUTER ENGINEERING
-                              <br />
-                              NOTICE: MID-SEMESTER EXAM SEATING
-                              <br />
-                              ROLL NO: 2021UCO1642 &rarr; DESK 14"
-                            </div>
-                          </div>
-                          <div className="ocr-result-pill">
-                            ✓ Notice Extracted • Processed locally in 140ms
-                          </div>
-                        </div>
-                      </div>
-                    )}
+            {/* Main Board Content */}
+            <main className="dash-main-board">
+              {/* Board Header */}
+              <div className="board-header">
+                <div className="board-title-group">
+                  <h3>Academic Overview</h3>
+                  <div className="board-avatar-stack">
+                    <span className="avatar-chip">COE</span>
+                    <span className="avatar-chip accent">6th Sem</span>
+                    <span className="avatar-count">NSUT</span>
                   </div>
+                </div>
+
+                <div className="board-search-group">
+                  <div className="board-search-bar">
+                    <Search size={15} />
+                    <input
+                      type="text"
+                      placeholder="Search subject, hall..."
+                      readOnly
+                      value="COE-601 Compiler Design"
+                    />
+                  </div>
+                  <button className="board-add-btn" title="Add quick task">
+                    <Plus size={16} />
+                  </button>
                 </div>
               </div>
 
-              {/* Segmented Control Tabs */}
-              <div className="phone-tabs">
-                {[
-                  { id: 'attendance', label: 'Attendance' },
-                  { id: 'timetable', label: 'Timetable' },
-                  { id: 'exams', label: 'Exams' },
-                  { id: 'ocr', label: 'OCR Scanner' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+              {/* 3 Pastel Overview Columns (Matching Reference Card Style) */}
+              <div className="board-columns-grid">
+                {/* Column 1: Attendance Projections (Pastel Rose Tint) */}
+                <div className="board-col col-rose">
+                  <div className="col-header">
+                    <span className="col-title">Attendance</span>
+                    <span className="col-count">5 Subjects</span>
+                  </div>
 
-        {/* Features Bento Grid (Apple-Grade Cleanliness) */}
-        <section className="features-section">
-          <div className="section-header">
-            <span className="section-tag">Features</span>
-            <h2 className="section-title">
-              Intelligent by design.
-            </h2>
-            <p className="section-subtitle">
-              Every interaction is engineered to remove friction from your
-              academic routine.
+                  <div className="board-card rose-card">
+                    <div className="card-top-row">
+                      <span className="card-item-title">Overall Status</span>
+                      <span className="badge-safe">83.3% SAFE</span>
+                    </div>
+
+                    <div className="circular-gauge-container">
+                      <svg className="gauge-svg" viewBox="0 0 100 100">
+                        <circle className="gauge-bg" cx="50" cy="50" r="40" />
+                        <circle
+                          className="gauge-progress"
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          style={{ strokeDashoffset: '42' }}
+                        />
+                      </svg>
+                      <div className="gauge-inner">
+                        <span className="gauge-pct">83.3%</span>
+                        <span className="gauge-sub">Required: 75%</span>
+                      </div>
+                    </div>
+
+                    <p className="bunk-advice">
+                      You can safely skip <strong>4 lecture(s)</strong> above
+                      the 75% threshold.
+                    </p>
+
+                    <div className="sub-breakdown-list">
+                      <div className="sub-row">
+                        <span>Compiler Design</span>
+                        <span className="sub-pct">91.2%</span>
+                      </div>
+                      <div className="sub-row">
+                        <span>Computer Networks</span>
+                        <span className="sub-pct">85.7%</span>
+                      </div>
+                      <div className="sub-row warning">
+                        <span>Machine Learning</span>
+                        <span className="sub-pct">76.0%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 2: Today's Schedule (Pastel Amber/Sand Tint) */}
+                <div className="board-col col-amber">
+                  <div className="col-header">
+                    <span className="col-title">Today's Schedule</span>
+                    <span className="col-count">Wed • 3 Classes</span>
+                  </div>
+
+                  <div className="board-card amber-card">
+                    <div className="schedule-entry">
+                      <div className="entry-time">
+                        <Clock size={13} />
+                        <span>09:00 - 10:00 AM</span>
+                      </div>
+                      <div className="entry-title">Cloud Computing (L)</div>
+                      <div className="entry-meta">
+                        <MapPin size={12} />
+                        <span>Hall: APJ-102 • Dr. Verma</span>
+                      </div>
+                    </div>
+
+                    <div className="entry-divider"></div>
+
+                    <div className="schedule-entry">
+                      <div className="entry-time">
+                        <Clock size={13} />
+                        <span>10:00 - 11:00 AM</span>
+                      </div>
+                      <div className="entry-title">Distributed Systems</div>
+                      <div className="entry-meta">
+                        <MapPin size={12} />
+                        <span>Hall: APJ-104 • Prof. Gupta</span>
+                      </div>
+                    </div>
+
+                    <div className="entry-divider"></div>
+
+                    <div className="schedule-entry">
+                      <div className="entry-time">
+                        <Clock size={13} />
+                        <span>11:15 - 01:15 PM</span>
+                      </div>
+                      <div className="entry-title">Networks Lab (P2)</div>
+                      <div className="entry-meta">
+                        <MapPin size={12} />
+                        <span>Computer Centre • Lab 4</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 3: Exams & Hall Tickets (Pastel Sky/Mint Tint) */}
+                <div className="board-col col-sky">
+                  <div className="col-header">
+                    <span className="col-title">Exam Seating</span>
+                    <span className="col-count">3 Upcoming</span>
+                  </div>
+
+                  <div className="board-card sky-card">
+                    <div className="exam-ticket">
+                      <div className="ticket-date">18 NOV 2026 • 10:00 AM</div>
+                      <div className="ticket-subject">
+                        Mid-Term: Artificial Intelligence
+                      </div>
+                      <div className="ticket-seating">
+                        <span>Room: SPS-04</span>
+                        <span>Row: B • Desk: 14</span>
+                      </div>
+                    </div>
+
+                    <div className="entry-divider"></div>
+
+                    <div className="exam-ticket">
+                      <div className="ticket-date">21 NOV 2026 • 02:00 PM</div>
+                      <div className="ticket-subject">
+                        Mid-Term: Compiler Design
+                      </div>
+                      <div className="ticket-seating">
+                        <span>Room: APJ-201</span>
+                        <span>Row: C • Desk: 08</span>
+                      </div>
+                    </div>
+
+                    <div className="entry-divider"></div>
+
+                    <div className="exam-ticket">
+                      <div className="ticket-date">24 NOV 2026 • 10:00 AM</div>
+                      <div className="ticket-subject">
+                        Mid-Term: Operating Systems
+                      </div>
+                      <div className="ticket-seating">
+                        <span>Room: SPS-12</span>
+                        <span>Row: A • Desk: 02</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+
+        {/* Section 2: Features Bento Grid (Clean Light SaaS Palette) */}
+        <section id="features" className="content-section features-area">
+          <div className="section-title-wrap">
+            <span className="section-pill">Intelligence & Design</span>
+            <h2>Engineered to eliminate friction.</h2>
+            <p>
+              Everything you need to navigate your college lifecycle with zero
+              stress and zero captcha friction.
             </p>
           </div>
 
-          <div className="bento-grid">
-            <div className="bento-card wide">
-              <div className="card-icon-box">
-                <ShieldCheck size={26} />
+          <div className="features-grid">
+            <div className="feature-box wide">
+              <div className="icon-badge">
+                <ShieldCheck size={24} />
               </div>
               <h3>Persistent IMS Sessions</h3>
               <p>
@@ -368,9 +464,9 @@ export default function App() {
               </p>
             </div>
 
-            <div className="bento-card">
-              <div className="card-icon-box">
-                <Percent size={26} />
+            <div className="feature-box">
+              <div className="icon-badge">
+                <Percent size={24} />
               </div>
               <h3>Smart 75% Projections</h3>
               <p>
@@ -379,143 +475,128 @@ export default function App() {
               </p>
             </div>
 
-            <div className="bento-card">
-              <div className="card-icon-box">
-                <LayoutGrid size={26} />
+            <div className="feature-box">
+              <div className="icon-badge">
+                <LayoutGrid size={24} />
               </div>
               <h3>Glance Widgets</h3>
               <p>
                 Check your next lecture hall and live attendance directly from
-                your Android home screen without even launching the app.
+                your Android home screen without opening the app.
               </p>
             </div>
 
-            <div className="bento-card">
-              <div className="card-icon-box">
-                <WifiOff size={26} />
+            <div className="feature-box">
+              <div className="icon-badge">
+                <WifiOff size={24} />
               </div>
-              <h3>Offline Architecture</h3>
+              <h3>100% Offline Architecture</h3>
               <p>
                 Full local database caching ensures your timetable and syllabus
-                are available instantly, even in basements with zero cellular
-                signal.
+                are available instantly, even in basements with zero cell reception.
               </p>
             </div>
 
-            <div className="bento-card">
-              <div className="card-icon-box">
-                <Sparkles size={26} />
+            <div className="feature-box">
+              <div className="icon-badge">
+                <Sparkles size={24} />
               </div>
-              <h3>Seamless Updates</h3>
+              <h3>Direct Fast Updates</h3>
               <p>
-                Direct OTA updates notify you whenever a release is published
-                and install upgrades with a single tap.
+                One-tap fast downloads ensure you always stay in sync with the
+                latest verified university timetable changes.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Install Guide Section */}
-        <section className="guide-section">
-          <div className="section-header">
-            <span className="section-tag">Setup</span>
-            <h2 className="section-title">Up and running in moments.</h2>
-            <p className="section-subtitle">
-              Free, open source, and ready for any Android device running Android
-              7.0 or newer.
-            </p>
+        {/* Section 3: Setup Guide */}
+        <section id="setup" className="content-section setup-area">
+          <div className="section-title-wrap">
+            <span className="section-pill">Installation</span>
+            <h2>Up and running in moments.</h2>
+            <p>Ready for any Android device running Android 7.0 or newer.</p>
           </div>
 
-          <div className="guide-steps">
-            <div className="step-card">
-              <div className="step-num">01</div>
-              <h4>Download</h4>
+          <div className="setup-steps-row">
+            <div className="setup-step-card">
+              <div className="step-badge">01</div>
+              <h4>Download Package</h4>
               <p>
-                Download the official signed <code>NSync-latest.apk</code> directly
-                from GitHub Releases.
+                Download the official <code>NSync.apk</code> package directly
+                from this website with one tap.
               </p>
             </div>
 
-            <div className="step-card">
-              <div className="step-num">02</div>
-              <h4>Install</h4>
+            <div className="setup-step-card">
+              <div className="step-badge">02</div>
+              <h4>Approve Installation</h4>
               <p>
-                Allow installation from your browser when prompted. 100%
-                open-source with zero trackers.
+                Open the file and allow install when prompted. Zero ads, zero
+                third-party trackers.
               </p>
             </div>
 
-            <div className="step-card">
-              <div className="step-num">03</div>
-              <h4>Sync</h4>
+            <div className="setup-step-card">
+              <div className="step-badge">03</div>
+              <h4>Instant Sync</h4>
               <p>
-                Authenticate once with your IMS portal credentials. Your timetable
-                and attendance sync instantly.
+                Sign in once with your IMS credentials. Your attendance and
+                timetable sync automatically.
               </p>
             </div>
           </div>
         </section>
 
-        {/* CTA Banner Section */}
-        <section className="cta-banner-section">
-          <div className="cta-banner">
-            <h2>Experience NSync.</h2>
+        {/* Section 4: Final Download Banner */}
+        <section className="cta-banner-wrapper">
+          <div className="cta-banner-card">
+            <h2>Experience NSync today.</h2>
             <p>
-              Built specifically for students of Netaji Subhas University of
+              Handcrafted exclusively for students of Netaji Subhas University of
               Technology.
             </p>
-            <a href={LATEST_DOWNLOAD_URL} className="btn-download-primary" style={{ margin: '0 auto' }}>
-              <Download size={19} />
+            <a
+              href={LATEST_DOWNLOAD_URL}
+              download="NSync.apk"
+              className="hero-get-started-btn"
+              style={{ margin: '0 auto' }}
+            >
               <span>Download for Android</span>
+              <Download size={18} />
             </a>
           </div>
         </section>
-      </main>
 
-      {/* Footer */}
-      <footer>
-        <div className="footer-content">
-          <div className="footer-credits">
-            <p>
-              <strong>NSync</strong> — Handcrafted for NSUT.
-            </p>
-            <p style={{ fontSize: '0.8rem', marginTop: '4px', color: '#636366' }}>
-              Open-source student companion. Not officially affiliated with
+        {/* Clean, Professional Footer (Zero GitHub References) */}
+        <footer className="canvas-footer">
+          <div className="footer-left">
+            <div className="brand-group">
+              <img
+                src="./assets/logo.png"
+                alt="NSync Logo"
+                className="brand-logo small"
+              />
+              <span className="brand-title">
+                N<span>Sync</span>
+              </span>
+            </div>
+            <p className="footer-disclaimer">
+              Student companion for NSUT. Not officially affiliated with
               university administration.
             </p>
           </div>
 
-          <ul className="footer-links">
-            <li>
-              <a
-                href="https://github.com/senkuthegreat/NSync"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/senkuthegreat/NSync/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Releases
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/senkuthegreat/NSync/issues"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Feedback
-              </a>
-            </li>
-          </ul>
-        </div>
-      </footer>
+          <div className="footer-right">
+            <a href="#dashboard">Dashboard</a>
+            <a href="#features">Features</a>
+            <a href="#setup">Setup</a>
+            <a href={LATEST_DOWNLOAD_URL} download="NSync.apk">
+              Download APK
+            </a>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
