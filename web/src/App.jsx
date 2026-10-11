@@ -94,7 +94,7 @@ export default function App() {
         <div className="bg-grid-overlay"></div>
       </div>
 
-      {/* Header (Minimal, Big Logo, Unkempt Font, Zero Nav Links, Zero Borders) */}
+      {/* Header (Minimal, Big 64px Logo, Unkempt Font, Zero Nav Links, Zero Borders) */}
       <header className={scrolled ? 'scrolled' : ''}>
         <div className="nav-container">
           <a href="#" className="brand">
@@ -231,7 +231,7 @@ export default function App() {
                               <span className="gauge-status">SAFE</span>
                             </div>
                           </div>
-                          <p style={{ fontSize: '11px', color: '#94a3b8' }}>
+                          <p style={{ fontSize: '11px', color: '#8e8e93' }}>
                             You can safely skip <strong>4 lecture(s)</strong>{' '}
                             above 75%.
                           </p>
@@ -241,7 +241,7 @@ export default function App() {
                           <div className="mock-subject-item">
                             <div className="subject-header">
                               <span>Compiler Design</span>
-                              <span style={{ color: '#38bdf8' }}>91.2%</span>
+                              <span style={{ color: '#a5b4fc' }}>91.2%</span>
                             </div>
                             <div className="progress-bar-bg">
                               <div
@@ -254,7 +254,7 @@ export default function App() {
                           <div className="mock-subject-item">
                             <div className="subject-header">
                               <span>Computer Networks</span>
-                              <span style={{ color: '#38bdf8' }}>85.7%</span>
+                              <span style={{ color: '#a5b4fc' }}>85.7%</span>
                             </div>
                             <div className="progress-bar-bg">
                               <div
@@ -267,12 +267,12 @@ export default function App() {
                           <div className="mock-subject-item">
                             <div className="subject-header">
                               <span>Machine Learning</span>
-                              <span style={{ color: '#fbbf24' }}>76.0%</span>
+                              <span style={{ color: '#f59e0b' }}>76.0%</span>
                             </div>
                             <div className="progress-bar-bg">
                               <div
                                 className="progress-bar-fill"
-                                style={{ width: '76%', background: '#fbbf24' }}
+                                style={{ width: '76%', background: '#f59e0b' }}
                               ></div>
                             </div>
                           </div>
@@ -292,7 +292,6 @@ export default function App() {
                                   activeDay === day ? 'active' : ''
                                 }`}
                                 onClick={() => setActiveDay(day)}
-                                style={{ cursor: 'pointer' }}
                               >
                                 {day}
                               </div>
