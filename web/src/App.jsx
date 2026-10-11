@@ -100,7 +100,7 @@ export default function App() {
           {/* Subtle Contrast Gradient Overlay for Typography Clarity */}
           <div className="hero-gradient-overlay"></div>
 
-          {/* Top Clean Header: Logo on Left, Single "Contact" Pill Button on Right */}
+          {/* Top Clean Header: Logo on Left, Contact Pill + Download Pill on Right */}
           <header className={`hero-nav ${scrolled ? 'nav-scrolled' : ''}`}>
             <a href="#" className="brand-group">
               <img
@@ -220,6 +220,16 @@ export default function App() {
                   </div>
                 )}
               </div>
+
+              {/* Download Pill in Header */}
+              <a
+                href={LATEST_DOWNLOAD_URL}
+                download="NSync.apk"
+                className="nav-btn-pill"
+              >
+                <Download size={15} />
+                <span>Download</span>
+              </a>
             </div>
           </header>
 
@@ -405,30 +415,104 @@ export default function App() {
           </div>
         </section>
 
-        {/* Clean, Professional Footer */}
-        <footer className="canvas-footer">
-          <div className="footer-left">
-            <div className="brand-group">
-              <img
-                src="./assets/logo.png"
-                alt="NSync Logo"
-                className="brand-logo small"
-              />
-              <span className="brand-title">
-                N<span>Sync</span>
-              </span>
+        {/* Comprehensive Developer & Contact Showcase + Footer */}
+        <footer className="canvas-footer-area">
+          <div className="developer-contact-card">
+            <div className="dev-card-left">
+              <div className="dev-avatar-container">
+                <img
+                  src={DEVELOPER_INFO.avatar}
+                  alt={DEVELOPER_INFO.name}
+                  className="dev-avatar-img"
+                />
+                <span className="dev-active-indicator" title="Active"></span>
+              </div>
+              <div className="dev-meta-content">
+                <span className="dev-badge-tag">Developer & Architecture</span>
+                <h3 className="dev-name-title">
+                  {DEVELOPER_INFO.name} <span className="dev-handle-inline">({DEVELOPER_INFO.handle})</span>
+                </h3>
+                <p className="dev-tagline">
+                  Crafted with obsession for NSUT students. Feel free to connect, report bugs, or explore more projects.
+                </p>
+              </div>
             </div>
-            <p className="footer-disclaimer">
-              Student companion for NSUT. Not officially affiliated with university administration.
-            </p>
+
+            <div className="dev-links-container">
+              <a
+                href={DEVELOPER_INFO.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn portfolio"
+              >
+                <Globe size={16} />
+                <span>Portfolio</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn github"
+              >
+                <GithubIcon size={16} />
+                <span>GitHub</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn linkedin"
+              >
+                <LinkedinIcon size={16} />
+                <span>LinkedIn</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-pill-btn instagram"
+              >
+                <InstagramIcon size={16} />
+                <span>Instagram</span>
+              </a>
+
+              <a
+                href={DEVELOPER_INFO.email}
+                className="contact-pill-btn email"
+              >
+                <Mail size={16} />
+                <span>Email</span>
+              </a>
+            </div>
           </div>
 
-          <div className="footer-right">
-            <a href="#features">Features</a>
-            <a href="#setup">Setup</a>
-            <a href={LATEST_DOWNLOAD_URL} download="NSync.apk">
-              Download APK
-            </a>
+          <div className="canvas-footer-bottom">
+            <div className="footer-left">
+              <div className="brand-group">
+                <img
+                  src="./assets/logo.png"
+                  alt="NSync Logo"
+                  className="brand-logo small"
+                />
+                <span className="brand-title">
+                  N<span>Sync</span>
+                </span>
+              </div>
+              <p className="footer-disclaimer">
+                Student companion for NSUT. Not officially affiliated with university administration.
+              </p>
+            </div>
+
+            <div className="footer-right">
+              <a href="#features">Features</a>
+              <a href="#setup">Setup</a>
+              <a href={LATEST_DOWNLOAD_URL} download="NSync.apk">
+                Download APK
+              </a>
+            </div>
           </div>
         </footer>
       </div>
