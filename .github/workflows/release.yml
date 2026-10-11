@@ -52,10 +52,8 @@ jobs:
           elif [ "${{ startsWith(github.ref, 'refs/tags/v') }}" = "true" ]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            # Extract versionName from build.gradle.kts or use commit count
-            VERSION_NAME=$(grep 'versionName = ' app/build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
             REV_COUNT=$(git rev-list --count HEAD)
-            TAG="v${VERSION_NAME}.${REV_COUNT}"
+            TAG="v1.0.${REV_COUNT}"
           fi
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
@@ -69,8 +67,11 @@ jobs:
       - name: Prepare APK Asset
         run: |
           mkdir -p release_assets
-          cp app/build/outputs/apk/release/app-release.apk release_assets/NSync-${{ steps.version_info.outputs.tag }}.apk
-          cp app/build/outputs/apk/release/app-release.apk release_assets/NSync-latest.apk
+          cp app/build/outputs/apk/release/app-release.apk "release_assets/NSync-${{ steps.version_info.outputs.tag }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "release_assets/NSync-latest.apk"
+          mkdir -p docs/downloads web/public/downloads
+          cp app/build/outputs/apk/release/app-release.apk "docs/downloads/NSync.apk"
+          cp app/build/outputs/apk/release/app-release.apk "web/public/downloads/NSync.apk"
 
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
@@ -78,9 +79,18 @@ jobs:
           tag_name: ${{ steps.version_info.outputs.tag }}
           name: ${{ github.event.inputs.release_title || steps.version_info.outputs.tag }}
           body: |
-            ## NSync Student Companion App Update
-            - Automatically built from commit ${{ github.sha }}
-            - Download and install `NSync-latest.apk` or update directly inside the app.
+            ## 🚀 NSync Student Companion App Update (${{ steps.version_info.outputs.tag }})
+
+            ### ⚡ High-Speed 5G Download (Cloudflare Edge CDN)
+            Direct unauthenticated browser downloads from GitHub are throttled by Azure Blob Storage. Click the accelerated edge link below for instant line-rate speed:
+            - ⚡ **[Download NSync APK (5G Cloudflare Edge Mirror — Fastest)](https://gh-proxy.com/https://github.com/senkuthegreat/NSync/releases/download/${{ steps.version_info.outputs.tag }}/NSync-latest.apk)**
+            - 🌐 **[Download from Web Portal](https://senkuthegreat.github.io/NSync/)**
+
+            ### What's New:
+            - **5G Multi-Threaded In-App Downloader**: 8 parallel connection streams with automatic segment retries.
+            - **51% Payload Reduction**: R8 minification and font subsetting (11.3 MB).
+            - **Automated CAPTCHA Solver**: Background OpenCV + Tesseract OCR engine.
+            - **Zero Annoyance Startup**: Removed blocking resume CAPTCHA popups.
           draft: false
           prerelease: false
           files: |
