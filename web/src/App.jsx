@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
-  Star,
-  ExternalLink,
   ShieldCheck,
   Percent,
   LayoutGrid,
@@ -14,54 +12,28 @@ import {
   Calendar,
   ScanLine,
   CheckCircle2,
-  Terminal,
-  Zap,
   BookOpen
 } from 'lucide-react';
+
+// Always points directly to the latest released APK on GitHub
+const LATEST_DOWNLOAD_URL =
+  'https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk';
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState('attendance');
   const [activeDay, setActiveDay] = useState('Wed');
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [release, setRelease] = useState({
-    tag: 'v1.0.10',
-    size: '31.4 MB',
-    url: 'https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk',
-  });
 
   const phoneRef = useRef(null);
 
-  // Scroll listener for header elevation
+  // Scroll listener for subtle header elevation
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Fetch real-time release info from GitHub API
-  useEffect(() => {
-    fetch('https://api.github.com/repos/senkuthegreat/NSync/releases/latest')
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data) => {
-        const apkAsset = data.assets?.find(
-          (a) => a.name.endsWith('.apk') && a.name.includes('latest')
-        ) || data.assets?.find((a) => a.name.endsWith('.apk'));
-
-        if (apkAsset) {
-          const mbSize = (apkAsset.size / (1024 * 1024)).toFixed(1);
-          setRelease({
-            tag: data.tag_name || 'v1.0.10',
-            size: `${mbSize} MB`,
-            url: apkAsset.browser_download_url,
-          });
-        }
-      })
-      .catch(() => {
-        // Fallback already pre-set
-      });
   }, []);
 
   // 3D Parallax Tilt Handler
@@ -74,8 +46,8 @@ export default function App() {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const tiltX = -((y - centerY) / centerY) * 12; // deg
-    const tiltY = ((x - centerX) / centerX) * 14; // deg
+    const tiltX = -((y - centerY) / centerY) * 10;
+    const tiltY = ((x - centerX) / centerX) * 12;
 
     setTilt({ x: tiltX, y: tiltY });
   };
@@ -86,15 +58,12 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Ambient Lighting Background */}
+      {/* Cinematic Ambient Lighting (Zero Grids, Pure Apple Obsidian Depth) */}
       <div className="bg-ambient">
-        <div className="ambient-glow-1"></div>
-        <div className="ambient-glow-2"></div>
-        <div className="ambient-glow-3"></div>
-        <div className="bg-grid-overlay"></div>
+        <div className="ambient-glow-center"></div>
       </div>
 
-      {/* Header (Minimal, Big 64px Logo, Unkempt Font, Zero Nav Links, Zero Borders) */}
+      {/* Header (Minimal, Big Logo, Unkempt Brand, Zero Extra Links, Zero Borders) */}
       <header className={scrolled ? 'scrolled' : ''}>
         <div className="nav-container">
           <a href="#" className="brand">
@@ -104,9 +73,9 @@ export default function App() {
             </span>
           </a>
 
-          <a href={release.url} className="nav-cta-btn">
-            <Download size={18} />
-            <span>Download APK</span>
+          <a href={LATEST_DOWNLOAD_URL} className="nav-cta-btn">
+            <Download size={16} />
+            <span>Download</span>
           </a>
         </div>
       </header>
@@ -116,67 +85,30 @@ export default function App() {
         {/* Hero Section */}
         <section className="hero-section">
           <div className="hero-grid">
-            {/* Left Column: Hero Copy & CTA */}
+            {/* Left Column: Confident, Editorial Copy */}
             <div className="hero-content">
-              <div className="version-pill">
-                <span className="pulsing-dot"></span>
-                <span>
-                  Version {release.tag} is Live • NSUT Student Companion
-                </span>
-              </div>
-
               <h1 className="hero-title">
-                Academic Life,
+                Your campus.
                 <br />
-                <span className="gradient-text">Seamlessly Synced.</span>
+                <span className="gradient-text">In perfect sync.</span>
               </h1>
 
               <p className="hero-subtitle">
-                The companion app NSUT students always wanted. Instant attendance
-                tracking with 75% target projection, live daily timetables, exam
-                hall details, and zero captcha friction.
+                Attendance tracking with smart bunk projections, live schedules,
+                and exam hall tickets. Zero captchas, 100% offline. Designed
+                exclusively for NSUT students.
               </p>
 
               <div className="hero-actions">
-                <a href={release.url} className="btn-download-primary">
-                  <div className="btn-inner">
-                    <Download size={22} />
-                    <span>Download APK ({release.tag})</span>
-                  </div>
-                  <span className="btn-meta">
-                    Android 7.0+ • ~{release.size} • Free & Open Source
-                  </span>
+                <a href={LATEST_DOWNLOAD_URL} className="btn-download-primary">
+                  <Download size={19} />
+                  <span>Download for Android</span>
                 </a>
-
-                <a
-                  href="https://github.com/senkuthegreat/NSync"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary"
-                >
-                  <Star size={18} />
-                  <span>Star on GitHub</span>
-                </a>
-              </div>
-
-              <div className="hero-stats">
-                <div className="stat-item">
-                  <span className="stat-val">100%</span>
-                  <span className="stat-label">Offline Accessible</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-val">0</span>
-                  <span className="stat-label">Captcha Logins Needed</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-val">&lt; 1s</span>
-                  <span className="stat-label">Instant Cold Start</span>
-                </div>
               </div>
             </div>
 
-            {/* Right Column: 3D Interactive Phone Mockup */}
-            <div className="phone-showcase" id="mockup">
+            {/* Right Column: 3D Precision Phone Mockup */}
+            <div className="phone-showcase">
               <div
                 className="phone-wrapper"
                 ref={phoneRef}
@@ -187,17 +119,17 @@ export default function App() {
                 }}
               >
                 <div className="phone-screen">
-                  {/* Punch Hole Island */}
+                  {/* Dynamic Island */}
                   <div className="phone-island"></div>
 
                   <div className="screen-content">
-                    {/* Phone Status Bar */}
+                    {/* Status Bar */}
                     <div className="mock-status-bar">
                       <span>09:41</span>
                       <span>5G • 100%</span>
                     </div>
 
-                    {/* App Header Inside Phone */}
+                    {/* App Header */}
                     <div className="mock-header">
                       <div className="mock-greeting">
                         <h4>Hey, Senku 👋</h4>
@@ -206,7 +138,7 @@ export default function App() {
                       <div className="mock-sync-badge">Synced</div>
                     </div>
 
-                    {/* Tab 1: Attendance */}
+                    {/* Screen View 1: Attendance */}
                     {activeTab === 'attendance' && (
                       <div className="app-screen">
                         <div className="mock-attendance-card">
@@ -231,7 +163,7 @@ export default function App() {
                               <span className="gauge-status">SAFE</span>
                             </div>
                           </div>
-                          <p style={{ fontSize: '11px', color: '#8e8e93' }}>
+                          <p className="mock-advice">
                             You can safely skip <strong>4 lecture(s)</strong>{' '}
                             above 75%.
                           </p>
@@ -280,7 +212,7 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Tab 2: Timetable */}
+                    {/* Screen View 2: Timetable */}
                     {activeTab === 'timetable' && (
                       <div className="app-screen">
                         <div className="mock-timetable-container">
@@ -319,7 +251,7 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Tab 3: Exams */}
+                    {/* Screen View 3: Exams */}
                     {activeTab === 'exams' && (
                       <div className="app-screen">
                         <div className="mock-exam-container">
@@ -365,7 +297,7 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Tab 4: OCR */}
+                    {/* Screen View 4: OCR */}
                     {activeTab === 'ocr' && (
                       <div className="app-screen">
                         <div className="mock-ocr-container">
@@ -389,12 +321,12 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Tabs Switcher Below Phone */}
+              {/* Segmented Control Tabs */}
               <div className="phone-tabs">
                 {[
                   { id: 'attendance', label: 'Attendance' },
                   { id: 'timetable', label: 'Timetable' },
-                  { id: 'exams', label: 'Exam Hall' },
+                  { id: 'exams', label: 'Exams' },
                   { id: 'ocr', label: 'OCR Scanner' },
                 ].map((tab) => (
                   <button
@@ -410,120 +342,115 @@ export default function App() {
           </div>
         </section>
 
-        {/* Features Bento Grid */}
-        <section className="features-section" id="features">
+        {/* Features Bento Grid (Apple-Grade Cleanliness) */}
+        <section className="features-section">
           <div className="section-header">
-            <span className="section-tag">ENGINEERED FOR STUDENTS</span>
+            <span className="section-tag">Features</span>
             <h2 className="section-title">
-              Everything you need for college,
-              <br />
-              in one fluid interface.
+              Intelligent by design.
             </h2>
             <p className="section-subtitle">
-              Designed to replace clunky portal logins and slow web pages with
-              instant, offline-first native performance.
+              Every interaction is engineered to remove friction from your
+              academic routine.
             </p>
           </div>
 
           <div className="bento-grid">
             <div className="bento-card wide">
               <div className="card-icon-box">
-                <ShieldCheck size={28} />
+                <ShieldCheck size={26} />
               </div>
-              <h3>Zero CAPTCHA Friction with Session Persistence</h3>
+              <h3>Persistent IMS Sessions</h3>
               <p>
-                Tired of typing security numbers every 5 minutes? NSync safely
-                stores your authorized IMS session in the backend and sliding token
-                cache. Log in once with official captcha verification, and navigate
-                seamlessly for hours.
+                Log in once with official captcha verification. Your session is
+                safely preserved on the backend so you never have to re-enter
+                captchas when refreshing your data or moving between screens.
               </p>
             </div>
 
             <div className="bento-card">
               <div className="card-icon-box">
-                <Percent size={28} />
+                <Percent size={26} />
               </div>
-              <h3>Smart 75% Bunk Criteria</h3>
+              <h3>Smart 75% Projections</h3>
               <p>
-                Never calculate manually on paper again. Live projections tell
-                you exactly how many lectures you can safely skip or need to
-                attend to stay safe from detentions.
+                Real-time safety calculations show exactly how many classes you
+                can safely skip or need to attend to protect your eligibility.
               </p>
             </div>
 
             <div className="bento-card">
               <div className="card-icon-box">
-                <LayoutGrid size={28} />
+                <LayoutGrid size={26} />
               </div>
-              <h3>Home Screen Widgets</h3>
+              <h3>Glance Widgets</h3>
               <p>
-                View your next class, room number, and attendance percentage
-                without even opening the app. Tactile Glance widgets designed for
-                your home screen.
+                Check your next lecture hall and live attendance directly from
+                your Android home screen without even launching the app.
               </p>
             </div>
 
             <div className="bento-card">
               <div className="card-icon-box">
-                <WifiOff size={28} />
+                <WifiOff size={26} />
               </div>
-              <h3>Offline Timetable Sync</h3>
+              <h3>Offline Architecture</h3>
               <p>
-                Syncs your class schedule to local database cache. Checks your
-                timetable even inside poor network lecture halls and basements.
+                Full local database caching ensures your timetable and syllabus
+                are available instantly, even in basements with zero cellular
+                signal.
               </p>
             </div>
 
             <div className="bento-card">
               <div className="card-icon-box">
-                <Sparkles size={28} />
+                <Sparkles size={26} />
               </div>
-              <h3>In-App Auto-Updates</h3>
+              <h3>Seamless Updates</h3>
               <p>
-                Installed directly from GitHub? Whenever a new feature or fix is
-                released, NSync alerts you and installs the new version in one tap.
+                Direct OTA updates notify you whenever a release is published
+                and install upgrades with a single tap.
               </p>
             </div>
           </div>
         </section>
 
         {/* Install Guide Section */}
-        <section className="guide-section" id="install">
+        <section className="guide-section">
           <div className="section-header">
-            <span className="section-tag">SIDELOADING GUIDE</span>
-            <h2 className="section-title">Up and running in 3 simple steps</h2>
+            <span className="section-tag">Setup</span>
+            <h2 className="section-title">Up and running in moments.</h2>
             <p className="section-subtitle">
-              No Google Play account needed. Download and install directly onto
-              any Android device running Android 7.0 or higher.
+              Free, open source, and ready for any Android device running Android
+              7.0 or newer.
             </p>
           </div>
 
           <div className="guide-steps">
             <div className="step-card">
               <div className="step-num">01</div>
-              <h4>Download the APK</h4>
+              <h4>Download</h4>
               <p>
-                Tap the download button to grab the official signed{' '}
-                <code>NSync-latest.apk</code> directly from our verified GitHub
-                Releases.
+                Download the official signed <code>NSync-latest.apk</code> directly
+                from GitHub Releases.
               </p>
             </div>
 
             <div className="step-card">
               <div className="step-num">02</div>
-              <h4>Allow Unknown Apps</h4>
+              <h4>Install</h4>
               <p>
-                When prompted by Android, toggle "Allow from this source" in
-                Settings. Our APK is 100% open-source and free of trackers.
+                Allow installation from your browser when prompted. 100%
+                open-source with zero trackers.
               </p>
             </div>
 
             <div className="step-card">
               <div className="step-num">03</div>
-              <h4>Log In & Auto-Sync</h4>
+              <h4>Sync</h4>
               <p>
-                Log in once with your NSUT IMS credentials and official CAPTCHA.
-                Your session is safely retained for smooth daily usage.
+                Authenticate once with your IMS portal credentials. Your timetable
+                and attendance sync instantly.
               </p>
             </div>
           </div>
@@ -532,19 +459,14 @@ export default function App() {
         {/* CTA Banner Section */}
         <section className="cta-banner-section">
           <div className="cta-banner">
-            <h2>Ready to streamline your college routine?</h2>
+            <h2>Experience NSync.</h2>
             <p>
-              Join NSUT students who never miss an attendance milestone, timetable
-              change, or exam hall notification.
+              Built specifically for students of Netaji Subhas University of
+              Technology.
             </p>
-            <a href={release.url} className="btn-download-primary" style={{ margin: '0 auto' }}>
-              <div className="btn-inner">
-                <Download size={22} />
-                <span>Download NSync APK</span>
-              </div>
-              <span className="btn-meta">
-                Android 7.0+ • ~{release.size} • Direct Release
-              </span>
+            <a href={LATEST_DOWNLOAD_URL} className="btn-download-primary" style={{ margin: '0 auto' }}>
+              <Download size={19} />
+              <span>Download for Android</span>
             </a>
           </div>
         </section>
@@ -555,12 +477,11 @@ export default function App() {
         <div className="footer-content">
           <div className="footer-credits">
             <p>
-              <strong>NSync</strong> — Handcrafted for Netaji Subhas University of
-              Technology (NSUT).
+              <strong>NSync</strong> — Handcrafted for NSUT.
             </p>
-            <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-              Open-source student companion app. Not officially affiliated with
-              NSUT administration.
+            <p style={{ fontSize: '0.8rem', marginTop: '4px', color: '#636366' }}>
+              Open-source student companion. Not officially affiliated with
+              university administration.
             </p>
           </div>
 
@@ -571,7 +492,7 @@ export default function App() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                GitHub Repository
+                GitHub
               </a>
             </li>
             <li>
@@ -589,7 +510,7 @@ export default function App() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Bug Reports
+                Feedback
               </a>
             </li>
           </ul>
