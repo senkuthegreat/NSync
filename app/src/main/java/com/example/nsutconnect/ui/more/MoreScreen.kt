@@ -57,9 +57,14 @@ fun MoreScreen(
     prefs: UserPreferences,
     syncState: SyncResult,
     onForceSync: () -> Unit = {},
-    onLogout: (forgetCredentials: Boolean) -> Unit = {}
+    onLogout: (forgetCredentials: Boolean) -> Unit = {},
+    onSubDestinationChanged: (Boolean) -> Unit = {}
 ) {
     var currentSubDestination by remember { mutableStateOf(MoreSubDestination.HUB) }
+
+    LaunchedEffect(currentSubDestination) {
+        onSubDestinationChanged(currentSubDestination != MoreSubDestination.HUB)
+    }
 
     BackHandler(enabled = currentSubDestination != MoreSubDestination.HUB) {
         currentSubDestination = MoreSubDestination.HUB
@@ -283,11 +288,11 @@ private fun MoreHubContent(
                 )
             }
 
-            // Updates Section Header
+            // System & Account Section
             item {
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "UPDATES & SYSTEM",
+                    text = "SYSTEM & ACCOUNT",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextSecondary,
@@ -295,117 +300,129 @@ private fun MoreHubContent(
                 )
             }
 
-            // Feature 5: Check for Updates
+            // Grouped Card: Check for Updates & Log Out
             item {
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .bounceClick {
-                            if (!isCheckingUpdates) {
-                                isCheckingUpdates = true
-                                coroutineScope.launch {
-                                    val result = com.example.nsutconnect.data.update.AppUpdateManager.checkForUpdates(context)
-                                    isCheckingUpdates = false
-                                    if (result.hasUpdate) {
-                                        updateInfo = result
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            "NSync is up to date (v${com.example.nsutconnect.BuildConfig.VERSION_NAME})",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            }
-                        },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     color = AppleCardSurface
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Check for Updates Row
+                        Row(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(AppleSystemBlue.copy(alpha = 0.1f)),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .bounceClick {
+                                    if (!isCheckingUpdates) {
+                                        isCheckingUpdates = true
+                                        coroutineScope.launch {
+                                            val result = com.example.nsutconnect.data.update.AppUpdateManager.checkForUpdates(context)
+                                            isCheckingUpdates = false
+                                            if (result.hasUpdate) {
+                                                updateInfo = result
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    "NSync is up to date (v${com.example.nsutconnect.BuildConfig.VERSION_NAME})",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.SystemUpdate,
-                                contentDescription = null,
-                                tint = AppleSystemBlue,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(AppleSystemBlue.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SystemUpdate,
+                                    contentDescription = null,
+                                    tint = AppleSystemBlue,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Check for Updates",
+                                    fontFamily = AppleSans,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    color = AppleLabel
+                                )
+                                Text(
+                                    text = if (isCheckingUpdates) "Checking for updates..." else "Version v${com.example.nsutconnect.BuildConfig.VERSION_NAME} • Up to date",
+                                    fontFamily = AppleSans,
+                                    fontSize = 11.sp,
+                                    color = TextSecondary
+                                )
+                            }
+                            if (isCheckingUpdates) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = AppleSystemBlue
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    contentDescription = null,
+                                    tint = TextSecondary.copy(alpha = 0.4f),
+                                    modifier = Modifier.size(13.dp)
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+
+                        HorizontalDivider(
+                            color = AppleBorder,
+                            thickness = 0.5.dp,
+                            modifier = Modifier.padding(start = 54.dp, end = 16.dp)
+                        )
+
+                        // Log Out Row
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .bounceClick { showLogoutDialog = true }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(AppleSystemRed.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_huge_logout),
+                                    contentDescription = null,
+                                    tint = AppleSystemRed,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
                             Text(
-                                text = "Check for Updates",
+                                text = "Log Out of NSUT IMS",
                                 fontFamily = AppleSans,
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 15.sp,
-                                color = AppleLabel
+                                fontSize = 14.sp,
+                                color = AppleSystemRed,
+                                modifier = Modifier.weight(1f)
                             )
-                            Text(
-                                text = if (isCheckingUpdates) "Checking for updates..." else "Current version: v${com.example.nsutconnect.BuildConfig.VERSION_NAME}",
-                                fontFamily = AppleSans,
-                                fontSize = 12.sp,
-                                color = TextSecondary
-                            )
-                        }
-                        if (isCheckingUpdates) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                                color = AppleSystemBlue
-                            )
-                        } else {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                 contentDescription = null,
-                                tint = TextSecondary.copy(alpha = 0.4f),
-                                modifier = Modifier.size(14.dp)
+                                tint = AppleSystemRed.copy(alpha = 0.4f),
+                                modifier = Modifier.size(13.dp)
                             )
                         }
-                    }
-                }
-            }
-
-            // Log Out Button (Tactile Apple Red Card with spring bounce)
-            item {
-                Spacer(modifier = Modifier.height(6.dp))
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .bounceClick { showLogoutDialog = true },
-                    shape = RoundedCornerShape(16.dp),
-                    color = AppleSystemRedBg
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_huge_logout),
-                            contentDescription = null,
-                            tint = AppleSystemRed,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Log Out of NSUT IMS",
-                            fontFamily = AppleSans,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp,
-                            color = AppleSystemRed
-                        )
                     }
                 }
             }
@@ -460,48 +477,37 @@ private fun MoreHubContent(
                 }
             }
 
-            // NSync Footer Branding with New Logo
+            // Minimal Uncluttered Footer
             item {
-                Spacer(modifier = Modifier.height(20.dp))
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_nsync_logo),
                         contentDescription = "NSync Logo",
                         modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .size(16.dp)
+                            .clip(RoundedCornerShape(4.dp))
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "N",
-                            fontFamily = UnkemptFont,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = AppleLabel
-                        )
-                        Text(
-                            text = "Sync",
-                            fontFamily = UnkemptFont,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = AppleSystemBlue
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Version 1.0.0 • Designed for NSUT",
+                        text = "NSync",
+                        fontFamily = AppleSans,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        color = AppleLabel
+                    )
+                    Text(
+                        text = " • Crafted for NSUT",
                         fontFamily = AppleSans,
                         fontSize = 12.sp,
                         color = TextSecondary.copy(alpha = 0.6f)
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

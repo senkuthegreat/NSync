@@ -17,7 +17,8 @@ data class CaptchaSession(
     val captchaBitmap: Bitmap?,
     val cookies: Map<String, String>,
     val encFy: String? = null,
-    val fy: String = "2026-27"
+    val fy: String = "2026-27",
+    val hiddenFields: Map<String, String> = emptyMap()
 )
 
 sealed class ImsLoginResponse {
@@ -69,7 +70,16 @@ class ImsNetworkClient {
             val captchaSrc = captchaImg?.attr("src") ?: return@withContext null
             val fullCaptchaUrl = if (captchaSrc.startsWith("http")) captchaSrc else "https://www.imsnsit.org/imsnsit/$captchaSrc"
 
-            val encFy = doc.selectFirst("input[name=enc_fy]")?.attr("value")
+            val hiddenFields = mutableMapOf<String, String>()
+            doc.select("form[name=f1] input[type=hidden], form input[type=hidden]").forEach { input ->
+                val name = input.attr("name")
+                val value = input.attr("value")
+                if (name.isNotBlank()) {
+                    hiddenFields[name] = value
+                }
+            }
+
+            val encFy = hiddenFields["enc_fy"] ?: doc.selectFirst("input[name=enc_fy]")?.attr("value")
             val fy = doc.selectFirst("select[name=fy] option[selected]")?.attr("value") ?: "2026-27"
 
             val imgRes = Jsoup.connect(fullCaptchaUrl)
@@ -90,7 +100,8 @@ class ImsNetworkClient {
                 captchaBitmap = bitmap,
                 cookies = cookies,
                 encFy = encFy,
-                fy = fy
+                fy = fy,
+                hiddenFields = hiddenFields
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -118,7 +129,7 @@ class ImsNetworkClient {
         }
 
         try {
-            val response = Jsoup.connect(PLUM_LOGIN_POST_URL)
+            val conn = Jsoup.connect(PLUM_LOGIN_POST_URL)
                 .userAgent(USER_AGENT)
                 .header("Referer", PLUM_LOGIN_URL)
                 .header("Origin", "https://www.imsnsit.org")
@@ -129,10 +140,22 @@ class ImsNetworkClient {
                 .data("cap", cleanCap)
                 .data("comp", "NETAJI SUBHAS UNIVERSITY OF TECHNOLOGY")
                 .data("fy", sessionToUse.fy)
-                .apply {
-                    sessionToUse.encFy?.let { data("enc_fy", it) }
-                }
                 .data("login", "Login")
+
+            // Forward all hidden form fields parsed from session (including dynamic HRAND_NUM, t, enc_fy)
+            sessionToUse.hiddenFields.forEach { (name, value) ->
+                if (name != "uid" && name != "pwd" && name != "cap" && name != "fy" && name != "login") {
+                    conn.data(name, value)
+                }
+            }
+            if (!sessionToUse.hiddenFields.containsKey("t")) {
+                conn.data("t", "swx")
+            }
+            if (sessionToUse.encFy != null && !sessionToUse.hiddenFields.containsKey("enc_fy")) {
+                conn.data("enc_fy", sessionToUse.encFy)
+            }
+
+            val response = conn
                 .timeout(12000)
                 .method(Connection.Method.POST)
                 .followRedirects(true)
@@ -145,13 +168,7 @@ class ImsNetworkClient {
             val html = response.body()
             val doc = response.parse()
 
-            // Check for explicit error messages from IMS
-            if (html.contains("Invalid security Number", ignoreCase = true) ||
-                html.contains("Please Enter Captcha", ignoreCase = true)
-            ) {
-                return@withContext ImsLoginResponse.Failure("Invalid security captcha number. Please try again.")
-            }
-
+            // Differentiate credential mismatch errors
             if (html.contains("Invalid password", ignoreCase = true) ||
                 html.contains("password does not match", ignoreCase = true) ||
                 html.contains("Please enter valid Userid", ignoreCase = true)
@@ -159,9 +176,12 @@ class ImsNetworkClient {
                 return@withContext ImsLoginResponse.Failure("Incorrect Password or Roll Number. Please verify your credentials.")
             }
 
-            // Check if redirected right back to login form (unauthenticated)
-            if (html.contains("Please Login") && html.contains("User ID") && html.contains("Password") && !html.contains("My Profile")) {
-                return@withContext ImsLoginResponse.Failure("Authentication failed. Invalid Roll Number or Password.")
+            // Check if redirected right back to login form (unauthenticated or rejected captcha)
+            val isBackOnLoginPage = (html.contains("Please Login") && html.contains("User ID") && html.contains("Password")) ||
+                    response.url().toString().contains("plum5_fw_login")
+
+            if (isBackOnLoginPage && !html.contains("My Profile") && !html.contains("My Activities")) {
+                return@withContext ImsLoginResponse.Failure("Authentication failed. Please verify your Roll Number, Password, and enter the fresh 5-digit Captcha.")
             }
 
             // Look for successful authentication markers

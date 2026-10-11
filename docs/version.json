@@ -1,8 +1,8 @@
 {
-  "version": "1.0.32",
-  "versionCode": 32,
-  "name": "NSync v1.0.32",
-  "notes": "Ultra-fast direct edge CDN download, startup stability fixes, and attendance tracker improvements.",
+  "version": "1.0.33",
+  "versionCode": 33,
+  "name": "NSync v1.0.33",
+  "notes": "Fixed IMS security captcha verification, added imsnsit.org Autofill & soft-keyboard popup, and decluttered Widget Studio theme layout.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T14:00:00Z"
+  "publishedAt": "2026-10-11T15:06:00Z"
 }

@@ -95,9 +95,9 @@ fun WidgetStudioScreen(
                 title = {
                     Text(
                         text = "Widget Studio",
-                        fontFamily = UnkemptFont,
+                        fontFamily = AppleSans,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp,
+                        fontSize = 20.sp,
                         color = AppleLabel
                     )
                 },
@@ -203,8 +203,8 @@ fun WidgetStudioScreen(
                             Column {
                                 Text(
                                     text = if (previewMode == 0) "NSync Attendance" else "NSync Schedule",
-                                    fontFamily = UnkemptFont,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = AppleSans,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 15.sp,
                                     color = Color.White
                                 )
@@ -311,60 +311,62 @@ fun WidgetStudioScreen(
             }
 
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     themeOptions.forEach { theme ->
                         val isSelected = selectedTheme == theme.id
                         Surface(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .weight(1f)
                                 .bounceClick {
                                     selectedTheme = theme.id
                                     prefs.setWidgetTheme(theme.id)
                                 },
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(14.dp),
                             color = AppleCardSurface,
-                            border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, activeAccentColor) else null
+                            border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, activeAccentColor) else androidx.compose.foundation.BorderStroke(0.5.dp, Color(0xFF2C2C2E))
                         ) {
-                            Row(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(14.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(vertical = 12.dp, horizontal = 4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(30.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(theme.cardColor)
-                                        .border(1.dp, theme.borderColor, RoundedCornerShape(8.dp))
+                                        .border(1.dp, theme.borderColor, RoundedCornerShape(8.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = activeAccentColor,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+
+                                Text(
+                                    text = when (theme.id) {
+                                        "oled" -> "OLED"
+                                        "slate" -> "Slate"
+                                        "translucent" -> "Glass"
+                                        "midnight" -> "Midnight"
+                                        else -> theme.title
+                                    },
+                                    fontFamily = AppleSans,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = 11.sp,
+                                    color = if (isSelected) Color.White else TextSecondary,
+                                    maxLines = 1
                                 )
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = theme.title,
-                                        fontFamily = AppleSans,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 14.sp,
-                                        color = Color.White
-                                    )
-                                    Text(
-                                        text = theme.description,
-                                        fontFamily = AppleSans,
-                                        fontSize = 11.sp,
-                                        color = TextSecondary
-                                    )
-                                }
-
-                                if (isSelected) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = activeAccentColor,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
                             }
                         }
                     }

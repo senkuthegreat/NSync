@@ -29,10 +29,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -64,14 +69,22 @@ fun LoginScreen(
     val rememberCredentials = true
     var validationError by remember { mutableStateOf<String?>(null) }
 
+    val rollFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
     val captchaFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
 
     LaunchedEffect(hasPreloadedCredentials) {
         if (hasPreloadedCredentials) {
             try {
                 captchaFocusRequester.requestFocus()
+            } catch (e: Exception) {}
+        } else {
+            try {
+                rollFocusRequester.requestFocus()
+                keyboardController?.show()
             } catch (e: Exception) {}
         }
     }
@@ -269,11 +282,13 @@ fun LoginScreen(
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Ascii,
+                            keyboardType = KeyboardType.Text,
+                            capitalization = KeyboardCapitalization.Characters,
+                            autoCorrect = false,
                             imeAction = ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                            onNext = { passwordFocusRequester.requestFocus() }
                         ),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = AppleElevatedSurface,
@@ -285,7 +300,12 @@ fun LoginScreen(
                             unfocusedTextColor = AppleLabel
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(rollFocusRequester)
+                            .semantics {
+                                contentType = ContentType.Username
+                            }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -351,10 +371,11 @@ fun LoginScreen(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
+                            autoCorrect = false,
                             imeAction = ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                            onNext = { captchaFocusRequester.requestFocus() }
                         ),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = AppleElevatedSurface,
@@ -366,7 +387,12 @@ fun LoginScreen(
                             unfocusedTextColor = AppleLabel
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(passwordFocusRequester)
+                            .semantics {
+                                contentType = ContentType.Password
+                            }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -439,24 +465,24 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Captcha Code Input Field (Max 6 Chars)
+                    // Captcha Code Input Field (Strictly 5 Digits)
                     TextField(
                         value = captcha,
                         onValueChange = { input ->
-                            val clean = input.filter { it.isLetterOrDigit() }.take(6).uppercase()
+                            val clean = input.filter { it.isDigit() }.take(5)
                             captcha = clean
                             validationError = null
                         },
                         placeholder = {
                             Text(
-                                text = "Enter code shown above",
+                                text = "Enter 5-digit code shown above",
                                 fontFamily = AppleSans,
                                 color = AppleSecondaryLabel.copy(alpha = 0.6f)
                             )
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Ascii,
+                            keyboardType = KeyboardType.NumberPassword,
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(
@@ -544,25 +570,25 @@ private fun submitLogin(
         onError("Please enter your Roll Number / User ID")
         return
     }
-    if (cleanRoll.length < 8) {
+    if (cleanRoll.length < 5) {
         onError("Roll Number is too short (e.g. 2024UCO1500)")
-        return
-    }
-    val nsutPattern = Regex("""^20\d{2}[A-Z]{2,5}\d{2,5}$""")
-    if (!cleanRoll.matches(nsutPattern)) {
-        onError("Invalid NSUT Roll Number format (e.g. 2024UCO1500)")
         return
     }
     if (pass.isBlank()) {
         onError("Please enter your IMS Password")
         return
     }
-    if (pass.length < 4) {
-        onError("Password must be at least 4 characters")
+    if (pass.length < 3) {
+        onError("Password must be at least 3 characters")
         return
     }
-    if (cap.isBlank()) {
-        onError("Please enter the security captcha code shown above")
+    val cleanCap = cap.trim()
+    if (cleanCap.isBlank()) {
+        onError("Please enter the 5-digit security code shown above")
+        return
+    }
+    if (cleanCap.length != 5 || !cleanCap.all { it.isDigit() }) {
+        onError("Captcha must be exactly 5 digits (e.g. 85376)")
         return
     }
     onProceed()

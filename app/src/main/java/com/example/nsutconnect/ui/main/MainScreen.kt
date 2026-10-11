@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +26,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,21 +79,28 @@ fun MainScreen(
         repository.syncData(isBackground = true)
     }
 
+    var isDetailScreenInMore by remember { mutableStateOf(false) }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = AppleCardSurface,
-                tonalElevation = 0.dp
+            androidx.compose.animation.AnimatedVisibility(
+                visible = !(currentTab == MainTab.MORE && isDetailScreenInMore),
+                enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }) + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it }) + androidx.compose.animation.fadeOut()
             ) {
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.navigationBars)
-                        .height(64.dp)
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = AppleCardSurface,
+                    tonalElevation = 0.dp
                 ) {
+                    BoxWithConstraints(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsPadding(WindowInsets.navigationBars)
+                            .height(64.dp)
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
                     val totalWidth = maxWidth
                     val tabWidth = totalWidth / 3
                     val animatedIndex by animateFloatAsState(
@@ -138,8 +148,9 @@ fun MainScreen(
                     }
                 }
             }
-        },
-        containerColor = AppleBackground
+        }
+    },
+    containerColor = AppleBackground
     ) { padding ->
         Box(
             modifier = Modifier
@@ -185,6 +196,9 @@ fun MainScreen(
                             onLogout = { forget ->
                                 repository.logout(forgetCredentials = forget)
                                 onLogout()
+                            },
+                            onSubDestinationChanged = { isDetailScreen ->
+                                isDetailScreenInMore = isDetailScreen
                             }
                         )
                     }
@@ -368,21 +382,25 @@ private fun SessionExpiredDialog(
                     }
                 }
 
-                // Captcha Input Field
+                // Captcha Input Field (Strictly 5 Digits)
                 TextField(
                     value = captchaInput,
                     onValueChange = {
-                        captchaInput = it.filter { char -> char.isLetterOrDigit() }.take(6).uppercase()
+                        captchaInput = it.filter { char -> char.isDigit() }.take(5)
                     },
                     placeholder = {
                         Text(
-                            text = "Enter code shown above",
+                            text = "Enter 5-digit code shown above",
                             fontFamily = AppleSans,
                             fontSize = 13.sp,
                             color = AppleSecondaryLabel.copy(alpha = 0.6f)
                         )
                     },
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.NumberPassword,
+                        imeAction = ImeAction.Done
+                    ),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = AppleElevatedSurface,
                         unfocusedContainerColor = AppleElevatedSurface,

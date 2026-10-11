@@ -117,6 +117,13 @@ class ImsClient {
       const fyMatch = plumHtml.match(/name=["']fy["'][^>]*>[\s\S]*?<option[^>]*selected[^>]*value=["']([^"']*)["']/i);
       const fy = fyMatch ? fyMatch[1] : '2026-27';
 
+      // Extract HRAND_NUM nonce and t token
+      const hrandMatch = plumHtml.match(/name=["']HRAND_NUM["'][^>]*value=["']([^"']*)["']/i);
+      const hrandNum = hrandMatch ? hrandMatch[1] : null;
+
+      const tMatch = plumHtml.match(/name=["']t["'][^>]*value=["']([^"']*)["']/i);
+      const tVal = tMatch ? tMatch[1] : 'swx';
+
       // Step 3: Fetch CAPTCHA image
       const captchaRes = await fetch(fullCaptchaUrl, {
         method: 'GET',
@@ -142,6 +149,8 @@ class ImsClient {
         cookies,
         encFy,
         fy,
+        hrandNum,
+        tVal,
         rawBuffer: buffer,
         createdAt: now,
         expiresAt
@@ -315,6 +324,10 @@ class ImsClient {
       if (challenge.encFy) {
         formParams.append('enc_fy', challenge.encFy);
       }
+      if (challenge.hrandNum) {
+        formParams.append('HRAND_NUM', challenge.hrandNum);
+      }
+      formParams.append('t', challenge.tVal || 'swx');
       formParams.append('login', 'Login');
 
       const loginRes = await fetch(`${this.baseUrl}/plum5_fw_login.php`, {
@@ -337,19 +350,21 @@ class ImsClient {
       this.challenges.delete(challengeId);
 
       // Verify response body
-      if (bodyText.includes('Invalid security Number') ||
-          bodyText.includes('Security code does not match') ||
-          bodyText.includes('Please Enter Captcha')) {
-        const err = new Error('Invalid CAPTCHA security code entered');
-        err.code = 'INVALID_CAPTCHA';
-        throw err;
-      }
-
       if (bodyText.includes('Invalid User ID') ||
           bodyText.includes('Invalid Password') ||
           bodyText.includes('Invalid Roll No') ||
+          bodyText.includes('password does not match') ||
           bodyText.includes('Login Failed')) {
         const err = new Error('Invalid Roll Number or Password');
+        err.code = 'INVALID_CREDENTIALS';
+        throw err;
+      }
+
+      const isBackOnLoginPage = (bodyText.includes('Please Login') && bodyText.includes('User ID') && bodyText.includes('Password')) ||
+                                (loginRes.url && loginRes.url.includes('plum5_fw_login'));
+
+      if (isBackOnLoginPage && !bodyText.includes('My Profile') && !bodyText.includes('My Activities')) {
+        const err = new Error('Authentication failed. Please verify your Roll Number, Password, and 5-digit Captcha.');
         err.code = 'INVALID_CREDENTIALS';
         throw err;
       }
