@@ -1,8 +1,8 @@
 {
-  "version": "1.0.40",
-  "versionCode": 40,
-  "name": "NSync v1.0.40",
-  "notes": "Dynamic Plumware form token extraction, universal attendance module fallback for all student branches, and responsive attendance sync.",
+  "version": "1.0.41",
+  "versionCode": 41,
+  "name": "NSync v1.0.41",
+  "notes": "Instant attendance & timetable loading on launch, automatic IMS session recovery modal with interactive captcha, and guaranteed offline data preservation.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T22:00:00Z"
+  "publishedAt": "2026-10-11T22:15:00Z"
 }

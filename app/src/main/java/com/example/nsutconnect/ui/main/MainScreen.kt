@@ -70,8 +70,22 @@ fun MainScreen(
     val attendance by repository.attendance.collectAsStateWithLifecycle()
     val timetable by repository.timetable.collectAsStateWithLifecycle()
     val syncState by repository.syncState.collectAsStateWithLifecycle()
+    val isSessionExpired by repository.isSessionExpired.collectAsStateWithLifecycle()
+
+    var captchaSession by remember { mutableStateOf<CaptchaSession?>(null) }
+    var isCaptchaLoading by remember { mutableStateOf(false) }
+    var isSubmittingCaptcha by remember { mutableStateOf(false) }
+    var captchaError by remember { mutableStateOf<String?>(null) }
 
     val isLoading = syncState is SyncResult.Loading
+
+    LaunchedEffect(isSessionExpired) {
+        if (isSessionExpired) {
+            isCaptchaLoading = true
+            captchaSession = repository.getCaptchaSession()
+            isCaptchaLoading = false
+        }
+    }
 
     // Automatically sync on open and schedule periodic background worker
     LaunchedEffect(Unit) {
@@ -205,6 +219,50 @@ fun MainScreen(
                 }
             }
         }
+    }
+
+    if (isSessionExpired) {
+        SessionExpiredDialog(
+            rollNumber = prefs.getRollNumber(),
+            captchaSession = captchaSession,
+            isCaptchaLoading = isCaptchaLoading,
+            isSubmitting = isSubmittingCaptcha,
+            errorMessage = captchaError,
+            onRefreshCaptcha = {
+                coroutineScope.launch {
+                    isCaptchaLoading = true
+                    captchaSession = repository.getCaptchaSession()
+                    isCaptchaLoading = false
+                }
+            },
+            onSubmit = { code ->
+                coroutineScope.launch {
+                    isSubmittingCaptcha = true
+                    captchaError = null
+                    val res = repository.reAuthenticateWithCaptcha(code, captchaSession)
+                    isSubmittingCaptcha = false
+                    when (res) {
+                        is SyncResult.Success -> {
+                            repository.dismissSessionExpiredPrompt()
+                        }
+                        is SyncResult.Error -> {
+                            captchaError = res.error
+                            isCaptchaLoading = true
+                            captchaSession = repository.getCaptchaSession()
+                            isCaptchaLoading = false
+                        }
+                        SyncResult.Loading -> {}
+                    }
+                }
+            },
+            onDismiss = {
+                repository.dismissSessionExpiredPrompt()
+            },
+            onLogout = {
+                repository.logout(forgetCredentials = true)
+                onLogout()
+            }
+        )
     }
 }
 

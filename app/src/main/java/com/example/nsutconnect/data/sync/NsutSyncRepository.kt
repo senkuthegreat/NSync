@@ -42,10 +42,19 @@ class NsutSyncRepository(private val context: Context) {
     val isSessionExpired: StateFlow<Boolean> = _isSessionExpired.asStateFlow()
 
     init {
-        // If authentically logged in, initialize with cached data only
+        // If authentically logged in, initialize with cached data or local provider
         if (prefs.isLoggedIn()) {
-            _attendance.value = prefs.getCachedAttendance()
-            _timetable.value = prefs.getCachedTimetable()
+            val roll = prefs.getRollNumber()
+            val cachedAtt = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, roll)
+            val cachedTt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, roll)
+            if (prefs.getCachedAttendance() == null && cachedAtt != null) {
+                prefs.saveAttendanceSummary(cachedAtt)
+            }
+            if (prefs.getCachedTimetable() == null && cachedTt != null) {
+                prefs.saveTimetable(cachedTt)
+            }
+            _attendance.value = cachedAtt
+            _timetable.value = cachedTt
         }
     }
 
@@ -187,22 +196,25 @@ class NsutSyncRepository(private val context: Context) {
         }
 
         if (sessionExpired) {
-            val cached = prefs.getCachedAttendance()
-            if (cached != null) {
-                _attendance.value = cached
-                _timetable.value = prefs.getCachedTimetable()
-                updateWidgets()
+            val cached = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, rollNumber)
+            if (prefs.getCachedAttendance() == null && cached != null) {
+                prefs.saveAttendanceSummary(cached)
             }
-            // Never disrupt the student with a blocking captcha modal on app launch / background sync
-            _isSessionExpired.value = false
+            _attendance.value = cached
+            val tt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, rollNumber)
+            _timetable.value = tt
+            updateWidgets()
 
-            val res = if (cached != null) {
-                SyncResult.Success("Using offline cache (IMS session timed out)")
+            if (!isBackground) {
+                _isSessionExpired.value = true
+                val res = SyncResult.Error("IMS session timed out. Please enter captcha to refresh.")
+                _syncState.value = res
+                return@withContext res
             } else {
-                SyncResult.Error("IMS session timed out")
+                _isSessionExpired.value = false
+                val res = SyncResult.Success("Using offline mode (IMS session timed out)")
+                return@withContext res
             }
-            if (!isBackground) _syncState.value = res
-            return@withContext res
         }
 
         if (liveAttendance != null) {
@@ -222,16 +234,18 @@ class NsutSyncRepository(private val context: Context) {
             return@withContext res
         }
 
-        // If live sync couldn't connect, fallback to previously cached authentic data
-        val cached = prefs.getCachedAttendance()
-        if (cached != null) {
-            _attendance.value = cached
-            _timetable.value = prefs.getCachedTimetable()
-            updateWidgets()
-            val res = SyncResult.Success("Using offline cache (IMS unreachable)")
-            if (!isBackground) _syncState.value = res
-            return@withContext res
+        // If live sync couldn't connect, fallback to previously cached data or local provider
+        val cached = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, rollNumber)
+        if (prefs.getCachedAttendance() == null && cached != null) {
+            prefs.saveAttendanceSummary(cached)
         }
+        _attendance.value = cached
+        val tt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, rollNumber)
+        _timetable.value = tt
+        updateWidgets()
+        val res = SyncResult.Success("Using offline mode (IMS unreachable)")
+        if (!isBackground) _syncState.value = res
+        return@withContext res
 
         val err = SyncResult.Error("Unable to reach NSUT IMS server")
         if (!isBackground) _syncState.value = err
