@@ -146,6 +146,7 @@ class ImsNetworkClient {
             postParams["comp"] = "NETAJI SUBHAS UNIVERSITY OF TECHNOLOGY"
             postParams["fy"] = sessionToUse.fy
             postParams["login"] = "Login"
+            postParams["logintype"] = "student"
             if (!postParams.containsKey("t")) {
                 postParams["t"] = "swx"
             }
@@ -157,33 +158,101 @@ class ImsNetworkClient {
                 conn.data(name, value)
             }
 
+            // Do NOT follow redirects automatically so we can inspect the exact 302 Location header
             val response = conn
                 .timeout(12000)
                 .method(Connection.Method.POST)
-                .followRedirects(true)
+                .followRedirects(false)
                 .execute()
 
             val cookies = sessionToUse.cookies.toMutableMap()
             cookies.putAll(response.cookies())
             val cookieHeader = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
 
+            val statusCode = response.statusCode()
+            val location = response.header("Location") ?: ""
+
+            // Plumware returns 302 Found to communicate login outcome:
+            if (statusCode in 300..399) {
+                // If Location contains "?uid=", Captcha was invalid/rejected by the portal
+                if (location.contains("?uid=") || location.contains("rty=captcha")) {
+                    return@withContext ImsLoginResponse.Failure("Invalid Captcha number. Please enter the fresh 5-digit code.")
+                }
+
+                // If Location returns to plum5_fw_login.php (without ?uid=), Captcha was accepted, but Password or Roll Number was wrong
+                if (location.equals("plum5_fw_login.php", ignoreCase = true) ||
+                    location.endsWith("/plum5_fw_login.php") ||
+                    location.contains("plum5_fw_login.php?t=")
+                ) {
+                    return@withContext ImsLoginResponse.Failure("Incorrect Password or Roll Number. Please verify your credentials.")
+                }
+
+                // Any other redirect location indicates success (portal home, dashboard, or student workspace)
+                val targetUrl = if (location.startsWith("http")) location else BASE_URL + location
+                try {
+                    val followRes = Jsoup.connect(targetUrl)
+                        .userAgent(USER_AGENT)
+                        .header("Referer", PLUM_LOGIN_POST_URL)
+                        .cookies(cookies)
+                        .timeout(12000)
+                        .followRedirects(true)
+                        .execute()
+
+                    cookies.putAll(followRes.cookies())
+                    val updatedCookieHeader = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
+                    val homeDoc = followRes.parse()
+
+                    val links = homeDoc.select("a")
+                    var profileUrl: String? = null
+                    var activitiesUrl: String? = null
+                    for (link in links) {
+                        val text = link.text().trim()
+                        if (text.equals("My Profile", ignoreCase = true)) {
+                            profileUrl = link.attr("href")
+                        } else if (text.equals("My Activities", ignoreCase = true)) {
+                            activitiesUrl = link.attr("href")
+                        }
+                    }
+
+                    val studentName = homeDoc.select("td:contains(Welcome), font:contains(Welcome)").text()
+                        .substringAfter("Welcome", "")
+                        .trim()
+                        .ifBlank { null }
+
+                    return@withContext ImsLoginResponse.Success(
+                        cookies = updatedCookieHeader,
+                        studentName = studentName,
+                        branch = null,
+                        profileUrl = profileUrl,
+                        activitiesUrl = activitiesUrl
+                    )
+                } catch (e: Exception) {
+                    return@withContext ImsLoginResponse.Success(
+                        cookies = cookieHeader,
+                        studentName = null,
+                        branch = null,
+                        profileUrl = null,
+                        activitiesUrl = null
+                    )
+                }
+            }
+
             val html = response.body()
             val doc = response.parse()
 
-            // Differentiate credential mismatch errors
+            // Differentiate errors if a 200 OK body was returned
+            if (html.contains("Invalid Attempt", ignoreCase = true) ||
+                html.contains("Invalid Security", ignoreCase = true) ||
+                html.contains("Please Enter Captcha", ignoreCase = true)
+            ) {
+                return@withContext ImsLoginResponse.Failure("Invalid Captcha number. Please enter the fresh 5-digit code.")
+            }
+
             if (html.contains("Invalid password", ignoreCase = true) ||
                 html.contains("password does not match", ignoreCase = true) ||
                 html.contains("Please enter valid Userid", ignoreCase = true)
             ) {
                 return@withContext ImsLoginResponse.Failure("Incorrect Password or Roll Number. Please verify your credentials.")
-            }
-
-            // Check if redirected right back to login form (unauthenticated or rejected captcha)
-            val isBackOnLoginPage = (html.contains("Please Login") && html.contains("User ID") && html.contains("Password")) ||
-                    response.url().toString().contains("plum5_fw_login")
-
-            if (isBackOnLoginPage && !html.contains("My Profile") && !html.contains("My Activities")) {
-                return@withContext ImsLoginResponse.Failure("Authentication failed. Please verify your Roll Number, Password, and enter the fresh 5-digit Captcha.")
             }
 
             // Look for successful authentication markers
@@ -204,6 +273,23 @@ class ImsNetworkClient {
                 .substringAfter("Welcome", "")
                 .trim()
                 .ifBlank { null }
+
+            if (profileUrl != null || activitiesUrl != null || studentName != null || html.contains("Logout")) {
+                return@withContext ImsLoginResponse.Success(
+                    cookies = cookieHeader,
+                    studentName = studentName,
+                    branch = null,
+                    profileUrl = profileUrl,
+                    activitiesUrl = activitiesUrl
+                )
+            }
+
+            val isBackOnLoginPage = (html.contains("Please Login") && html.contains("User ID") && html.contains("Password")) ||
+                    response.url().toString().contains("plum5_fw_login")
+
+            if (isBackOnLoginPage) {
+                return@withContext ImsLoginResponse.Failure("Authentication failed. Please verify your Roll Number, Password, and enter the fresh 5-digit Captcha.")
+            }
 
             ImsLoginResponse.Success(
                 cookies = cookieHeader,

@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -88,6 +89,10 @@ fun LoginScreen(
                 keyboardController?.show()
             } catch (e: Exception) {}
         }
+    }
+
+    LaunchedEffect(captchaSession) {
+        captcha = ""
     }
 
     Scaffold(
@@ -304,6 +309,11 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(rollFocusRequester)
+                            .onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    keyboardController?.show()
+                                }
+                            }
                             .semantics {
                                 contentType = ContentType.Username
                             }
@@ -524,6 +534,11 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(captchaFocusRequester)
+                            .onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    keyboardController?.show()
+                                }
+                            }
                     )
                 }
             }
