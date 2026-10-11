@@ -237,8 +237,8 @@ export default function App() {
           <div className="hero-hero-content">
             <h1 className="hero-main-title">Academic Life, Seamlessly Synced.</h1>
             <p className="hero-main-subtitle">
-              Attendance tracking with 75% criteria calculator, daily timetables,
-              semester results, academic calendar, and admit card seating — built exclusively for NSUT students.
+              Smart 75% attendance calculator, daily timetables, semester results,
+              academic calendar, and exam seating — crafted for NSUT.
             </p>
 
             <div className="hero-cta-wrapper">
@@ -258,11 +258,13 @@ export default function App() {
         <section id="features" className="content-section features-area">
           <div className="section-title-wrap">
             <span className="section-pill">Intelligence & Design</span>
-            <h2>Engineered to eliminate friction.</h2>
+            <h2>Engineered for zero friction.</h2>
             <p>
-              Everything you need to navigate your college lifecycle with zero
-              stress and zero captcha friction.
+              All your college vitals in one fast, captcha-free app.
             </p>
+            <div className="mobile-swipe-hint">
+              <span>Swipe cards ➔</span>
+            </div>
           </div>
 
           <div className="features-grid">
@@ -272,9 +274,8 @@ export default function App() {
               </div>
               <h3>Persistent IMS Sessions</h3>
               <p>
-                Log in once with official credentials. Your session is safely
-                cached locally on your device so you never have to re-enter
-                passwords when refreshing attendance or schedule data.
+                Log in once. Your session stays cached securely on-device with
+                zero repeated logins or captchas.
               </p>
             </div>
 
@@ -284,7 +285,7 @@ export default function App() {
               </div>
               <h3>Smart 75% Projections</h3>
               <p>
-                Instantly calculates whether you are safe with <code>+X Bunks Safe</code> or in shortage with <code>Need X Classes</code> for every individual course.
+                Real-time projection showing exact <code>+X Bunks Safe</code> or <code>Need X Classes</code> per subject.
               </p>
             </div>
 
@@ -292,10 +293,9 @@ export default function App() {
               <div className="icon-badge">
                 <Clock size={24} />
               </div>
-              <h3>Daily Timetables & Google Cal</h3>
+              <h3>Daily Timetables & Cal</h3>
               <p>
-                View period times, rooms, and professors. Export your entire semester
-                schedule directly into Google Calendar with 1-tap reminders.
+                Period timings, room numbers, and 1-tap export to Google Calendar with reminders.
               </p>
             </div>
 
@@ -305,8 +305,7 @@ export default function App() {
               </div>
               <h3>Results & CGPA Tracker</h3>
               <p>
-                Semester-wise SGPA breakdowns, cumulative CGPA tracking, and
-                official grade sheets delivered without navigating the slow IMS site.
+                Semester SGPA breakdowns, cumulative CGPA tracking, and grade sheets delivered instantly.
               </p>
             </div>
 
@@ -316,8 +315,7 @@ export default function App() {
               </div>
               <h3>Official Academic Calendar</h3>
               <p>
-                Stay ahead of mid-term examinations, end-sem evaluations,
-                vacations, and gazetted university holidays with an integrated calendar.
+                Track mid-terms, end-sems, official holidays, and semester breaks in one place.
               </p>
             </div>
 
@@ -327,8 +325,7 @@ export default function App() {
               </div>
               <h3>Admit Card & Exam Seating</h3>
               <p>
-                Instant access to verified roll number-wise hall allocations,
-                desk numbers, and circular examination notices.
+                Instant roll number-wise hall allocations, desk numbers, and exam notices.
               </p>
             </div>
 
@@ -338,8 +335,7 @@ export default function App() {
               </div>
               <h3>Widget Studio</h3>
               <p>
-                Add glanceable home screen widgets to your Android phone to track
-                your next lecture hall and attendance without opening the app.
+                Glanceable Android home screen widgets for your next class and live attendance.
               </p>
             </div>
 
@@ -349,8 +345,7 @@ export default function App() {
               </div>
               <h3>100% Offline Architecture</h3>
               <p>
-                Full local database caching ensures your timetable and syllabus
-                are available instantly, even in basements with zero cell reception.
+                Local database caching keeps your timetable and attendance accessible with zero signal.
               </p>
             </div>
           </div>
@@ -360,8 +355,11 @@ export default function App() {
         <section id="setup" className="content-section setup-area">
           <div className="section-title-wrap">
             <span className="section-pill">Installation</span>
-            <h2>Up and running in moments.</h2>
-            <p>Ready for any Android device running Android 7.0 or newer.</p>
+            <h2>Up and running in seconds.</h2>
+            <p>Compatible with Android 7.0 and newer.</p>
+            <div className="mobile-swipe-hint">
+              <span>Swipe steps ➔</span>
+            </div>
           </div>
 
           <div className="setup-steps-row">
@@ -369,8 +367,7 @@ export default function App() {
               <div className="step-badge">01</div>
               <h4>Download Package</h4>
               <p>
-                Download the official <code>NSync.apk</code> package directly
-                from this website with one tap.
+                Grab <code>NSync.apk</code> directly from this page with a single tap.
               </p>
             </div>
 
@@ -378,8 +375,7 @@ export default function App() {
               <div className="step-badge">02</div>
               <h4>Approve Installation</h4>
               <p>
-                Open the file and allow install when prompted. Zero ads, zero
-                third-party trackers.
+                Open the APK and confirm install. 100% ad-free and tracker-free.
               </p>
             </div>
 
@@ -387,8 +383,7 @@ export default function App() {
               <div className="step-badge">03</div>
               <h4>Instant Sync</h4>
               <p>
-                Sign in once with your IMS credentials. Your attendance, results,
-                and timetable sync automatically.
+                Sign in once with IMS credentials. All your data syncs automatically.
               </p>
             </div>
           </div>
@@ -399,8 +394,7 @@ export default function App() {
           <div className="cta-banner-card">
             <h2>Experience NSync today.</h2>
             <p>
-              Handcrafted exclusively for students of Netaji Subhas University of
-              Technology. Fast, offline-first, and private.
+              Fast, offline-first, and private — built exclusively for NSUT students.
             </p>
             <div className="cta-dual-actions">
               <a
@@ -433,7 +427,7 @@ export default function App() {
                   {DEVELOPER_INFO.name} <span className="dev-handle-inline">({DEVELOPER_INFO.handle})</span>
                 </h3>
                 <p className="dev-tagline">
-                  Crafted with obsession for NSUT students. Feel free to connect, report bugs, or explore more projects.
+                  Crafted with care for NSUT. Connect, share feedback, or explore more work.
                 </p>
               </div>
             </div>
