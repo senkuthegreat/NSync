@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const academicRoutes = require('./routes/academicRoutes');
 const ocrRoutes = require('./routes/ocrRoutes');
+const appRoutes = require('./routes/appRoutes');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -37,6 +38,7 @@ app.get('/health', (req, res) => {
 app.use('/v1/auth', authRoutes);
 app.use('/v1/academic', academicRoutes);
 app.use('/v1/ocr', ocrRoutes);
+app.use('/v1/app', appRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -109,6 +109,10 @@ private fun MoreHubContent(
     onLogout: (forgetCredentials: Boolean) -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var isCheckingUpdates by remember { mutableStateOf(false) }
+    var updateInfo by remember { mutableStateOf<com.example.nsutconnect.data.update.AppUpdateInfo?>(null) }
     val rollNumber = remember(syncState) { prefs.getRollNumber().ifBlank { "" } }
     val studentName = remember(syncState) { prefs.getStudentName().ifBlank { "Student" } }
     val branch = remember(syncState) { prefs.getBranch().ifBlank { "Engineering" } }
@@ -279,6 +283,98 @@ private fun MoreHubContent(
                 )
             }
 
+            // Updates Section Header
+            item {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "UPDATES & SYSTEM",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextSecondary,
+                    letterSpacing = 1.sp
+                )
+            }
+
+            // Feature 5: Check for Updates
+            item {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .bounceClick {
+                            if (!isCheckingUpdates) {
+                                isCheckingUpdates = true
+                                coroutineScope.launch {
+                                    val result = com.example.nsutconnect.data.update.AppUpdateManager.checkForUpdates(context)
+                                    isCheckingUpdates = false
+                                    if (result.hasUpdate) {
+                                        updateInfo = result
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "NSync is up to date (v${com.example.nsutconnect.BuildConfig.VERSION_NAME})",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    color = AppleCardSurface
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(AppleSystemBlue.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SystemUpdate,
+                                contentDescription = null,
+                                tint = AppleSystemBlue,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Check for Updates",
+                                fontFamily = AppleSans,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp,
+                                color = AppleLabel
+                            )
+                            Text(
+                                text = if (isCheckingUpdates) "Checking for updates..." else "Current version: v${com.example.nsutconnect.BuildConfig.VERSION_NAME}",
+                                fontFamily = AppleSans,
+                                fontSize = 12.sp,
+                                color = TextSecondary
+                            )
+                        }
+                        if (isCheckingUpdates) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = AppleSystemBlue
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                contentDescription = null,
+                                tint = TextSecondary.copy(alpha = 0.4f),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
             // Log Out Button (Tactile Apple Red Card with spring bounce)
             item {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -408,6 +504,13 @@ private fun MoreHubContent(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+        }
+
+        updateInfo?.let { info ->
+            com.example.nsutconnect.ui.update.UpdateDialog(
+                updateInfo = info,
+                onDismiss = { updateInfo = null }
+            )
         }
     }
 }

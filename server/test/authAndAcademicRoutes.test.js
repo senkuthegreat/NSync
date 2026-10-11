@@ -38,6 +38,14 @@ describe('Auth & Academic Routes Integration Tests', () => {
     assert.strictEqual(body.service, 'nsync-backend');
   });
 
+  it('GET /v1/app/version returns app update metadata and download url', async () => {
+    const res = await fetch(`${baseUrl}/v1/app/version`);
+    assert.strictEqual(res.status, 200);
+    const body = await res.json();
+    assert.ok(body.latestVersionName);
+    assert.ok(body.downloadUrl);
+  });
+
   it('POST /v1/auth/challenges fetches an official inline CAPTCHA challenge', async () => {
     const res = await fetch(`${baseUrl}/v1/auth/challenges`, {
       method: 'POST',

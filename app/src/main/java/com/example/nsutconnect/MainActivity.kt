@@ -48,6 +48,15 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                var availableUpdate by remember { mutableStateOf<com.example.nsutconnect.data.update.AppUpdateInfo?>(null) }
+
+                LaunchedEffect(Unit) {
+                    val update = com.example.nsutconnect.data.update.AppUpdateManager.checkForUpdates(this@MainActivity)
+                    if (update.hasUpdate) {
+                        availableUpdate = update
+                    }
+                }
+
                 LaunchedEffect(isLoggedIn) {
                     if (!isLoggedIn) {
                         refreshCaptcha()
@@ -58,6 +67,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    availableUpdate?.let { updateInfo ->
+                        com.example.nsutconnect.ui.update.UpdateDialog(
+                            updateInfo = updateInfo,
+                            onDismiss = { availableUpdate = null }
+                        )
+                    }
+
                     if (isLoggedIn) {
                         MainScreen(
                             initialTab = activeTab,
