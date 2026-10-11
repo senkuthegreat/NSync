@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Download,
   ShieldCheck,
@@ -11,59 +11,18 @@ import {
   Clock,
   MapPin,
   Calendar,
-  CheckCircle2,
-  Layers,
-  Image as ImageIcon,
-  Upload,
-  BookOpen,
-  ArrowRight,
-  TrendingUp,
-  AlertCircle
+  Layers
 } from 'lucide-react';
 
 // Direct package download hosted locally on the site CDN (Zero GitHub links exposed)
 const LATEST_DOWNLOAD_URL = './downloads/NSync.apk';
 
-// High-resolution candidate artworks
-const PRESET_ARTWORKS = [
-  {
-    id: 'sunset',
-    name: 'Pink Sunset Clouds',
-    desc: 'Golden hour anime clouds over mountains',
-    src: './assets/artworks/sunset-clouds.jpg'
-  },
-  {
-    id: 'ghibli',
-    name: 'Ghibli Valley (4K)',
-    desc: 'Lush green alpine hills and billowing clouds',
-    src: './assets/artworks/ghibli-valley.jpg'
-  },
-  {
-    id: 'alpine',
-    name: 'Alpine Cloud Sea',
-    desc: 'Majestic mountain peak rising through clouds',
-    src: './assets/artworks/alpine-clouds.jpg'
-  },
-  {
-    id: 'shinkai',
-    name: 'Shinkai Meadow',
-    desc: 'Vivid azure sky, cumulus clouds & meadow',
-    src: './assets/artworks/shinkai-meadow.jpg'
-  },
-  {
-    id: 'plateau',
-    name: 'Sunlit Plateau',
-    desc: 'Sunny mountain plateau and rocky slopes',
-    src: './assets/artworks/mountain-plateau.jpg'
-  }
-];
+// Dedicated high-resolution artwork: Pink Sunset Clouds (matching reference)
+const HERO_ARTWORK = './assets/artworks/sunset-clouds.jpg';
 
 export default function App() {
-  const [currentArtwork, setCurrentArtwork] = useState(PRESET_ARTWORKS[0].src);
-  const [artworkMenuOpen, setArtworkMenuOpen] = useState(false);
   const [activeSidebarTab, setActiveSidebarTab] = useState('attendance');
   const [scrolled, setScrolled] = useState(false);
-  const fileInputRef = useRef(null);
 
   // Header scroll state
   useEffect(() => {
@@ -74,74 +33,14 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Custom artwork uploader handler (for ChatGPT/DALL-E image uploads)
-  const handleCustomArtworkUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setCurrentArtwork(objectUrl);
-      setArtworkMenuOpen(false);
-    }
-  };
-
   return (
     <div className="page-wrapper">
       {/* Outer Floating Device Window Container (Matching Reference Aesthetic) */}
       <div className="canvas-frame">
-        {/* Artwork Quick Switcher Floating Pill */}
-        <div className="artwork-switcher-container">
-          <button
-            className="artwork-switcher-btn"
-            onClick={() => setArtworkMenuOpen(!artworkMenuOpen)}
-            title="Switch Background Artwork"
-          >
-            <ImageIcon size={15} />
-            <span>Artwork</span>
-          </button>
-
-          {artworkMenuOpen && (
-            <div className="artwork-dropdown-menu">
-              <div className="dropdown-header">Select High-Res Artwork</div>
-              {PRESET_ARTWORKS.map((art) => (
-                <button
-                  key={art.id}
-                  className={`artwork-option ${
-                    currentArtwork === art.src ? 'active' : ''
-                  }`}
-                  onClick={() => {
-                    setCurrentArtwork(art.src);
-                    setArtworkMenuOpen(false);
-                  }}
-                >
-                  <span className="opt-title">{art.name}</span>
-                  <span className="opt-desc">{art.desc}</span>
-                </button>
-              ))}
-
-              <div className="dropdown-divider"></div>
-
-              <button
-                className="artwork-option upload-opt"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload size={14} />
-                <span>Upload Custom Image (ChatGPT / DALL-E)</span>
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                accept="image/*"
-                onChange={handleCustomArtworkUpload}
-              />
-            </div>
-          )}
-        </div>
-
         {/* Hero Section with Immersive Artwork Background */}
         <div
           className="hero-container"
-          style={{ backgroundImage: `url(${currentArtwork})` }}
+          style={{ backgroundImage: `url(${HERO_ARTWORK})` }}
         >
           {/* Subtle Contrast Gradient Overlay for Typography Clarity */}
           <div className="hero-gradient-overlay"></div>
