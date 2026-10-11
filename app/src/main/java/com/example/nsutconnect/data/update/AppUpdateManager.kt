@@ -64,10 +64,6 @@ object AppUpdateManager {
         val candidates = mutableListOf<String>()
         candidates.add(DIRECT_EDGE_APK_URL)
         if (sourceUrl.isNotBlank() && sourceUrl != DIRECT_EDGE_APK_URL) {
-            if (sourceUrl.contains("github.com", ignoreCase = true)) {
-                candidates.add("https://gh-proxy.com/$sourceUrl")
-                candidates.add("https://ghproxy.net/$sourceUrl")
-            }
             candidates.add(sourceUrl)
         }
         return candidates

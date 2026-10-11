@@ -81,16 +81,14 @@ jobs:
           body: |
             ## 🚀 NSync Student Companion App Update (${{ steps.version_info.outputs.tag }})
 
-            ### ⚡ High-Speed 5G Download (Cloudflare Edge CDN)
-            Direct unauthenticated browser downloads from GitHub are throttled by Azure Blob Storage. Click the accelerated edge link below for instant line-rate speed:
-            - ⚡ **[Download NSync APK (5G Cloudflare Edge Mirror — Fastest)](https://gh-proxy.com/https://github.com/senkuthegreat/NSync/releases/download/${{ steps.version_info.outputs.tag }}/NSync-latest.apk)**
-            - 🌐 **[Download from Web Portal](https://senkuthegreat.github.io/NSync/)**
+            ### ⚡ Official Download
+            - 🌐 **[Download NSync APK from Portal](https://nsync-app.vercel.app/)**
+            - 📦 **[Direct APK Download](${{ steps.version_info.outputs.tag }})**
 
             ### What's New:
-            - **5G Multi-Threaded In-App Downloader**: 8 parallel connection streams with automatic segment retries.
-            - **51% Payload Reduction**: R8 minification and font subsetting (11.3 MB).
-            - **Automated CAPTCHA Solver**: Background OpenCV + Tesseract OCR engine.
-            - **Zero Annoyance Startup**: Removed blocking resume CAPTCHA popups.
+            - High-speed in-app update downloader with resume support.
+            - Optimized APK package size and runtime performance.
+            - Reliable student schedule and attendance synchronization.
           draft: false
           prerelease: false
           files: |
