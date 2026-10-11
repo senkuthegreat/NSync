@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "docs",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/download",
+      "destination": "https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}
