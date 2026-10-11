@@ -59,13 +59,6 @@ export default function App() {
               </span>
             </a>
 
-            <nav className="nav-links">
-              <a href="#dashboard">Dashboard</a>
-              <a href="#features">Features</a>
-              <a href="#setup">Setup</a>
-              <a href="#overview">Overview</a>
-            </nav>
-
             <div className="nav-actions">
               <a
                 href={LATEST_DOWNLOAD_URL}
@@ -80,10 +73,10 @@ export default function App() {
 
           {/* Hero Headlines & CTA */}
           <div className="hero-hero-content">
-            <h1 className="hero-main-title">From Chaos to Clarity</h1>
+            <h1 className="hero-main-title">Academic Life, Seamlessly Synced.</h1>
             <p className="hero-main-subtitle">
-              The student companion app for NSUT. Instant attendance tracking with 75%
-              target projection, live daily timetables, and exam hall seating.
+              Attendance tracking with 75% criteria calculator, daily timetables,
+              and exam hall seating — built exclusively for NSUT students.
             </p>
 
             <div className="hero-cta-wrapper">
