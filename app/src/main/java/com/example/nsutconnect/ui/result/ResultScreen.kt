@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -107,197 +108,206 @@ fun ResultScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Hero CGPA Metric Card
-            item {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    color = AppleCardSurface
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        AppleAccent.copy(alpha = 0.12f),
-                                        Color.Transparent
+            if (record.semesters.isNotEmpty()) {
+                // Hero CGPA Metric Card
+                item {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        color = AppleCardSurface
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            AppleAccent.copy(alpha = 0.12f),
+                                            Color.Transparent
+                                        )
                                     )
                                 )
-                            )
-                            .padding(20.dp)
-                    ) {
-                        Column {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column {
-                                    Text(
-                                        text = "CUMULATIVE GPA",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = TextSecondary,
-                                        letterSpacing = 1.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Row(verticalAlignment = Alignment.Bottom) {
+                                .padding(20.dp)
+                        ) {
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
                                         Text(
-                                            text = String.format("%.2f", record.cumulativeGpa),
-                                            fontSize = 36.sp,
-                                            fontWeight = FontWeight.Black,
-                                            color = Color.White
-                                        )
-                                        Text(
-                                            text = " / 10",
-                                            fontSize = 15.sp,
-                                            fontWeight = FontWeight.Medium,
+                                            text = "CUMULATIVE GPA",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
                                             color = TextSecondary,
-                                            modifier = Modifier.padding(bottom = 5.dp, start = 4.dp)
+                                            letterSpacing = 1.sp
                                         )
-                                    }
-                                }
-
-                                if (record.rankPercentile.isNotBlank()) {
-                                    Surface(
-                                        color = AppleAccent.copy(alpha = 0.2f),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.TrendingUp,
-                                                contentDescription = null,
-                                                tint = AppleAccent,
-                                                modifier = Modifier.size(13.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Row(verticalAlignment = Alignment.Bottom) {
                                             Text(
-                                                text = record.rankPercentile,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = AppleAccent
+                                                text = String.format("%.2f", record.cumulativeGpa),
+                                                fontSize = 36.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = Color.White
+                                            )
+                                            Text(
+                                                text = " / 10",
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = TextSecondary,
+                                                modifier = Modifier.padding(bottom = 5.dp, start = 4.dp)
                                             )
                                         }
                                     }
-                                }
-                            }
 
-                            Spacer(modifier = Modifier.height(18.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "${record.totalCreditsCompleted} Credits Secured",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = TextSecondary
-                                )
-                                Text(
-                                    text = if (record.percentile != null) "${String.format("%.1f", record.percentile)}% Percentile" else "19.9% Percentile",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = AppleAccent
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Target CGPA Planner Collapsible
-            item {
-                AnimatedVisibility(
-                    visible = showTargetPlanner,
-                    enter = appleAccordionEnter(),
-                    exit = appleAccordionExit()
-                ) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
-                        color = AppleElevatedSurface
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "Target CGPA Planner",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = String.format("Target: %.2f", targetCgpaInput),
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = AppleAccent
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            Slider(
-                                value = targetCgpaInput,
-                                onValueChange = { targetCgpaInput = it },
-                                valueRange = 6.0f..9.5f,
-                                steps = 35,
-                                colors = SliderDefaults.colors(
-                                    thumbColor = AppleAccent,
-                                    activeTrackColor = AppleAccent,
-                                    inactiveTrackColor = Color.White.copy(alpha = 0.15f)
-                                )
-                            )
-
-                            val totalDegreeCredits = 160
-                            val remainingCredits = totalDegreeCredits - record.totalCreditsCompleted
-                            val neededAvgSgpa = if (remainingCredits > 0) {
-                                ((targetCgpaInput * totalDegreeCredits) - (record.cumulativeGpa * record.totalCreditsCompleted)) / remainingCredits
-                            } else 0f
-
-                            Surface(
-                                shape = RoundedCornerShape(10.dp),
-                                color = if (neededAvgSgpa in 0.0f..10.0f) AppleAccent.copy(alpha = 0.15f) else DangerRed.copy(alpha = 0.15f),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = Icons.Default.CheckCircle,
-                                            contentDescription = null,
-                                            tint = if (neededAvgSgpa in 0.0f..10.0f) AppleAccent else DangerRed,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = "Required avg SGPA / sem: ${String.format("%.2f", neededAvgSgpa)}",
-                                            fontSize = 13.sp,
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    if (record.rankPercentile.isNotBlank()) {
+                                        Surface(
+                                            color = AppleAccent.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                                                    contentDescription = null,
+                                                    tint = AppleAccent,
+                                                    modifier = Modifier.size(13.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = record.rankPercentile,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = AppleAccent
+                                                )
+                                            }
+                                        }
                                     }
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
+
+                                Spacer(modifier = Modifier.height(18.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Text(
-                                        text = "Across remaining ${remainingCredits / 20} semesters (${remainingCredits} credits)",
-                                        fontSize = 11.sp,
+                                        text = "${record.totalCreditsCompleted} Credits Secured",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
                                         color = TextSecondary
                                     )
+                                    if (record.percentile != null) {
+                                        Text(
+                                            text = "${String.format("%.1f", record.percentile)}% Percentile",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = AppleAccent
+                                        )
+                                    } else if (record.isLiveFromResultHub) {
+                                        Text(
+                                            text = "ResultHub NSUT",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = SafeGreen
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            // Semester Selector Tabs with fluid sliding pill
-            if (record.semesters.isNotEmpty()) {
+                // Target CGPA Planner Collapsible
+                item {
+                    AnimatedVisibility(
+                        visible = showTargetPlanner,
+                        enter = appleAccordionEnter(),
+                        exit = appleAccordionExit()
+                    ) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            color = AppleElevatedSurface
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "Target CGPA Planner",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = String.format("Target: %.2f", targetCgpaInput),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = AppleAccent
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Slider(
+                                    value = targetCgpaInput,
+                                    onValueChange = { targetCgpaInput = it },
+                                    valueRange = 6.0f..9.5f,
+                                    steps = 35,
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = AppleAccent,
+                                        activeTrackColor = AppleAccent,
+                                        inactiveTrackColor = Color.White.copy(alpha = 0.15f)
+                                    )
+                                )
+
+                                val totalDegreeCredits = 160
+                                val remainingCredits = totalDegreeCredits - record.totalCreditsCompleted
+                                val neededAvgSgpa = if (remainingCredits > 0) {
+                                    ((targetCgpaInput * totalDegreeCredits) - (record.cumulativeGpa * record.totalCreditsCompleted)) / remainingCredits
+                                } else 0f
+
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (neededAvgSgpa in 0.0f..10.0f) AppleAccent.copy(alpha = 0.15f) else DangerRed.copy(alpha = 0.15f),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Default.CheckCircle,
+                                                contentDescription = null,
+                                                tint = if (neededAvgSgpa in 0.0f..10.0f) AppleAccent else DangerRed,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Required avg SGPA / sem: ${String.format("%.2f", neededAvgSgpa)}",
+                                                fontSize = 13.sp,
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "Across remaining ${remainingCredits / 20} semesters (${remainingCredits} credits)",
+                                            fontSize = 11.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Semester Selector Tabs with fluid sliding pill
                 item {
                     BoxWithConstraints(
                         modifier = Modifier
@@ -361,28 +371,53 @@ fun ResultScreen(
                         }
                     }
                 }
-            }
 
-            // Course Grades List
-            if (activeSemester != null) {
-                items(activeSemester.courses, key = { it.code }) { course ->
-                    Box(modifier = Modifier.animateItem()) {
-                        CourseGradeCard(course = course)
+                // Course Grades List
+                if (activeSemester != null) {
+                    items(activeSemester.courses, key = { it.code }) { course ->
+                        Box(modifier = Modifier.animateItem()) {
+                            CourseGradeCard(course = course)
+                        }
                     }
                 }
             } else {
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        color = AppleCardSurface
                     ) {
-                        Text(
-                            text = if (rollNumber.isNotBlank()) "No published results found for $rollNumber on ResultHub." else "Please log in to view results.",
-                            color = TextSecondary,
-                            fontSize = 13.sp
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(28.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = AppleAccent,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "University Results",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = if (rollNumber.isNotBlank())
+                                    "No published results found for $rollNumber on ResultHub yet.\nResults appear automatically once official university gazettes are released."
+                                else
+                                    "Please sign in with your NSUT roll number to view semester results.",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                lineHeight = 18.sp
+                            )
+                        }
                     }
                 }
             }

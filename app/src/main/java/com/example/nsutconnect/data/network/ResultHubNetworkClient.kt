@@ -175,10 +175,12 @@ class ResultHubNetworkClient {
                 else -> "Active Student"
             }
 
+            val programName = "B.Tech. - ${branchCodeToFullName(branchCode)}"
+
             StudentAcademicRecord(
                 rollNumber = roll,
                 name = name,
-                program = "B.Tech. - ELECTRONICS ENGINEERING (VLSI)",
+                program = programName,
                 cumulativeGpa = cgpa,
                 totalCreditsCompleted = if (creditsCompleted > 0) creditsCompleted else sortedSemesters.sumOf { it.creditsEarned },
                 totalCoursesCompleted = totalCoursesCount,
@@ -211,5 +213,21 @@ class ResultHubNetworkClient {
             "D" -> 4
             else -> 0
         }
+    }
+
+    private fun branchCodeToFullName(code: String): String = when (code.uppercase()) {
+        "UCS" -> "Computer Science & Engineering"
+        "UIT" -> "Information Technology"
+        "UEC" -> "Electronics & Communication Engineering"
+        "UEV" -> "Electronics Engineering (VLSI Design)"
+        "UEE" -> "Electrical Engineering"
+        "UME" -> "Mechanical Engineering"
+        "UBT" -> "Biotechnology"
+        "UCA" -> "Computer Science & AI (CSAI)"
+        "UCD" -> "Computer Science & Design (CSD)"
+        "UCM" -> "Mathematics & Computing"
+        "UCI" -> "Computer Science (IoT)"
+        "UEA" -> "Electrical & Automation"
+        else -> if (code.isNotBlank()) "B.Tech. ($code)" else "B.Tech."
     }
 }
