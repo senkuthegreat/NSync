@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -480,9 +481,22 @@ fun LoginScreen(
                                 color = AppleSecondaryLabel.copy(alpha = 0.6f)
                             )
                         },
+                        trailingIcon = if (captcha.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { captcha = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Clear Captcha",
+                                        tint = AppleSecondaryLabel,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        } else null,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.NumberPassword,
+                            keyboardType = KeyboardType.Number,
+                            autoCorrect = false,
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(

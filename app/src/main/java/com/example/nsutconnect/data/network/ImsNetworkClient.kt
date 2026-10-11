@@ -134,25 +134,27 @@ class ImsNetworkClient {
                 .header("Referer", PLUM_LOGIN_URL)
                 .header("Origin", "https://www.imsnsit.org")
                 .cookies(sessionToUse.cookies)
-                .data("f", "")
-                .data("uid", cleanRoll)
-                .data("pwd", cleanPass)
-                .data("cap", cleanCap)
-                .data("comp", "NETAJI SUBHAS UNIVERSITY OF TECHNOLOGY")
-                .data("fy", sessionToUse.fy)
-                .data("login", "Login")
 
-            // Forward all hidden form fields parsed from session (including dynamic HRAND_NUM, t, enc_fy)
-            sessionToUse.hiddenFields.forEach { (name, value) ->
-                if (name != "uid" && name != "pwd" && name != "cap" && name != "fy" && name != "login") {
-                    conn.data(name, value)
-                }
+            val postParams = mutableMapOf<String, String>()
+            // Forward all parsed hidden fields from the session
+            postParams.putAll(sessionToUse.hiddenFields)
+            // Explicitly set credentials, captcha, and required system fields
+            postParams["f"] = ""
+            postParams["uid"] = cleanRoll
+            postParams["pwd"] = cleanPass
+            postParams["cap"] = cleanCap
+            postParams["comp"] = "NETAJI SUBHAS UNIVERSITY OF TECHNOLOGY"
+            postParams["fy"] = sessionToUse.fy
+            postParams["login"] = "Login"
+            if (!postParams.containsKey("t")) {
+                postParams["t"] = "swx"
             }
-            if (!sessionToUse.hiddenFields.containsKey("t")) {
-                conn.data("t", "swx")
+            if (sessionToUse.encFy != null && !postParams.containsKey("enc_fy")) {
+                postParams["enc_fy"] = sessionToUse.encFy
             }
-            if (sessionToUse.encFy != null && !sessionToUse.hiddenFields.containsKey("enc_fy")) {
-                conn.data("enc_fy", sessionToUse.encFy)
+
+            postParams.forEach { (name, value) ->
+                conn.data(name, value)
             }
 
             val response = conn

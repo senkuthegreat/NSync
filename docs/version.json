@@ -1,8 +1,8 @@
 {
-  "version": "1.0.33",
-  "versionCode": 33,
-  "name": "NSync v1.0.33",
-  "notes": "Fixed IMS security captcha verification, added imsnsit.org Autofill & soft-keyboard popup, and decluttered Widget Studio theme layout.",
+  "version": "1.0.34",
+  "versionCode": 34,
+  "name": "NSync v1.0.34",
+  "notes": "Fixed Autofill leaking password characters into captcha, numeric keypad optimization, added captcha clear button, and consolidated IMS form validation.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T15:06:00Z"
+  "publishedAt": "2026-10-11T15:50:00Z"
 }
