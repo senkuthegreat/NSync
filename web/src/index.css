@@ -394,6 +394,30 @@ body {
   line-height: 1.45;
 }
 
+.flank-sub-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+}
+
+.flank-sub-chips .chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.flank-sub-chips .chip.danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.flank-sub-chips .chip.warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
 .flank-countdown-pill {
   display: inline-flex;
   align-items: center;
@@ -415,50 +439,17 @@ body {
   margin-top: 4px;
 }
 
-.flank-mini-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-top: 10px;
-  border-top: 1px dashed rgba(0, 0, 0, 0.08);
-}
-
-.mini-bar-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.mini-val {
-  color: #4f46e5;
-}
-
-.mini-track {
-  height: 6px;
-  background: #f3f4f6;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.mini-fill {
-  height: 100%;
-  background: #4f46e5;
-  border-radius: 999px;
-}
-
 /* Central Flagship Smartphone Device */
 .device-phone {
-  width: 324px;
-  height: 660px;
+  width: 326px;
+  height: 680px;
   background: linear-gradient(150deg, #2b2b32 0%, #151518 100%);
   border-radius: 50px;
   padding: 10px;
   box-shadow: 
     0 35px 90px -15px rgba(0, 0, 0, 0.65),
     0 0 0 1px rgba(255, 255, 255, 0.12),
-    0 15px 40px rgba(99, 102, 241, 0.22);
+    0 15px 40px rgba(88, 101, 242, 0.22);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -481,7 +472,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 18px 6px;
+  padding: 12px 18px 4px;
   font-size: 0.7rem;
   font-weight: 600;
   color: #a1a1aa;
@@ -495,440 +486,486 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* In-App Header */
-.phone-app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 18px 14px;
-}
-
-.phone-student-info h4 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.phone-student-info p {
-  font-size: 0.68rem;
-  color: #71717a;
-  margin-top: 2px;
-}
-
-.phone-sync-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: #0e2a18;
-  color: #22c55e;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-.phone-sync-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #22c55e;
-}
-
-/* Phone Screen Dynamic View Container */
-.phone-content-area {
+/* Phone Screen Body */
+.phone-screen-body {
   flex: 1;
-  padding: 0 16px 16px;
   overflow-y: auto;
   scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
 }
 
-.phone-content-area::-webkit-scrollbar {
+.phone-screen-body::-webkit-scrollbar {
   display: none;
 }
 
-.phone-tab-screen {
+.real-screen {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.fade-in {
-  animation: screenFadeIn 0.25s ease-out;
-}
-
-@keyframes screenFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Screen 1: Attendance Card */
-.phone-gauge-card {
-  background: #131316;
-  border: 1px solid #202026;
-  border-radius: 20px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.phone-circular-gauge {
-  position: relative;
-  width: 96px;
-  height: 96px;
-  margin-bottom: 8px;
-}
-
-.phone-gauge-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.phone-gauge-svg .gauge-bg {
-  fill: none;
-  stroke: #202026;
-  stroke-width: 9;
-}
-
-.phone-gauge-svg .gauge-progress {
-  fill: none;
-  stroke: #22c55e;
-  stroke-width: 9;
-  stroke-linecap: round;
-  stroke-dasharray: 251.2;
-}
-
-.gauge-center-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.gauge-big-num {
-  font-size: 1.15rem;
+.screen-main-heading {
+  font-size: 1.45rem;
   font-weight: 800;
   color: #ffffff;
-  line-height: 1;
+  padding: 14px 16px 10px;
+  letter-spacing: -0.02em;
 }
 
-.gauge-status-badge {
-  font-size: 0.58rem;
-  font-weight: 700;
-  color: #22c55e;
-  background: #0e2a18;
-  padding: 1px 6px;
-  border-radius: 999px;
-  margin-top: 3px;
-}
-
-.gauge-advice-text {
-  font-size: 0.72rem;
-  color: #a1a1aa;
-  line-height: 1.4;
-}
-
-.gauge-advice-text strong {
-  color: #ffffff;
-}
-
-.phone-subject-list {
+/* ==========================================================
+   SCREEN 1: ATTENDANCE (Matching Authentic Image 2)
+   ========================================================== */
+.att-cards-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 0 14px 14px;
 }
 
-.phone-subject-item {
-  background: #131316;
-  border: 1px solid #202026;
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.subj-title-row {
+.att-subject-row {
+  background: #141416;
+  border-radius: 16px;
+  padding: 11px 14px;
   display: flex;
   justify-content: space-between;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #e4e4e7;
+  align-items: center;
 }
 
-.subj-pct.safe {
-  color: #6366f1;
-}
-
-.subj-pct.warn {
-  color: #f59e0b;
-}
-
-.subj-bar-track {
-  height: 5px;
-  background: #202026;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.subj-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-}
-
-.subj-bar-fill.safe {
-  background: #6366f1;
-}
-
-.subj-bar-fill.warn {
-  background: #f59e0b;
-}
-
-/* Screen 2: Today's Schedule */
-.phone-day-tabs {
+.att-row-left {
   display: flex;
-  gap: 4px;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.day-tab-pill {
-  flex: 1;
-  background: #131316;
-  border: 1px solid #202026;
-  color: #71717a;
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 6px 0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  border: none;
-}
-
-.day-tab-pill.active {
-  background: #6366f1;
+.att-row-left h5 {
+  font-size: 0.77rem;
+  font-weight: 700;
   color: #ffffff;
+  line-height: 1.2;
 }
 
-.phone-schedule-list {
+.att-sub-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.att-sub-tag.danger {
+  color: #ef4444;
+}
+
+.att-sub-tag.warning {
+  color: #eab308;
+}
+
+.att-sub-tag.safe {
+  color: #22c55e;
+}
+
+.att-sub-tag.neutral {
+  color: #71717a;
+}
+
+.att-pct-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.att-pct-badge.danger {
+  background: #2b1010;
+  color: #ef4444;
+}
+
+.att-pct-badge.warning {
+  background: #2b1d08;
+  color: #eab308;
+}
+
+.att-pct-badge.safe {
+  background: #0e2a18;
+  color: #22c55e;
+}
+
+.att-pct-badge.neutral {
+  background: #18181b;
+  color: #71717a;
+}
+
+/* ==========================================================
+   SCREEN 2: SCHEDULE (Matching Authentic Image 3)
+   ========================================================== */
+.sched-header-row {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px 8px;
 }
 
-.phone-schedule-card {
-  background: #131316;
-  border: 1px solid #202026;
-  border-radius: 14px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.sched-header-row .screen-main-heading {
+  padding: 0;
 }
 
-.phone-schedule-card.active-now {
-  border-color: rgba(99, 102, 241, 0.4);
-  background: #161722;
-}
-
-.sched-time-badge {
+.sched-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+}
+
+.gcal-pill {
+  background: #141416;
+  border: 1px solid #202026;
+  border-radius: 999px;
+  padding: 5px 10px;
   font-size: 0.65rem;
   font-weight: 700;
-  color: #6366f1;
-}
-
-.phone-schedule-card h5 {
-  font-size: 0.8rem;
-  font-weight: 700;
   color: #ffffff;
-}
-
-.sched-meta-loc {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.66rem;
-  color: #71717a;
+  gap: 5px;
 }
 
-/* Screen 3: Exam Seating */
-.phone-exam-search {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #131316;
+.cal-icon-btn {
+  background: #141416;
   border: 1px solid #202026;
   border-radius: 10px;
-  padding: 8px 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5865F2;
+}
+
+.sched-day-selector {
+  display: flex;
+  gap: 5px;
+  padding: 0 14px 10px;
+}
+
+.sched-day-btn {
+  flex: 1;
+  background: #141416;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 0;
   font-size: 0.72rem;
-  color: #71717a;
+  font-weight: 600;
+  color: #a1a1aa;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.phone-exam-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.phone-ticket-card {
-  background: #131316;
-  border: 1px solid #202026;
-  border-radius: 14px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.ticket-date-chip {
-  font-size: 0.62rem;
+.sched-day-btn.active {
+  background: #5865F2;
+  color: #ffffff;
   font-weight: 700;
-  color: #6366f1;
+}
+
+.sched-day-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px 8px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #71717a;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.phone-ticket-card h5 {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.ticket-seat-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin-top: 2px;
-}
-
-.seat-cell {
-  background: #09090b;
-  border: 1px solid #202026;
-  border-radius: 8px;
-  padding: 4px 6px;
+.sched-items-container {
   display: flex;
   flex-direction: column;
+  gap: 7px;
+  padding: 0 14px 14px;
+}
+
+.sched-class-card {
+  background: #141416;
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.seat-cell.highlight {
-  border-color: rgba(99, 102, 241, 0.5);
-  background: #161722;
+.class-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.cell-label {
-  font-size: 0.54rem;
-  color: #71717a;
-  text-transform: uppercase;
-}
-
-.cell-value {
-  font-size: 0.75rem;
+.class-card-text h5 {
+  font-size: 0.76rem;
   font-weight: 700;
   color: #ffffff;
 }
 
-/* Screen 4: IMS Login */
-.phone-login-card {
-  background: #131316;
-  border: 1px solid #202026;
+.class-time {
+  font-size: 0.65rem;
+  color: #71717a;
+  font-weight: 500;
+}
+
+.class-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 8px;
+  letter-spacing: 0.04em;
+}
+
+.class-badge.lecture {
+  background: #1e203b;
+  color: #5865F2;
+}
+
+.class-badge.tutorial {
+  background: #2b1d08;
+  color: #f59e0b;
+}
+
+.sched-break-card {
+  background: #0d0d0f;
+  border: 1px solid #18181c;
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.64rem;
+  color: #71717a;
+  font-weight: 600;
+}
+
+/* ==========================================================
+   SCREEN 3: MORE / PROFILE (Matching Authentic Image 4)
+   ========================================================== */
+.student-profile-banner {
+  background: #141416;
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 14px 14px;
+}
+
+.profile-avatar-magenta {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+  flex-shrink: 0;
+}
+
+.profile-banner-info h5 {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.profile-tag-blue {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #5865F2;
+}
+
+.profile-banner-info p {
+  font-size: 0.62rem;
+  color: #71717a;
+  margin-top: 1px;
+}
+
+.more-menu-section-title {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 16px 6px;
+}
+
+.more-menu-group-card {
+  background: #141416;
   border-radius: 16px;
-  padding: 16px 14px;
+  padding: 4px 0;
+  margin: 0 14px 14px;
   display: flex;
   flex-direction: column;
+}
+
+.more-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #e4e4e7;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.more-row-item:last-child {
+  border-bottom: none;
+}
+
+.more-row-left {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-.login-logo-mini {
+.menu-icon-square {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #1e203b;
+  color: #5865F2;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  justify-content: center;
 }
 
-.login-logo-mini img {
-  width: 20px;
-  height: 20px;
+.row-chevron {
+  color: #52525b;
 }
 
-.login-logo-mini span {
-  font-size: 0.75rem;
+.logout-action-box {
+  background: #1c1012;
+  color: #ef4444;
+  border-radius: 14px;
+  padding: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.76rem;
   font-weight: 700;
-  color: #ffffff;
+  margin: 2px 14px 16px;
 }
 
-.login-mock-field {
+/* ==========================================================
+   SCREEN 4: LOGIN SCREEN (Matching Authentic Image 1)
+   ========================================================== */
+.login-view {
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: center;
 }
 
-.login-mock-field label {
-  font-size: 0.6rem;
-  font-weight: 600;
+.login-logo-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-brand-unkempt {
+  font-family: var(--font-brand);
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.login-brand-unkempt span {
+  color: #5865F2;
+}
+
+.login-form-card {
+  background: #121215;
+  border-radius: 22px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-input-group label {
+  font-size: 0.65rem;
+  font-weight: 700;
   color: #71717a;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.mock-input-box {
-  background: #09090b;
-  border: 1px solid #202026;
-  border-radius: 8px;
-  padding: 7px 10px;
-  font-size: 0.74rem;
-  color: #d4d4d8;
-  font-family: monospace;
-}
-
-.login-mock-captcha {
-  display: flex;
-  gap: 8px;
-}
-
-.captcha-preview-box {
-  flex: 1;
-  background: #1e203b;
-  border: 1px dashed #6366f1;
-  border-radius: 8px;
+.login-input-box {
+  background: #1e1e24;
+  border-radius: 12px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  color: #818cf8;
-  padding: 6px;
+  gap: 10px;
+  color: #71717a;
+  font-size: 0.76rem;
+  font-weight: 500;
 }
 
-.captcha-input-box {
-  width: 70px;
-  background: #09090b;
-  border: 1px solid #202026;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #ffffff;
+.login-input-box .eye-icon {
+  margin-left: auto;
+  color: #71717a;
 }
 
-.login-mock-btn {
-  background: #6366f1;
+.login-primary-btn {
+  width: 100%;
+  background: #5865F2;
   color: #ffffff;
-  font-size: 0.74rem;
+  border-radius: 14px;
+  padding: 13px 0;
+  font-size: 0.95rem;
   font-weight: 700;
-  text-align: center;
-  padding: 9px;
-  border-radius: 8px;
+  border: none;
   cursor: pointer;
-  margin-top: 4px;
+  margin-top: 18px;
+  box-shadow: 0 8px 24px rgba(88, 101, 242, 0.4);
+}
+
+/* ==========================================================
+   AUTHENTIC IN-APP BOTTOM NAVIGATION BAR
+   ========================================================== */
+.real-bottom-nav {
+  height: 56px;
+  background: #09090b;
+  border-top: 1px solid #141416;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.bnav-item {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #71717a;
+  font-size: 0.64rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bnav-item.active {
+  background: #1f212d;
+  color: #5865F2;
+  font-weight: 700;
 }
 
 /* Content Sections (Below Hero Frame) */
