@@ -7,8 +7,8 @@ plugins {
 android {
     namespace = "com.example.nsutconnect"
     compileSdk = 36
-    val appVersionCode = project.findProperty("versionCode")?.toString()?.toIntOrNull() ?: 32
-    val appVersionName = project.findProperty("versionName")?.toString() ?: "1.0.32"
+    val appVersionCode = project.findProperty("versionCode")?.toString()?.toIntOrNull() ?: 33
+    val appVersionName = project.findProperty("versionName")?.toString() ?: "1.0.33"
 
     defaultConfig {
         applicationId = "com.example.nsutconnect"
