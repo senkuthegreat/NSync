@@ -1,23 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/download",
-      "destination": "/downloads/NSync.apk"
+      "destination": "/docs/downloads/NSync.apk"
     },
     {
-      "source": "/",
-      "destination": "/docs/index.html"
+      "source": "/downloads/(.*)",
+      "destination": "/docs/downloads/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/docs/$1"
+      "source": "/assets/(.*)",
+      "destination": "/docs/assets/$1"
     }
   ],
   "headers": [
     {
-      "source": "/docs/assets/(.*)",
+      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

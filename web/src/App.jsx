@@ -281,10 +281,6 @@ export default function App() {
                 <span>Download for Android</span>
                 <Download size={17} />
               </a>
-              <div className="hero-version-pill">
-                <span className="live-dot"></span>
-                <span>{releaseInfo.version} • {releaseInfo.size}</span>
-              </div>
             </div>
           </div>
         </div>

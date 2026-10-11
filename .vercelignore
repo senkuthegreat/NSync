@@ -1,8 +1,10 @@
+app/
+build/
 android/
 server/
 .gradle/
 .idea/
-*.apk
-*.log
 web/node_modules
 web/
+*.log
+release_assets/

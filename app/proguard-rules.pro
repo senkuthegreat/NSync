@@ -33,3 +33,13 @@
 # AndroidX Navigation & Compose
 -keep class androidx.navigation.** { *; }
 -keep class androidx.compose.** { *; }
+
+# AndroidX Startup, WorkManager & Room
+-keep class androidx.startup.** { *; }
+-keep class androidx.work.** { *; }
+-keep class * extends androidx.work.Worker { *; }
+-keep class * extends androidx.work.ListenableWorker { *; }
+-keep class * extends androidx.room.RoomDatabase { *; }
+-keep class androidx.room.** { *; }
+-dontwarn androidx.work.**
+-dontwarn androidx.room.**
