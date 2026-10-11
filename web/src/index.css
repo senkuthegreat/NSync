@@ -135,68 +135,43 @@ body {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .nav-social-group {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 999px;
-  padding: 4px 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  padding: 6px 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-social-group:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.42);
 }
 
 .nav-social-icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nav-social-icon-btn:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.28);
-  transform: translateY(-1px) scale(1.08);
-}
-
-.nav-btn-pill {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  padding: 9px 24px;
-  border-radius: 999px;
-  font-size: 0.92rem;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-}
-
-.nav-btn-pill:hover {
-  background: rgba(255, 255, 255, 0.38);
-  border-color: rgba(255, 255, 255, 0.55);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px) scale(1.15);
 }
 
 /* Hero Center Headlines */
@@ -440,156 +415,16 @@ body {
   gap: 16px;
 }
 
-/* Comprehensive Developer Showcase & Footer */
-.canvas-footer-area {
+/* Clean Canvas Footer */
+.canvas-footer {
   border-top: 1px solid #f0f0f4;
+  padding: 32px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
   background: #ffffff;
-  display: flex;
-  flex-direction: column;
-}
-
-.developer-contact-card {
-  padding: 38px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 32px;
-  flex-wrap: wrap;
-  background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
-  border-bottom: 1px solid #f0f0f4;
-}
-
-.dev-card-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.dev-avatar-container {
-  position: relative;
-  width: 58px;
-  height: 58px;
-  flex-shrink: 0;
-}
-
-.dev-avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-}
-
-.dev-active-indicator {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 12px;
-  height: 12px;
-  background: #10b981;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-}
-
-.dev-meta-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dev-badge-tag {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent-indigo);
-}
-
-.dev-name-title {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #111827;
-}
-
-.dev-handle-inline {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #6b7280;
-}
-
-.dev-tagline {
-  font-size: 0.88rem;
-  color: #6b7280;
-  max-width: 480px;
-  line-height: 1.45;
-}
-
-.dev-links-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.contact-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 18px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.contact-pill-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.contact-pill-btn.portfolio:hover {
-  background: #0f172a;
-  border-color: #0f172a;
-  color: #ffffff;
-}
-
-.contact-pill-btn.github:hover {
-  background: #181717;
-  border-color: #181717;
-  color: #ffffff;
-}
-
-.contact-pill-btn.linkedin:hover {
-  background: #0077b5;
-  border-color: #0077b5;
-  color: #ffffff;
-}
-
-.contact-pill-btn.instagram:hover {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-  border-color: #dc2743;
-  color: #ffffff;
-}
-
-.contact-pill-btn.email:hover {
-  background: #ea4335;
-  border-color: #ea4335;
-  color: #ffffff;
-}
-
-.canvas-footer-bottom {
-  padding: 26px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
 }
 
 .footer-left {
@@ -654,13 +489,7 @@ body {
     padding: 10px 24px 40px;
   }
 
-  .developer-contact-card {
-    padding: 28px 24px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .canvas-footer-bottom {
+  .canvas-footer {
     padding: 24px;
     flex-direction: column;
     align-items: flex-start;
@@ -678,14 +507,17 @@ body {
   }
 
   .hero-nav {
-    padding: 18px 16px;
-    flex-direction: column;
-    gap: 16px;
+    padding: 20px 18px;
   }
 
-  .nav-actions {
-    width: 100%;
-    justify-content: space-between;
+  .nav-social-group {
+    padding: 5px 10px;
+    gap: 4px;
+  }
+
+  .nav-social-icon-btn {
+    width: 28px;
+    height: 28px;
   }
 
   .hero-main-title {
@@ -704,12 +536,9 @@ body {
     font-size: 1.8rem;
   }
 
-  .dev-links-container {
-    width: 100%;
-  }
-
-  .contact-pill-btn {
-    flex: 1;
-    justify-content: center;
+  .canvas-footer {
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
