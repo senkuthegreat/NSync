@@ -21,7 +21,8 @@ const LATEST_DOWNLOAD_URL = './downloads/NSync.apk';
 const HERO_ARTWORK = './assets/artworks/sunset-clouds.jpg';
 
 export default function App() {
-  const [activeSidebarTab, setActiveSidebarTab] = useState('attendance');
+  const [activePhoneTab, setActivePhoneTab] = useState('attendance');
+  const [activeDay, setActiveDay] = useState('Wed');
   const [scrolled, setScrolled] = useState(false);
 
   // Header scroll state
@@ -81,8 +82,8 @@ export default function App() {
           <div className="hero-hero-content">
             <h1 className="hero-main-title">From Chaos to Clarity</h1>
             <p className="hero-main-subtitle">
-              Manage projects and academics effortlessly. Track attendance with smart bunk
-              projections, live timetable sync, and exam hall seating.
+              The student companion app for NSUT. Instant attendance tracking with 75%
+              target projection, live daily timetables, and exam hall seating.
             </p>
 
             <div className="hero-cta-wrapper">
@@ -97,245 +98,313 @@ export default function App() {
             </div>
           </div>
 
-          {/* Floating Application Dashboard Card (Protruding from Hero into Content) */}
-          <div id="dashboard" className="floating-dashboard-card">
-            {/* Left Sidebar */}
-            <aside className="dash-sidebar">
-              <div className="dash-sidebar-header">
-                <span className="dash-team-title">My Campus</span>
+          {/* Interactive Mobile Device Stage (Flagship Phone + Live Flanking Widgets) */}
+          <div id="showcase" className="hero-device-stage">
+            {/* Interactive Screen Selector Tabs */}
+            <div className="stage-tabs-pill">
+              <button
+                className={`stage-tab-btn ${activePhoneTab === 'attendance' ? 'active' : ''}`}
+                onClick={() => setActivePhoneTab('attendance')}
+              >
+                <Percent size={14} />
+                <span>Attendance</span>
+              </button>
+              <button
+                className={`stage-tab-btn ${activePhoneTab === 'schedule' ? 'active' : ''}`}
+                onClick={() => setActivePhoneTab('schedule')}
+              >
+                <Clock size={14} />
+                <span>Schedule</span>
+              </button>
+              <button
+                className={`stage-tab-btn ${activePhoneTab === 'exams' ? 'active' : ''}`}
+                onClick={() => setActivePhoneTab('exams')}
+              >
+                <MapPin size={14} />
+                <span>Exam Seating</span>
+              </button>
+              <button
+                className={`stage-tab-btn ${activePhoneTab === 'login' ? 'active' : ''}`}
+                onClick={() => setActivePhoneTab('login')}
+              >
+                <ShieldCheck size={14} />
+                <span>IMS Portal</span>
+              </button>
+            </div>
+
+            {/* Stage Centerpiece: Central Phone + Flanking Floating Glass Widgets */}
+            <div className="stage-centerpiece">
+              {/* Left Flanking Glass Card: Attendance Guard */}
+              <div className="flanking-card left-card">
+                <div className="flank-badge safe">
+                  <Percent size={12} />
+                  <span>75% Attendance Guard</span>
+                </div>
+                <div className="flank-stat">
+                  <span className="flank-number">83.3%</span>
+                  <span className="flank-tag safe">Safe</span>
+                </div>
+                <p className="flank-desc">
+                  You can safely skip <strong>4 lecture(s)</strong> above the 75% threshold.
+                </p>
+                <div className="flank-mini-bars">
+                  <div className="mini-bar-row">
+                    <span>Compiler Design</span>
+                    <span className="mini-val">91.2%</span>
+                  </div>
+                  <div className="mini-track">
+                    <div className="mini-fill" style={{ width: '91.2%' }}></div>
+                  </div>
+                </div>
               </div>
 
-              <nav className="dash-nav-list">
-                <button
-                  className={`dash-nav-item ${
-                    activeSidebarTab === 'attendance' ? 'active' : ''
-                  }`}
-                  onClick={() => setActiveSidebarTab('attendance')}
-                >
-                  <Layers size={16} />
-                  <span>Dashboard</span>
-                </button>
+              {/* Central Titanium Flagship Smartphone */}
+              <div className="device-phone">
+                <div className="device-screen">
+                  {/* Status Bar with Dynamic Island */}
+                  <div className="phone-status-bar">
+                    <span>09:41</span>
+                    <div className="phone-island"></div>
+                    <span>5G • 100%</span>
+                  </div>
 
-                <button
-                  className={`dash-nav-item ${
-                    activeSidebarTab === 'timetable' ? 'active' : ''
-                  }`}
-                  onClick={() => setActiveSidebarTab('timetable')}
-                >
-                  <Clock size={16} />
-                  <span>Timeline</span>
-                </button>
+                  {/* In-App Header */}
+                  <div className="phone-app-header">
+                    <div className="phone-student-info">
+                      <h4>Hey, Senku 👋</h4>
+                      <p>COE • 6th Semester • NSUT</p>
+                    </div>
+                    <div className="phone-sync-pill">
+                      <span className="phone-sync-dot"></span>
+                      <span>Synced</span>
+                    </div>
+                  </div>
 
-                <button
-                  className={`dash-nav-item ${
-                    activeSidebarTab === 'exams' ? 'active' : ''
-                  }`}
-                  onClick={() => setActiveSidebarTab('exams')}
-                >
-                  <Calendar size={16} />
-                  <span>Exams & Halls</span>
-                </button>
+                  {/* Dynamic Tab Screen Container */}
+                  <div className="phone-content-area">
+                    {/* Screen 1: Attendance Guardian */}
+                    {activePhoneTab === 'attendance' && (
+                      <div className="phone-tab-screen fade-in">
+                        <div className="phone-gauge-card">
+                          <div className="phone-circular-gauge">
+                            <svg className="phone-gauge-svg" viewBox="0 0 100 100">
+                              <circle className="gauge-bg" cx="50" cy="50" r="40" />
+                              <circle
+                                className="gauge-progress"
+                                cx="50"
+                                cy="50"
+                                r="40"
+                                style={{ strokeDashoffset: '42' }}
+                              />
+                            </svg>
+                            <div className="gauge-center-text">
+                              <span className="gauge-big-num">83.3%</span>
+                              <span className="gauge-status-badge">SAFE</span>
+                            </div>
+                          </div>
+                          <p className="gauge-advice-text">
+                            You can safely skip <strong>4 lecture(s)</strong> above 75%.
+                          </p>
+                        </div>
 
-                <button
-                  className={`dash-nav-item ${
-                    activeSidebarTab === 'preferences' ? 'active' : ''
-                  }`}
-                  onClick={() => setActiveSidebarTab('preferences')}
-                >
-                  <ShieldCheck size={16} />
-                  <span>IMS Portal</span>
-                </button>
-              </nav>
+                        <div className="phone-subject-list">
+                          <div className="phone-subject-item">
+                            <div className="subj-title-row">
+                              <span>Compiler Design</span>
+                              <span className="subj-pct safe">91.2%</span>
+                            </div>
+                            <div className="subj-bar-track">
+                              <div className="subj-bar-fill safe" style={{ width: '91.2%' }}></div>
+                            </div>
+                          </div>
 
-              <div className="dash-sidebar-footer">
-                <div className="offline-indicator">
+                          <div className="phone-subject-item">
+                            <div className="subj-title-row">
+                              <span>Computer Networks</span>
+                              <span className="subj-pct safe">85.7%</span>
+                            </div>
+                            <div className="subj-bar-track">
+                              <div className="subj-bar-fill safe" style={{ width: '85.7%' }}></div>
+                            </div>
+                          </div>
+
+                          <div className="phone-subject-item">
+                            <div className="subj-title-row">
+                              <span>Machine Learning</span>
+                              <span className="subj-pct warn">76.0%</span>
+                            </div>
+                            <div className="subj-bar-track">
+                              <div className="subj-bar-fill warn" style={{ width: '76.0%' }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Screen 2: Today's Schedule */}
+                    {activePhoneTab === 'schedule' && (
+                      <div className="phone-tab-screen fade-in">
+                        <div className="phone-day-tabs">
+                          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
+                            <button
+                              key={day}
+                              className={`day-tab-pill ${activeDay === day ? 'active' : ''}`}
+                              onClick={() => setActiveDay(day)}
+                            >
+                              {day}
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="phone-schedule-list">
+                          <div className="phone-schedule-card active-now">
+                            <div className="sched-time-badge">
+                              <Clock size={11} />
+                              <span>09:00 - 10:00 AM</span>
+                            </div>
+                            <h5>Cloud Computing (L)</h5>
+                            <div className="sched-meta-loc">
+                              <MapPin size={11} />
+                              <span>Hall: APJ-102 • Dr. Verma</span>
+                            </div>
+                          </div>
+
+                          <div className="phone-schedule-card">
+                            <div className="sched-time-badge">
+                              <Clock size={11} />
+                              <span>10:00 - 11:00 AM</span>
+                            </div>
+                            <h5>Distributed Systems</h5>
+                            <div className="sched-meta-loc">
+                              <MapPin size={11} />
+                              <span>Hall: APJ-104 • Prof. Gupta</span>
+                            </div>
+                          </div>
+
+                          <div className="phone-schedule-card">
+                            <div className="sched-time-badge">
+                              <Clock size={11} />
+                              <span>11:15 - 01:15 PM</span>
+                            </div>
+                            <h5>Networks Lab (P2)</h5>
+                            <div className="sched-meta-loc">
+                              <MapPin size={11} />
+                              <span>Computer Centre • Lab 4</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Screen 3: Exam Seating */}
+                    {activePhoneTab === 'exams' && (
+                      <div className="phone-tab-screen fade-in">
+                        <div className="phone-exam-search">
+                          <Search size={13} />
+                          <span>COE-601 Compiler Design</span>
+                        </div>
+
+                        <div className="phone-exam-list">
+                          <div className="phone-ticket-card">
+                            <div className="ticket-date-chip">18 NOV • 10:00 AM</div>
+                            <h5>Mid-Term: Artificial Intelligence</h5>
+                            <div className="ticket-seat-grid">
+                              <div className="seat-cell">
+                                <span className="cell-label">Room</span>
+                                <span className="cell-value">SPS-04</span>
+                              </div>
+                              <div className="seat-cell">
+                                <span className="cell-label">Row</span>
+                                <span className="cell-value">B</span>
+                              </div>
+                              <div className="seat-cell highlight">
+                                <span className="cell-label">Desk</span>
+                                <span className="cell-value">14</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="phone-ticket-card">
+                            <div className="ticket-date-chip">21 NOV • 02:00 PM</div>
+                            <h5>Mid-Term: Compiler Design</h5>
+                            <div className="ticket-seat-grid">
+                              <div className="seat-cell">
+                                <span className="cell-label">Room</span>
+                                <span className="cell-value">APJ-201</span>
+                              </div>
+                              <div className="seat-cell">
+                                <span className="cell-label">Row</span>
+                                <span className="cell-value">C</span>
+                              </div>
+                              <div className="seat-cell highlight">
+                                <span className="cell-label">Desk</span>
+                                <span className="cell-value">08</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Screen 4: IMS Login */}
+                    {activePhoneTab === 'login' && (
+                      <div className="phone-tab-screen fade-in">
+                        <div className="phone-login-card">
+                          <div className="login-logo-mini">
+                            <img src="./assets/logo.png" alt="NSync" />
+                            <span>IMS Authentication</span>
+                          </div>
+
+                          <div className="login-mock-field">
+                            <label>Roll Number / User ID</label>
+                            <div className="mock-input-box">2024UCO1500</div>
+                          </div>
+
+                          <div className="login-mock-field">
+                            <label>IMS Password</label>
+                            <div className="mock-input-box">••••••••••••</div>
+                          </div>
+
+                          <div className="login-mock-captcha">
+                            <div className="captcha-preview-box">
+                              <span>4 4 8 9 5</span>
+                            </div>
+                            <div className="captcha-input-box">44895</div>
+                          </div>
+
+                          <div className="login-mock-btn">
+                            Sign In & Sync
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Flanking Glass Card: Today's Schedule */}
+              <div className="flanking-card right-card">
+                <div className="flank-badge schedule">
+                  <Clock size={12} />
+                  <span>Next Lecture Up</span>
+                </div>
+                <div className="flank-stat">
+                  <span className="flank-class-title">Cloud Computing (L)</span>
+                </div>
+                <div className="flank-loc-row">
+                  <MapPin size={13} />
+                  <span>Hall APJ-102 • 09:00 AM</span>
+                </div>
+                <div className="flank-countdown-pill">
                   <span className="pulse-dot"></span>
-                  <span>Offline Ready</span>
+                  <span>Starts in 15 minutes</span>
+                </div>
+                <div className="flank-offline-note">
+                  <WifiOff size={12} />
+                  <span>Available 100% offline in basements</span>
                 </div>
               </div>
-            </aside>
-
-            {/* Main Board Content */}
-            <main className="dash-main-board">
-              {/* Board Header */}
-              <div className="board-header">
-                <div className="board-title-group">
-                  <h3>Academic Overview</h3>
-                  <div className="board-avatar-stack">
-                    <span className="avatar-chip">COE</span>
-                    <span className="avatar-chip accent">6th Sem</span>
-                    <span className="avatar-count">NSUT</span>
-                  </div>
-                </div>
-
-                <div className="board-search-group">
-                  <div className="board-search-bar">
-                    <Search size={15} />
-                    <input
-                      type="text"
-                      placeholder="Search subject, hall..."
-                      readOnly
-                      value="COE-601 Compiler Design"
-                    />
-                  </div>
-                  <button className="board-add-btn" title="Add quick task">
-                    <Plus size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* 3 Pastel Overview Columns (Matching Reference Card Style) */}
-              <div className="board-columns-grid">
-                {/* Column 1: Attendance Projections (Pastel Rose Tint) */}
-                <div className="board-col col-rose">
-                  <div className="col-header">
-                    <span className="col-title">Attendance</span>
-                    <span className="col-count">5 Subjects</span>
-                  </div>
-
-                  <div className="board-card rose-card">
-                    <div className="card-top-row">
-                      <span className="card-item-title">Overall Status</span>
-                      <span className="badge-safe">83.3% SAFE</span>
-                    </div>
-
-                    <div className="circular-gauge-container">
-                      <svg className="gauge-svg" viewBox="0 0 100 100">
-                        <circle className="gauge-bg" cx="50" cy="50" r="40" />
-                        <circle
-                          className="gauge-progress"
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          style={{ strokeDashoffset: '42' }}
-                        />
-                      </svg>
-                      <div className="gauge-inner">
-                        <span className="gauge-pct">83.3%</span>
-                        <span className="gauge-sub">Required: 75%</span>
-                      </div>
-                    </div>
-
-                    <p className="bunk-advice">
-                      You can safely skip <strong>4 lecture(s)</strong> above
-                      the 75% threshold.
-                    </p>
-
-                    <div className="sub-breakdown-list">
-                      <div className="sub-row">
-                        <span>Compiler Design</span>
-                        <span className="sub-pct">91.2%</span>
-                      </div>
-                      <div className="sub-row">
-                        <span>Computer Networks</span>
-                        <span className="sub-pct">85.7%</span>
-                      </div>
-                      <div className="sub-row warning">
-                        <span>Machine Learning</span>
-                        <span className="sub-pct">76.0%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Column 2: Today's Schedule (Pastel Amber/Sand Tint) */}
-                <div className="board-col col-amber">
-                  <div className="col-header">
-                    <span className="col-title">Today's Schedule</span>
-                    <span className="col-count">Wed • 3 Classes</span>
-                  </div>
-
-                  <div className="board-card amber-card">
-                    <div className="schedule-entry">
-                      <div className="entry-time">
-                        <Clock size={13} />
-                        <span>09:00 - 10:00 AM</span>
-                      </div>
-                      <div className="entry-title">Cloud Computing (L)</div>
-                      <div className="entry-meta">
-                        <MapPin size={12} />
-                        <span>Hall: APJ-102 • Dr. Verma</span>
-                      </div>
-                    </div>
-
-                    <div className="entry-divider"></div>
-
-                    <div className="schedule-entry">
-                      <div className="entry-time">
-                        <Clock size={13} />
-                        <span>10:00 - 11:00 AM</span>
-                      </div>
-                      <div className="entry-title">Distributed Systems</div>
-                      <div className="entry-meta">
-                        <MapPin size={12} />
-                        <span>Hall: APJ-104 • Prof. Gupta</span>
-                      </div>
-                    </div>
-
-                    <div className="entry-divider"></div>
-
-                    <div className="schedule-entry">
-                      <div className="entry-time">
-                        <Clock size={13} />
-                        <span>11:15 - 01:15 PM</span>
-                      </div>
-                      <div className="entry-title">Networks Lab (P2)</div>
-                      <div className="entry-meta">
-                        <MapPin size={12} />
-                        <span>Computer Centre • Lab 4</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Column 3: Exams & Hall Tickets (Pastel Sky/Mint Tint) */}
-                <div className="board-col col-sky">
-                  <div className="col-header">
-                    <span className="col-title">Exam Seating</span>
-                    <span className="col-count">3 Upcoming</span>
-                  </div>
-
-                  <div className="board-card sky-card">
-                    <div className="exam-ticket">
-                      <div className="ticket-date">18 NOV 2026 • 10:00 AM</div>
-                      <div className="ticket-subject">
-                        Mid-Term: Artificial Intelligence
-                      </div>
-                      <div className="ticket-seating">
-                        <span>Room: SPS-04</span>
-                        <span>Row: B • Desk: 14</span>
-                      </div>
-                    </div>
-
-                    <div className="entry-divider"></div>
-
-                    <div className="exam-ticket">
-                      <div className="ticket-date">21 NOV 2026 • 02:00 PM</div>
-                      <div className="ticket-subject">
-                        Mid-Term: Compiler Design
-                      </div>
-                      <div className="ticket-seating">
-                        <span>Room: APJ-201</span>
-                        <span>Row: C • Desk: 08</span>
-                      </div>
-                    </div>
-
-                    <div className="entry-divider"></div>
-
-                    <div className="exam-ticket">
-                      <div className="ticket-date">24 NOV 2026 • 10:00 AM</div>
-                      <div className="ticket-subject">
-                        Mid-Term: Operating Systems
-                      </div>
-                      <div className="ticket-seating">
-                        <span>Room: SPS-12</span>
-                        <span>Row: A • Desk: 02</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </main>
+            </div>
           </div>
         </div>
 
