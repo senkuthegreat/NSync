@@ -47,10 +47,10 @@ class NsutSyncRepository(private val context: Context) {
             val roll = prefs.getRollNumber()
             val cachedAtt = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, roll)
             val cachedTt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, roll)
-            if (prefs.getCachedAttendance() == null && cachedAtt != null) {
+            if (prefs.getCachedAttendance() == null && cachedAtt != null && roll.equals("2024UCO1500", ignoreCase = true)) {
                 prefs.saveAttendanceSummary(cachedAtt)
             }
-            if (prefs.getCachedTimetable() == null && cachedTt != null) {
+            if (prefs.getCachedTimetable() == null && cachedTt != null && roll.equals("2024UCO1500", ignoreCase = true)) {
                 prefs.saveTimetable(cachedTt)
             }
             _attendance.value = cachedAtt
@@ -103,6 +103,7 @@ class NsutSyncRepository(private val context: Context) {
                 authResult.branch?.let { prefs.setBranch(it) }
                 prefs.saveAttendanceUrl(authResult.attendanceUrl)
                 prefs.saveTimetableUrl(authResult.timetableUrl)
+                prefs.saveActivitiesUrl(authResult.activitiesUrl)
                 prefs.setLoggedIn(true)
 
                 // Fetch real student attendance and timetable from the portal
@@ -161,12 +162,36 @@ class NsutSyncRepository(private val context: Context) {
         }
 
         val cookies = prefs.getPortalCookies()
-        val attendanceUrl = prefs.getAttendanceUrl()
-        val timetableUrl = prefs.getTimetableUrl()
+        var attendanceUrl = prefs.getAttendanceUrl()
+        var timetableUrl = prefs.getTimetableUrl()
+        val activitiesUrl = prefs.getActivitiesUrl()
         val branch = prefs.getBranch()
         var liveAttendance: AttendanceSummary? = null
         var liveTimetable: WeeklyTimetable? = null
         var sessionExpired = false
+
+        // If attendanceUrl or timetableUrl is missing but activitiesUrl is saved, re-resolve dynamically
+        if ((attendanceUrl.isNullOrBlank() || timetableUrl.isNullOrBlank()) && !activitiesUrl.isNullOrBlank() && cookies.isNotBlank()) {
+            try {
+                val cookiesMap = networkClient.parseCookiesToMap(cookies)
+                val actDoc = org.jsoup.Jsoup.connect(activitiesUrl)
+                    .userAgent(ImsNetworkClient.USER_AGENT)
+                    .header("Referer", ImsNetworkClient.STUDENT_LOGIN_URL)
+                    .cookies(cookiesMap)
+                    .timeout(10000)
+                    .followRedirects(true)
+                    .get()
+                val discovered = networkClient.resolvePortalLinks(actDoc, cookiesMap)
+                if (!discovered.attendanceUrl.isNullOrBlank()) {
+                    attendanceUrl = discovered.attendanceUrl
+                    prefs.saveAttendanceUrl(discovered.attendanceUrl)
+                }
+                if (!discovered.timetableUrl.isNullOrBlank()) {
+                    timetableUrl = discovered.timetableUrl
+                    prefs.saveTimetableUrl(discovered.timetableUrl)
+                }
+            } catch (_: Exception) {}
+        }
 
         try {
             val attResult = networkClient.fetchLiveAttendanceResult(
@@ -197,11 +222,14 @@ class NsutSyncRepository(private val context: Context) {
 
         if (sessionExpired) {
             val cached = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, rollNumber)
-            if (prefs.getCachedAttendance() == null && cached != null) {
+            if (prefs.getCachedAttendance() == null && cached != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
                 prefs.saveAttendanceSummary(cached)
             }
             _attendance.value = cached
             val tt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, rollNumber)
+            if (prefs.getCachedTimetable() == null && tt != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+                prefs.saveTimetable(tt)
+            }
             _timetable.value = tt
             updateWidgets()
 
@@ -234,13 +262,16 @@ class NsutSyncRepository(private val context: Context) {
             return@withContext res
         }
 
-        // If live sync couldn't connect, fallback to previously cached data or local provider
+        // If live sync couldn't connect, fallback to previously cached data or local provider (strictly for 2024UCO1500)
         val cached = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, rollNumber)
-        if (prefs.getCachedAttendance() == null && cached != null) {
+        if (prefs.getCachedAttendance() == null && cached != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
             prefs.saveAttendanceSummary(cached)
         }
         _attendance.value = cached
         val tt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, rollNumber)
+        if (prefs.getCachedTimetable() == null && tt != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+            prefs.saveTimetable(tt)
+        }
         _timetable.value = tt
         updateWidgets()
         val res = SyncResult.Success("Using offline mode (IMS unreachable)")

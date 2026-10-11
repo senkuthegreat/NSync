@@ -1,8 +1,8 @@
 {
-  "version": "1.0.41",
-  "versionCode": 41,
-  "name": "NSync v1.0.41",
-  "notes": "Instant attendance & timetable loading on launch, automatic IMS session recovery modal with interactive captcha, and guaranteed offline data preservation.",
+  "version": "1.0.42",
+  "versionCode": 42,
+  "name": "NSync v1.0.42",
+  "notes": "Dynamic Plumware My Activities routing for real student attendance and enrolled courses across all branches (CSE, IT, CSAI, etc.), and complete elimination of shared mock subjects.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T22:15:00Z"
+  "publishedAt": "2026-10-11T22:50:00Z"
 }

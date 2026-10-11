@@ -53,9 +53,9 @@ object ImsParser {
         if (nameMatcher.find()) {
             val n = nameMatcher.group(1)?.trim()
             if (!n.isNullOrBlank()) studentName = n
-            if (defaultRoll.isBlank()) {
-                val r = nameMatcher.group(2)?.trim()
-                if (!r.isNullOrBlank()) rollNumber = r
+            val r = nameMatcher.group(2)?.trim()
+            if (!r.isNullOrBlank()) {
+                rollNumber = r
             }
             val s = nameMatcher.group(3)?.trim()
             if (!s.isNullOrBlank()) semester = "Semester $s"

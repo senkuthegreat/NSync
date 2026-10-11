@@ -54,6 +54,7 @@ class UserPreferences(private val context: Context) {
         private const val KEY_WIDGET_BANNER_ENABLED = "key_widget_banner_enabled"
         private const val KEY_ATTENDANCE_URL = "key_attendance_url"
         private const val KEY_TIMETABLE_URL = "key_timetable_url"
+        private const val KEY_ACTIVITIES_URL = "key_activities_url"
 
         private const val KEYSTORE_ALIAS = "NsutAuthKeyAlias"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -154,14 +155,33 @@ class UserPreferences(private val context: Context) {
 
     fun getRollNumber(): String = prefs.getString(KEY_ROLL_NUMBER, "") ?: ""
 
-    fun getAttendanceUrl(): String? = prefs.getString(KEY_ATTENDANCE_URL, null)
+    fun getAttendanceUrl(): String? {
+        val url = prefs.getString(KEY_ATTENDANCE_URL, null)
+        if (url != null && url.contains("P59Otr7+3xJIlCBBABoVb0GIg")) {
+            prefs.edit().remove(KEY_ATTENDANCE_URL).apply()
+            return null
+        }
+        return url
+    }
     fun saveAttendanceUrl(url: String?) {
         prefs.edit().putString(KEY_ATTENDANCE_URL, url).apply()
     }
 
-    fun getTimetableUrl(): String? = prefs.getString(KEY_TIMETABLE_URL, null)
+    fun getTimetableUrl(): String? {
+        val url = prefs.getString(KEY_TIMETABLE_URL, null)
+        if (url != null && url.contains("41uZnOKcTatoQuZ1nS5qVGIuiLOuCZGG")) {
+            prefs.edit().remove(KEY_TIMETABLE_URL).apply()
+            return null
+        }
+        return url
+    }
     fun saveTimetableUrl(url: String?) {
         prefs.edit().putString(KEY_TIMETABLE_URL, url).apply()
+    }
+
+    fun getActivitiesUrl(): String? = prefs.getString(KEY_ACTIVITIES_URL, null)
+    fun saveActivitiesUrl(url: String?) {
+        prefs.edit().putString(KEY_ACTIVITIES_URL, url).apply()
     }
 
     fun getSavedPassword(): String? {
@@ -293,6 +313,23 @@ class UserPreferences(private val context: Context) {
             if (currentRoll.isNotBlank() && cachedRoll.isNotBlank() && !cachedRoll.equals(currentRoll, ignoreCase = true)) {
                 return null
             }
+            // Auto-purge contaminated cache: if student is not 2024UCO1500, purge Rohit's ECE subjects or name
+            if (!currentRoll.equals("2024UCO1500", ignoreCase = true)) {
+                val sName = root.optString("studentName", "")
+                val rohitEceCodes = setOf("VTECC302", "VTECC303", "VTECC304", "VTECC305", "VTPHC301")
+                val rArr = root.optJSONArray("records")
+                var rohitSubjectCount = 0
+                if (rArr != null) {
+                    for (i in 0 until rArr.length()) {
+                        val code = rArr.getJSONObject(i).optString("subjectCode", "")
+                        if (rohitEceCodes.contains(code)) rohitSubjectCount++
+                    }
+                }
+                if (rohitSubjectCount >= 3 || sName.contains("Rohit", ignoreCase = true)) {
+                    prefs.edit().remove(KEY_ATTENDANCE_JSON).apply()
+                    return null
+                }
+            }
             val records = mutableListOf<AttendanceRecord>()
             val arr = root.optJSONArray("records")
             if (arr != null) {
@@ -397,6 +434,14 @@ class UserPreferences(private val context: Context) {
             val currentRoll = getRollNumber()
             if (currentRoll.isNotBlank() && cachedRoll.isNotBlank() && !cachedRoll.equals(currentRoll, ignoreCase = true)) {
                 return null
+            }
+            // Auto-purge contaminated timetable: if user is not 2024UCO1500, purge Rohit's ECE timetable
+            if (!currentRoll.equals("2024UCO1500", ignoreCase = true)) {
+                val jsonStr = root.toString()
+                if (jsonStr.contains("VTECC302") && jsonStr.contains("VTECC304")) {
+                    prefs.edit().remove(KEY_TIMETABLE_JSON).apply()
+                    return null
+                }
             }
             val daysList = mutableListOf<DaySchedule>()
             val daysArr = root.optJSONArray("days")

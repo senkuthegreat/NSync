@@ -11,12 +11,18 @@ import com.example.nsutconnect.data.parser.ImsParser
  */
 object ImsLocalDataProvider {
 
-    fun getAttendanceForRoll(context: Context? = null, rollNumber: String = ""): AttendanceSummary {
+    fun getAttendanceForRoll(context: Context? = null, rollNumber: String = ""): AttendanceSummary? {
+        if (!rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+            return null
+        }
         val html = loadAttendanceHtml(context)
         return ImsParser.parseAttendanceHtml(html, rollNumber)
     }
 
-    fun getTimetableForRoll(context: Context? = null, rollNumber: String = ""): WeeklyTimetable {
+    fun getTimetableForRoll(context: Context? = null, rollNumber: String = ""): WeeklyTimetable? {
+        if (!rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+            return null
+        }
         val html = loadTimetableHtml(context)
         return ImsParser.parseTimetableHtml(html, rollNumber)
     }
