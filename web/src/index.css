@@ -161,17 +161,39 @@ body {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+}
+
+.nav-btn-portal {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-btn-portal:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
 }
 
 .nav-btn-pill {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(14px);
   border: none;
   color: #ffffff;
-  padding: 9px 24px;
+  padding: 9px 22px;
   border-radius: 999px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
   display: inline-flex;
@@ -182,7 +204,7 @@ body {
 }
 
 .nav-btn-pill:hover {
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.35);
   transform: translateY(-1px);
 }
 
@@ -219,6 +241,9 @@ body {
 .hero-cta-wrapper {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
   margin-bottom: 25px;
 }
 
@@ -228,7 +253,7 @@ body {
   font-family: var(--font-sans);
   font-size: 1.02rem;
   font-weight: 600;
-  padding: 13px 34px;
+  padding: 13px 30px;
   border-radius: 999px;
   text-decoration: none;
   display: inline-flex;
@@ -241,6 +266,30 @@ body {
 .hero-get-started-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.hero-secondary-portal-btn {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 13px 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-secondary-portal-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
 }
 
 /* Flagship Mobile Device Showcase */
@@ -653,99 +702,37 @@ body {
   color: #52525b;
 }
 
-.logout-action-box {
-  background: #1c1012;
-  color: #ef4444;
+.more-session-status-card {
+  background: #101014;
+  border: 1px solid #1c1c22;
   border-radius: 14px;
-  padding: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  margin: 2px 14px 16px;
-}
-
-/* ==========================================================
-   SCREEN 4: LOGIN SCREEN (Matching Authentic Image 1)
-   ========================================================== */
-.login-view {
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.login-logo-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.login-brand-unkempt {
-  font-family: var(--font-brand);
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-}
-
-.login-brand-unkempt span {
-  color: #6366f1;
-}
-
-.login-form-card {
-  background: #121215;
-  border-radius: 22px;
-  padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.login-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.login-input-group label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #71717a;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.login-input-box {
-  background: #1e1e24;
-  border-radius: 12px;
   padding: 12px 14px;
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 14px 16px;
+}
+
+.session-status-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  color: #71717a;
-  font-size: 0.76rem;
-  font-weight: 500;
-}
-
-.login-input-box .eye-icon {
-  margin-left: auto;
-  color: #71717a;
-}
-
-.login-primary-btn {
-  width: 100%;
-  background: #6366f1;
-  color: #ffffff;
-  border-radius: 14px;
-  padding: 13px 0;
-  font-size: 0.95rem;
+  gap: 7px;
+  font-size: 0.72rem;
   font-weight: 700;
-  border: none;
-  cursor: pointer;
-  margin-top: 18px;
-  box-shadow: 0 8px 24px rgba(88, 101, 242, 0.4);
+  color: #10b981;
+}
+
+.pulse-green-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.session-status-note {
+  font-size: 0.65rem;
+  color: #71717a;
 }
 
 /* ==========================================================
@@ -982,7 +969,9 @@ body {
 
 .footer-right {
   display: flex;
-  gap: 28px;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .footer-right a {
@@ -997,6 +986,1056 @@ body {
   color: #111827;
 }
 
+.footer-portal-link {
+  background: none;
+  border: none;
+  color: #4b5563;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+
+.footer-portal-link:hover {
+  color: #6366f1;
+}
+
+.cta-dual-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================
+   NSUT STUDENT WEB PORTAL (APPLE-INSPIRED MODAL & DASHBOARD)
+   ========================================================== */
+.portal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.portal-dialog-window {
+  width: 100%;
+  max-width: 980px;
+  max-height: 90vh;
+  background: #09090b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  box-shadow: 
+    0 35px 80px -15px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #ffffff;
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Title Bar */
+.portal-window-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 26px;
+  background: #111114;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.portal-window-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-window-brand .brand-title {
+  font-size: 1.25rem;
+  text-shadow: none;
+}
+
+.portal-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.portal-control-btn.logout {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.portal-control-btn.logout:hover {
+  background: rgba(239, 68, 68, 0.22);
+}
+
+.portal-close-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.portal-close-circle:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------
+   PORTAL AUTHENTICATION VIEW (When !isWebLoggedIn)
+   ---------------------------------------------------- */
+.portal-auth-layout {
+  padding: 40px 24px 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.portal-auth-card {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.portal-auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.portal-auth-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.portal-auth-subtitle {
+  font-size: 0.88rem;
+  color: #a1a1aa;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.portal-auth-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.portal-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+.portal-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.portal-field-group label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #71717a;
+  letter-spacing: 0.05em;
+}
+
+.portal-input-box {
+  background: #141418;
+  border: 1px solid #23232c;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.15s ease;
+}
+
+.portal-input-box:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+.portal-input-box .input-icon {
+  color: #71717a;
+  flex-shrink: 0;
+}
+
+.portal-input-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.portal-input-box input::placeholder {
+  color: #52525b;
+}
+
+.eye-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-toggle-btn:hover {
+  color: #ffffff;
+}
+
+.captcha-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.captcha-reload-btn {
+  background: transparent;
+  border: none;
+  color: #818cf8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.captcha-reload-btn:hover {
+  text-decoration: underline;
+}
+
+.portal-captcha-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.captcha-display-box {
+  background: #1c1c24;
+  border: 1px dashed #3f3f50;
+  border-radius: 12px;
+  padding: 8px 18px;
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  color: #818cf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.captcha-entry-input {
+  background: #141418;
+  border: 1px solid #23232c;
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  flex: 1;
+  outline: none;
+}
+
+.captcha-entry-input:focus {
+  border-color: #6366f1;
+}
+
+.portal-submit-btn {
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 13px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  transition: all 0.2s ease;
+}
+
+.portal-submit-btn:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.portal-divider-row {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #52525b;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.portal-divider-row::before,
+.portal-divider-row::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #1e1e24;
+}
+
+.portal-divider-row span {
+  padding: 0 12px;
+}
+
+.portal-instant-demo-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.portal-instant-demo-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.portal-privacy-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 22px;
+  font-size: 0.72rem;
+  color: #71717a;
+}
+
+/* ----------------------------------------------------
+   PORTAL DASHBOARD VIEW (When isWebLoggedIn)
+   ---------------------------------------------------- */
+.portal-dashboard-layout {
+  padding: 24px 28px 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.portal-dash-hero {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 20px;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.portal-student-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.portal-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.portal-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-name-row h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.portal-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0e2a18;
+  color: #22c55e;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.portal-student-meta p {
+  font-size: 0.78rem;
+  color: #a1a1aa;
+  margin-top: 3px;
+}
+
+.portal-quick-app-promo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.portal-promo-btn {
+  background: #6366f1;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 8px;
+  transition: opacity 0.15s;
+}
+
+.portal-promo-btn:hover {
+  opacity: 0.9;
+}
+
+/* KPI Metrics */
+.portal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.portal-kpi-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #71717a;
+  letter-spacing: 0.05em;
+}
+
+.kpi-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.kpi-number {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.kpi-number.safe {
+  color: #10b981;
+}
+
+.kpi-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.kpi-badge.safe {
+  background: #0e2a18;
+  color: #22c55e;
+}
+
+.kpi-badge.danger {
+  background: #2b1010;
+  color: #ef4444;
+}
+
+.kpi-class-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.kpi-sub {
+  font-size: 0.74rem;
+  color: #71717a;
+}
+
+/* Portal Segmented Tabs */
+.portal-tabs-nav {
+  display: flex;
+  gap: 8px;
+  background: #121217;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid #1e1e26;
+}
+
+.portal-tab-pill {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.portal-tab-pill:hover {
+  color: #ffffff;
+}
+
+.portal-tab-pill.active {
+  background: #202028;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Simulator Instruction Banner */
+.portal-sim-instruction-card {
+  background: #14141e;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 14px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #c7d2fe;
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+
+.portal-sim-instruction-card code {
+  background: rgba(99, 102, 241, 0.25);
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Course Grid */
+.portal-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.portal-course-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.15s ease;
+}
+
+.portal-course-card:hover {
+  border-color: #2e2e3a;
+}
+
+.portal-course-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.course-code {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+}
+
+.portal-course-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 1px;
+}
+
+.course-prof {
+  font-size: 0.72rem;
+  color: #71717a;
+}
+
+.portal-course-pct-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.course-pct-number {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.course-pct-number.safe {
+  color: #10b981;
+}
+
+.course-pct-number.warning {
+  color: #f59e0b;
+}
+
+.course-pct-number.danger {
+  color: #ef4444;
+}
+
+.course-pct-number.neutral {
+  color: #71717a;
+}
+
+.course-ratio-text {
+  font-size: 0.72rem;
+  color: #71717a;
+  margin-top: 3px;
+}
+
+.portal-course-mid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-badge-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.status-badge-chip.safe {
+  background: #0e2a18;
+  color: #22c55e;
+}
+
+.status-badge-chip.warning {
+  background: #2b1d08;
+  color: #f59e0b;
+}
+
+.status-badge-chip.danger {
+  background: #2b1010;
+  color: #ef4444;
+}
+
+.status-badge-chip.neutral {
+  background: #1c1c22;
+  color: #71717a;
+}
+
+.sim-active-chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.12);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+/* Bunk Simulator Action Row */
+.portal-sim-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sim-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #71717a;
+  margin-right: 4px;
+}
+
+.sim-action-btn {
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-action-btn.attend {
+  background: #0e2a18;
+  color: #22c55e;
+}
+
+.sim-action-btn.attend:hover {
+  background: #143d23;
+}
+
+.sim-action-btn.skip {
+  background: #2b1010;
+  color: #ef4444;
+}
+
+.sim-action-btn.skip:hover {
+  background: #3d1717;
+}
+
+.sim-action-btn.reset {
+  background: #1c1c22;
+  color: #a1a1aa;
+}
+
+.sim-action-btn.reset:hover {
+  background: #26262e;
+  color: #ffffff;
+}
+
+/* Timetable in Portal */
+.portal-day-pill-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.portal-day-btn {
+  flex: 1;
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 12px;
+  padding: 10px 0;
+  color: #a1a1aa;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.portal-day-btn.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+.portal-timetable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.portal-slot-row {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slot-time-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  min-width: 190px;
+}
+
+.slot-detail-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.slot-detail-col h5 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.slot-room {
+  font-size: 0.72rem;
+  color: #71717a;
+}
+
+.slot-type-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.slot-type-badge.lecture {
+  background: #1e203b;
+  color: #6366f1;
+}
+
+.slot-type-badge.tutorial {
+  background: #2b1d08;
+  color: #f59e0b;
+}
+
+.slot-type-badge.lab {
+  background: #0e2a18;
+  color: #22c55e;
+}
+
+.slot-type-badge.break {
+  background: #1a1a20;
+  color: #71717a;
+}
+
+/* Custom Calculator */
+.portal-calc-card {
+  background: #121217;
+  border: 1px solid #1e1e26;
+  border-radius: 20px;
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.portal-calc-card h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.calc-desc {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  margin-top: -12px;
+}
+
+.calc-inputs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.calc-input-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calc-input-box label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #71717a;
+  letter-spacing: 0.05em;
+}
+
+.calc-input-box input {
+  background: #16161c;
+  border: 1px solid #23232c;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.calc-input-box input:focus {
+  border-color: #6366f1;
+}
+
+.calc-output-box {
+  background: #16161c;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calc-pct-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 14px;
+}
+
+.calc-pct-display .label {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  font-weight: 600;
+}
+
+.calc-pct-display .val {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.calc-pct-display .val.safe {
+  color: #10b981;
+}
+
+.calc-pct-display .val.warning {
+  color: #f59e0b;
+}
+
+.calc-pct-display .val.danger {
+  color: #ef4444;
+}
+
+.decision-safe,
+.decision-danger {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.decision-safe .icon-safe {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.decision-danger .icon-danger {
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.decision-safe .text h4 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.decision-danger .text h4 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.decision-safe .text p,
+.decision-danger .text p {
+  font-size: 0.84rem;
+  color: #a1a1aa;
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Responsive Adaptations */
 @media (max-width: 1024px) {
   .hero-nav {
@@ -1005,14 +2044,6 @@ body {
   
   .nav-links {
     display: none;
-  }
-
-  .flanking-card {
-    display: none;
-  }
-
-  .stage-centerpiece {
-    gap: 0;
   }
 
   .features-grid {
@@ -1039,5 +2070,28 @@ body {
     padding: 24px;
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .portal-dialog-window {
+    max-height: 96vh;
+    border-radius: 20px;
+  }
+
+  .portal-courses-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calc-inputs-row {
+    grid-template-columns: 1fr;
+  }
+
+  .slot-time-col {
+    min-width: 130px;
   }
 }
