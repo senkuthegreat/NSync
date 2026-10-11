@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
   ShieldCheck,
@@ -57,6 +57,8 @@ function InstagramIcon({ size = 16, className = '' }) {
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const contactRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,6 +66,26 @@ export default function App() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Click outside and Escape key handler for Contact popover
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contactRef.current && !contactRef.current.contains(event.target)) {
+        setContactOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setContactOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, []);
 
   return (
@@ -78,7 +100,7 @@ export default function App() {
           {/* Subtle Contrast Gradient Overlay for Typography Clarity */}
           <div className="hero-gradient-overlay"></div>
 
-          {/* Top Clean Header: Logo on Left, ONLY Contact Pill on Right */}
+          {/* Top Clean Header: Logo on Left, Single "Contact" Pill Button on Right */}
           <header className={`hero-nav ${scrolled ? 'nav-scrolled' : ''}`}>
             <a href="#" className="brand-group">
               <img
@@ -92,56 +114,111 @@ export default function App() {
             </a>
 
             <div className="nav-actions">
-              {/* Creator Contact Pill in Header */}
-              <div className="nav-social-group">
-                <a
-                  href={DEVELOPER_INFO.portfolio}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-social-icon-btn"
-                  title="Portfolio (senkuthegreat.me)"
-                  aria-label="Portfolio"
-                >
-                  <Globe size={15} />
-                </a>
-                <a
-                  href={DEVELOPER_INFO.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-social-icon-btn"
-                  title="GitHub (@senkuthegreat)"
-                  aria-label="GitHub"
-                >
-                  <GithubIcon size={15} />
-                </a>
-                <a
-                  href={DEVELOPER_INFO.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-social-icon-btn"
-                  title="LinkedIn (Rohit Dahiya)"
-                  aria-label="LinkedIn"
-                >
-                  <LinkedinIcon size={15} />
-                </a>
-                <a
-                  href={DEVELOPER_INFO.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-social-icon-btn"
-                  title="Instagram (@senkuthegreat)"
-                  aria-label="Instagram"
-                >
-                  <InstagramIcon size={15} />
-                </a>
-                <a
-                  href={DEVELOPER_INFO.email}
-                  className="nav-social-icon-btn"
-                  title="Email (rohitdahiya245@gmail.com)"
-                  aria-label="Email"
+              {/* Clean "Contact" Pill with Interactive Glass Dropdown */}
+              <div className="nav-contact-wrapper" ref={contactRef}>
+                <button
+                  type="button"
+                  onClick={() => setContactOpen(!contactOpen)}
+                  className={`nav-btn-contact ${contactOpen ? 'active' : ''}`}
+                  aria-expanded={contactOpen}
+                  aria-label="Contact Developer"
                 >
                   <Mail size={15} />
-                </a>
+                  <span>Contact</span>
+                </button>
+
+                {contactOpen && (
+                  <div className="contact-dropdown-card">
+                    <div className="contact-popover-header">
+                      <img
+                        src={DEVELOPER_INFO.avatar}
+                        alt={DEVELOPER_INFO.name}
+                        className="contact-popover-avatar"
+                      />
+                      <div className="contact-popover-meta">
+                        <h4>{DEVELOPER_INFO.name}</h4>
+                        <span className="contact-popover-handle">{DEVELOPER_INFO.handle}</span>
+                      </div>
+                    </div>
+
+                    <div className="contact-popover-divider"></div>
+
+                    <div className="contact-popover-links">
+                      <a
+                        href={DEVELOPER_INFO.portfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="popover-link-item portfolio"
+                      >
+                        <div className="popover-link-icon">
+                          <Globe size={16} />
+                        </div>
+                        <div className="popover-link-text">
+                          <span className="title">Portfolio</span>
+                          <span className="sub">senkuthegreat.me</span>
+                        </div>
+                      </a>
+
+                      <a
+                        href={DEVELOPER_INFO.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="popover-link-item github"
+                      >
+                        <div className="popover-link-icon">
+                          <GithubIcon size={16} />
+                        </div>
+                        <div className="popover-link-text">
+                          <span className="title">GitHub</span>
+                          <span className="sub">@senkuthegreat</span>
+                        </div>
+                      </a>
+
+                      <a
+                        href={DEVELOPER_INFO.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="popover-link-item linkedin"
+                      >
+                        <div className="popover-link-icon">
+                          <LinkedinIcon size={16} />
+                        </div>
+                        <div className="popover-link-text">
+                          <span className="title">LinkedIn</span>
+                          <span className="sub">Rohit Dahiya</span>
+                        </div>
+                      </a>
+
+                      <a
+                        href={DEVELOPER_INFO.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="popover-link-item instagram"
+                      >
+                        <div className="popover-link-icon">
+                          <InstagramIcon size={16} />
+                        </div>
+                        <div className="popover-link-text">
+                          <span className="title">Instagram</span>
+                          <span className="sub">@senkuthegreat</span>
+                        </div>
+                      </a>
+
+                      <a
+                        href={DEVELOPER_INFO.email}
+                        className="popover-link-item email"
+                      >
+                        <div className="popover-link-icon">
+                          <Mail size={16} />
+                        </div>
+                        <div className="popover-link-text">
+                          <span className="title">Email</span>
+                          <span className="sub">rohitdahiya245@gmail.com</span>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>
@@ -328,7 +405,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Clean, Professional Footer (Zero Redundant Contact Cards) */}
+        {/* Clean, Professional Footer */}
         <footer className="canvas-footer">
           <div className="footer-left">
             <div className="brand-group">
