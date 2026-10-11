@@ -53,6 +53,96 @@ router.post('/challenges/refresh', async (req, res, next) => {
 });
 
 /**
+ * POST /v1/auth/challenges/auto-solve
+ * Automatically solves a CAPTCHA challenge using OpenCV preprocessing and Tesseract OCR.
+ */
+router.post('/challenges/auto-solve', async (req, res, next) => {
+  try {
+    const { challengeId } = req.body || {};
+    if (!challengeId) {
+      return res.status(400).json({
+        error: 'INVALID_REQUEST',
+        message: 'challengeId is required.'
+      });
+    }
+
+    const solvedCaptcha = await imsClient.solveChallenge(challengeId);
+    return res.status(200).json({
+      success: true,
+      challengeId,
+      solvedCaptcha
+    });
+  } catch (err) {
+    if (err.code === 'CHALLENGE_EXPIRED') {
+      return res.status(410).json({
+        error: 'CHALLENGE_EXPIRED',
+        message: 'CAPTCHA challenge has expired. Please refresh the CAPTCHA.'
+      });
+    }
+    logger.error('Failed to auto-solve CAPTCHA challenge', { error: err.message });
+    return res.status(500).json({
+      error: 'OCR_SOLVE_FAILED',
+      message: err.message || 'Failed to auto-solve CAPTCHA challenge.'
+    });
+  }
+});
+
+/**
+ * POST /v1/auth/auto-login
+ * Automatically authenticates into IMS using OpenCV + Tesseract OCR to solve CAPTCHA.
+ */
+router.post('/auto-login', async (req, res, next) => {
+  try {
+    const { username, password } = req.body || {};
+    if (!username || !password) {
+      return res.status(400).json({
+        error: 'INVALID_CREDENTIALS',
+        message: 'Username/roll number and password are required.'
+      });
+    }
+
+    const authResult = await imsClient.autoAuthenticate({
+      username: String(username).trim(),
+      password
+    });
+
+    const session = sessionStore.createSession({
+      userId: authResult.userId,
+      cookies: authResult.cookies,
+      metadata: authResult.metadata
+    });
+
+    return res.status(200).json({
+      success: true,
+      token: session.token,
+      user: {
+        rollNumber: session.userId,
+        ...session.metadata
+      },
+      expiresAt: session.expiresAt
+    });
+  } catch (err) {
+    if (err.code === 'INVALID_CREDENTIALS') {
+      return res.status(401).json({
+        error: 'INVALID_CREDENTIALS',
+        message: err.message || 'Invalid Roll Number or Password.'
+      });
+    }
+    if (err.code === 'INVALID_CAPTCHA') {
+      return res.status(400).json({
+        error: 'INVALID_CAPTCHA',
+        message: 'Automated CAPTCHA solver was unable to solve CAPTCHA correctly.'
+      });
+    }
+    logger.error('Unexpected auto-login failure', { error: err.message });
+    return res.status(500).json({
+      error: 'AUTO_LOGIN_FAILED',
+      message: err.message || 'Failed to auto-login.'
+    });
+  }
+});
+
+/**
  * POST /v1/auth/login
  * Log in to IMS using credentials and human-answered CAPTCHA.
  * Returns an opaque bearer token and stores cookies securely in memory.

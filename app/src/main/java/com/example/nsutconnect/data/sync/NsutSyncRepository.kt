@@ -164,14 +164,20 @@ class NsutSyncRepository(private val context: Context) {
         }
 
         if (sessionExpired) {
-            _isSessionExpired.value = true
             val cached = prefs.getCachedAttendance()
             if (cached != null) {
                 _attendance.value = cached
                 _timetable.value = prefs.getCachedTimetable()
                 updateWidgets()
             }
-            val res = SyncResult.Error("IMS session expired. Please enter security captcha to renew.")
+            // Never disrupt the student with a blocking captcha modal on app launch / background sync
+            _isSessionExpired.value = false
+
+            val res = if (cached != null) {
+                SyncResult.Success("Using offline cache (IMS session timed out)")
+            } else {
+                SyncResult.Error("IMS session timed out")
+            }
             if (!isBackground) _syncState.value = res
             return@withContext res
         }

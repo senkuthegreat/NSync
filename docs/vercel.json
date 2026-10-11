@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/download",
-      "destination": "https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk"
+      "destination": "/downloads/NSync.apk"
     }
   ],
   "headers": [

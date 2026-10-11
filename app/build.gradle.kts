@@ -7,12 +7,15 @@ plugins {
 android {
     namespace = "com.example.nsutconnect"
     compileSdk = 36
+    val appVersionCode = project.findProperty("versionCode")?.toString()?.toIntOrNull() ?: 32
+    val appVersionName = project.findProperty("versionName")?.toString() ?: "1.0.32"
+
     defaultConfig {
         applicationId = "com.example.nsutconnect"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
 
     signingConfigs {
@@ -26,7 +29,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

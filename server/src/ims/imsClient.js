@@ -1,9 +1,9 @@
 // server/src/ims/imsClient.js
-// Client for NSUT IMS portal authentication and academic services.
-// Strictly preserves official CAPTCHA challenges for user input without automated solving.
+// Client for NSUT IMS portal authentication, academic services, and automated CAPTCHA solving.
 
 const crypto = require('crypto');
 const logger = require('../utils/logger');
+const ocrService = require('../ocr/ocrService');
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -11,7 +11,7 @@ class ImsClient {
   constructor(options = {}) {
     this.baseUrl = options.baseUrl || process.env.IMS_BASE_URL || 'https://www.imsnsit.org/imsnsit';
     this.isMock = options.isMock ?? (process.env.IMS_MOCK === 'true');
-    // In-memory challenge store: challengeId -> { cookies, encFy, fy, createdAt, expiresAt }
+    // In-memory challenge store: challengeId -> { cookies, encFy, fy, rawBuffer, createdAt, expiresAt }
     this.challenges = new Map();
   }
 
@@ -61,6 +61,7 @@ class ImsClient {
         cookies: 'PHPSESSID=mock_session_' + challengeId,
         encFy: 'mock_enc_fy',
         fy: '2026-27',
+        rawBuffer: Buffer.from(mockImageBase64.replace(/^data:image\/[a-z0-9-+.]+;base64,/, ''), 'base64'),
         createdAt: now,
         expiresAt,
         mockExpectedCaptcha: '1234'
@@ -141,6 +142,7 @@ class ImsClient {
         cookies,
         encFy,
         fy,
+        rawBuffer: buffer,
         createdAt: now,
         expiresAt
       });
@@ -166,6 +168,78 @@ class ImsClient {
       this.challenges.delete(existingChallengeId);
     }
     return this.fetchCaptchaChallenge();
+  }
+
+  /**
+   * Automatically solves a CAPTCHA challenge using OpenCV preprocessing and Tesseract OCR.
+   */
+  async solveChallenge(challengeId) {
+    const challenge = this.challenges.get(challengeId);
+    if (!challenge) {
+      const err = new Error('CAPTCHA challenge has expired or does not exist.');
+      err.code = 'CHALLENGE_EXPIRED';
+      throw err;
+    }
+
+    if (this.isMock) {
+      return challenge.mockExpectedCaptcha || '1234';
+    }
+
+    if (!challenge.rawBuffer) {
+      throw new Error('NO_IMAGE_BUFFER: Captcha image buffer not available for solving');
+    }
+
+    try {
+      // Run OpenCV preprocessing (grayscale, adaptive threshold, denoise) + Tesseract OCR
+      const ocrResult = await ocrService.extractText(challenge.rawBuffer, {
+        psm: 7, // Treat as a single line of text
+        preprocess: true,
+        preprocessOptions: {
+          adaptive_threshold: true,
+          denoise: true,
+          min_dim_upscale: 150
+        }
+      });
+
+      const solvedText = (ocrResult.text || '').replace(/[^a-zA-Z0-9]/g, '').trim();
+      logger.info('Auto-solved CAPTCHA with OpenCV+Tesseract', {
+        challengeId,
+        solvedText
+      });
+      return solvedText;
+    } catch (err) {
+      logger.warn('Failed to auto-solve CAPTCHA via OCR', { error: err.message });
+      throw err;
+    }
+  }
+
+  /**
+   * Automatically logs in without requiring user CAPTCHA entry.
+   * Solves the challenge using OpenCV + Tesseract OCR.
+   */
+  async autoAuthenticate({ username, password, maxRetries = 2 }) {
+    let lastError = null;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const challenge = await this.fetchCaptchaChallenge();
+      const captchaAnswer = await this.solveChallenge(challenge.challengeId);
+      try {
+        const authResult = await this.authenticate({
+          challengeId: challenge.challengeId,
+          username,
+          password,
+          captchaAnswer
+        });
+        return authResult;
+      } catch (err) {
+        lastError = err;
+        if (err.code === 'INVALID_CAPTCHA' && attempt < maxRetries) {
+          logger.info(`CAPTCHA recognition retry ${attempt + 1}/${maxRetries}...`);
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw lastError || new Error('Auto-authentication failed');
   }
 
   /**

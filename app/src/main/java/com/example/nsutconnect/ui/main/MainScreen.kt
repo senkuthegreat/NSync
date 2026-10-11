@@ -70,27 +70,6 @@ fun MainScreen(
 
     val isLoading = syncState is SyncResult.Loading
 
-    val isSessionExpired by repository.isSessionExpired.collectAsStateWithLifecycle()
-    var captchaSession by remember { mutableStateOf<CaptchaSession?>(null) }
-    var isCaptchaLoading by remember { mutableStateOf(false) }
-    var isRenewingSession by remember { mutableStateOf(false) }
-    var renewErrorMessage by remember { mutableStateOf<String?>(null) }
-
-    fun refreshRenewalCaptcha() {
-        coroutineScope.launch {
-            isCaptchaLoading = true
-            renewErrorMessage = null
-            captchaSession = repository.getCaptchaSession()
-            isCaptchaLoading = false
-        }
-    }
-
-    LaunchedEffect(isSessionExpired) {
-        if (isSessionExpired) {
-            refreshRenewalCaptcha()
-        }
-    }
-
     // Automatically sync on open and schedule periodic background worker
     LaunchedEffect(Unit) {
         NsutSyncWorker.schedulePeriodicSync(context, 4)
@@ -212,42 +191,6 @@ fun MainScreen(
                 }
             }
         }
-    }
-
-    if (isSessionExpired) {
-        SessionExpiredDialog(
-            rollNumber = prefs.getRollNumber(),
-            captchaSession = captchaSession,
-            isCaptchaLoading = isCaptchaLoading,
-            isSubmitting = isRenewingSession,
-            errorMessage = renewErrorMessage,
-            onRefreshCaptcha = { refreshRenewalCaptcha() },
-            onSubmit = { captchaCode ->
-                coroutineScope.launch {
-                    isRenewingSession = true
-                    renewErrorMessage = null
-                    val result = repository.reAuthenticateWithCaptcha(captchaCode, captchaSession)
-                    isRenewingSession = false
-                    when (result) {
-                        is SyncResult.Success -> {
-                            // Dialog automatically dismisses via isSessionExpired = false
-                        }
-                        is SyncResult.Error -> {
-                            renewErrorMessage = result.error
-                            refreshRenewalCaptcha()
-                        }
-                        SyncResult.Loading -> {}
-                    }
-                }
-            },
-            onDismiss = {
-                repository.dismissSessionExpiredPrompt()
-            },
-            onLogout = {
-                repository.logout(forgetCredentials = false)
-                onLogout()
-            }
-        )
     }
 }
 

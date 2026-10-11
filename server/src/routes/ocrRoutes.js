@@ -100,6 +100,49 @@ router.post('/extract', async (req, res, next) => {
 });
 
 /**
+ * POST /v1/ocr/captcha
+ * Dedicated OCR endpoint optimized for CAPTCHA images (applies OpenCV adaptive binarization,
+ * noise reduction, and psm 7 single line recognition).
+ */
+router.post('/captcha', async (req, res) => {
+  try {
+    const { imageBase64 } = req.body || {};
+    if (!imageBase64) {
+      return res.status(400).json({
+        error: 'INVALID_REQUEST',
+        message: 'imageBase64 is required.'
+      });
+    }
+
+    const cleanBase64 = imageBase64.replace(/^data:image\/[a-z0-9-+.]+;base64,/, '');
+    const buffer = Buffer.from(cleanBase64, 'base64');
+
+    const result = await ocrService.extractText(buffer, {
+      psm: 7,
+      preprocess: true,
+      preprocessOptions: {
+        adaptive_threshold: true,
+        denoise: true,
+        min_dim_upscale: 150
+      }
+    });
+
+    const captchaText = (result.text || '').replace(/[^a-zA-Z0-9]/g, '').trim();
+    return res.status(200).json({
+      success: true,
+      captchaText,
+      durationMs: result.durationMs
+    });
+  } catch (err) {
+    logger.error('Captcha OCR failed', { error: err.message });
+    return res.status(500).json({
+      error: 'CAPTCHA_OCR_FAILED',
+      message: err.message || 'Failed to solve captcha.'
+    });
+  }
+});
+
+/**
  * GET /v1/ocr/status
  * Health check for OCR service, reports if local Tesseract engine is ready.
  */

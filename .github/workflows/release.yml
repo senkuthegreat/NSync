@@ -60,7 +60,11 @@ jobs:
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: |
+          CLEAN_VER="${{ steps.version_info.outputs.tag }}"
+          CLEAN_VER="${CLEAN_VER#v}"
+          REV_COUNT=$(git rev-list --count HEAD)
+          ./gradlew assembleRelease -PversionName="${CLEAN_VER}" -PversionCode="${REV_COUNT}" --no-daemon --stacktrace
 
       - name: Prepare APK Asset
         run: |

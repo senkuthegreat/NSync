@@ -190,4 +190,37 @@ describe('Auth & Academic Routes Integration Tests', () => {
     });
     assert.strictEqual(postLogoutRes.status, 401);
   });
+
+  it('POST /v1/auth/challenges/auto-solve auto-solves a CAPTCHA challenge using OCR', async () => {
+    const challengeRes = await fetch(`${baseUrl}/v1/auth/challenges`, { method: 'POST' });
+    const { challengeId } = await challengeRes.json();
+
+    const solveRes = await fetch(`${baseUrl}/v1/auth/challenges/auto-solve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengeId })
+    });
+
+    assert.strictEqual(solveRes.status, 200);
+    const solveData = await solveRes.json();
+    assert.strictEqual(solveData.success, true);
+    assert.strictEqual(solveData.solvedCaptcha, '1234');
+  });
+
+  it('POST /v1/auth/auto-login performs end-to-end automated login without manual CAPTCHA entry', async () => {
+    const autoLoginRes = await fetch(`${baseUrl}/v1/auth/auto-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: '2021UCO1599',
+        password: 'valid_password'
+      })
+    });
+
+    assert.strictEqual(autoLoginRes.status, 200);
+    const autoLoginData = await autoLoginRes.json();
+    assert.strictEqual(autoLoginData.success, true);
+    assert.ok(autoLoginData.token);
+    assert.strictEqual(autoLoginData.user.rollNumber, '2021UCO1599');
+  });
 });
