@@ -243,200 +243,16 @@ body {
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
 }
 
-/* Interactive Mobile Device Stage (Hero Protruding Showcase) */
+/* Flagship Mobile Device Showcase */
 .hero-device-stage {
   position: relative;
   z-index: 25;
   width: 100%;
-  max-width: 980px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 24px;
-  margin-bottom: -70px;
-}
-
-/* Stage Screen Selector Tabs */
-.stage-tabs-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(20px);
-  padding: 6px 8px;
-  border-radius: 999px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-  margin-bottom: 26px;
-  z-index: 30;
-}
-
-.stage-tab-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  color: #4b5563;
-  font-family: var(--font-sans);
-  font-size: 0.82rem;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: none;
-}
-
-.stage-tab-btn:hover {
-  color: #111827;
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.stage-tab-btn.active {
-  background: #111827;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-}
-
-/* Stage Centerpiece: Center Phone + Flanking Widgets */
-.stage-centerpiece {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 32px;
-  width: 100%;
-}
-
-/* Flanking Floating Glass Cards */
-.flanking-card {
-  width: 250px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(24px);
-  border-radius: 22px;
-  padding: 22px 20px;
-  box-shadow: 
-    0 25px 60px -10px rgba(0, 0, 0, 0.16),
-    0 0 0 1px rgba(255, 255, 255, 0.6);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: transform 0.3s ease;
-}
-
-.flanking-card:hover {
-  transform: translateY(-4px);
-}
-
-.flank-badge {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  align-self: flex-start;
-}
-
-.flank-badge.safe {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.flank-badge.schedule {
-  background: #fffbeb;
-  color: #d97706;
-}
-
-.flank-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.flank-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #111827;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.flank-tag.safe {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #059669;
-  background: #d1fae5;
-  padding: 2px 7px;
-  border-radius: 999px;
-}
-
-.flank-class-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1.2;
-}
-
-.flank-loc-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  color: #4b5563;
-  font-weight: 500;
-}
-
-.flank-desc {
-  font-size: 0.8rem;
-  color: #4b5563;
-  line-height: 1.45;
-}
-
-.flank-sub-chips {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  padding-top: 6px;
-}
-
-.flank-sub-chips .chip {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.flank-sub-chips .chip.danger {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.flank-sub-chips .chip.warning {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.flank-countdown-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: #f3f4f6;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.flank-offline-note {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  color: #6b7280;
-  margin-top: 4px;
+  margin-top: 10px;
+  margin-bottom: -70px;
 }
 
 /* Central Flagship Smartphone Device */
@@ -636,7 +452,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5865F2;
+  color: #6366f1;
 }
 
 .sched-day-selector {
@@ -659,7 +475,7 @@ body {
 }
 
 .sched-day-btn.active {
-  background: #5865F2;
+  background: #6366f1;
   color: #ffffff;
   font-weight: 700;
 }
@@ -719,7 +535,7 @@ body {
 
 .class-badge.lecture {
   background: #1e203b;
-  color: #5865F2;
+  color: #6366f1;
 }
 
 .class-badge.tutorial {
@@ -774,7 +590,7 @@ body {
 .profile-tag-blue {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #5865F2;
+  color: #6366f1;
 }
 
 .profile-banner-info p {
@@ -827,7 +643,7 @@ body {
   height: 28px;
   border-radius: 8px;
   background: #1e203b;
-  color: #5865F2;
+  color: #6366f1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -875,7 +691,7 @@ body {
 }
 
 .login-brand-unkempt span {
-  color: #5865F2;
+  color: #6366f1;
 }
 
 .login-form-card {
@@ -920,7 +736,7 @@ body {
 
 .login-primary-btn {
   width: 100%;
-  background: #5865F2;
+  background: #6366f1;
   color: #ffffff;
   border-radius: 14px;
   padding: 13px 0;
@@ -964,7 +780,7 @@ body {
 
 .bnav-item.active {
   background: #1f212d;
-  color: #5865F2;
+  color: #6366f1;
   font-weight: 700;
 }
 

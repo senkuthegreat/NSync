@@ -95,63 +95,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Interactive Mobile Device Stage (Flagship Phone + Live Flanking Widgets) */}
+          {/* Flagship Smartphone Showcase */}
           <div id="showcase" className="hero-device-stage">
-            {/* Interactive Screen Selector Tabs */}
-            <div className="stage-tabs-pill">
-              <button
-                className={`stage-tab-btn ${activePhoneTab === 'attendance' ? 'active' : ''}`}
-                onClick={() => setActivePhoneTab('attendance')}
-              >
-                <BarChart2 size={14} />
-                <span>Attendance</span>
-              </button>
-              <button
-                className={`stage-tab-btn ${activePhoneTab === 'schedule' ? 'active' : ''}`}
-                onClick={() => setActivePhoneTab('schedule')}
-              >
-                <Calendar size={14} />
-                <span>Schedule</span>
-              </button>
-              <button
-                className={`stage-tab-btn ${activePhoneTab === 'more' ? 'active' : ''}`}
-                onClick={() => setActivePhoneTab('more')}
-              >
-                <LayoutGrid size={14} />
-                <span>More</span>
-              </button>
-              <button
-                className={`stage-tab-btn ${activePhoneTab === 'login' ? 'active' : ''}`}
-                onClick={() => setActivePhoneTab('login')}
-              >
-                <User size={14} />
-                <span>Sign In</span>
-              </button>
-            </div>
-
-            {/* Stage Centerpiece: Central Phone + Flanking Floating Glass Widgets */}
-            <div className="stage-centerpiece">
-              {/* Left Flanking Glass Card: Attendance Guard */}
-              <div className="flanking-card left-card">
-                <div className="flank-badge safe">
-                  <Percent size={12} />
-                  <span>75% Criteria Guard</span>
-                </div>
-                <div className="flank-stat">
-                  <span className="flank-number">92.3%</span>
-                  <span className="flank-tag safe">+6 Bunks Safe</span>
-                </div>
-                <p className="flank-desc">
-                  <strong>Digital Circuits and Systems</strong> is safe above 75%. Live calculations show exact skips or needed classes for each subject.
-                </p>
-                <div className="flank-sub-chips">
-                  <span className="chip danger">Physics: Need 26</span>
-                  <span className="chip warning">Signals: Need 16</span>
-                </div>
-              </div>
-
-              {/* Central Titanium Flagship Smartphone */}
-              <div className="device-phone">
+            <div className="device-phone">
                 <div className="device-screen">
                   {/* Status Bar with Dynamic Island */}
                   <div className="phone-status-bar">
@@ -369,7 +315,11 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="logout-action-box">
+                        <div
+                          className="logout-action-box"
+                          onClick={() => setActivePhoneTab('login')}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <LogOut size={14} />
                           <span>Log Out of NSUT IMS</span>
                         </div>
@@ -404,7 +354,10 @@ export default function App() {
                           </div>
                         </div>
 
-                        <button className="login-primary-btn">
+                        <button
+                          className="login-primary-btn"
+                          onClick={() => setActivePhoneTab('attendance')}
+                        >
                           Sign In
                         </button>
                       </div>
@@ -441,30 +394,6 @@ export default function App() {
                   )}
                 </div>
               </div>
-
-              {/* Right Flanking Glass Card: Today's Schedule */}
-              <div className="flanking-card right-card">
-                <div className="flank-badge schedule">
-                  <Clock size={12} />
-                  <span>Today's Schedule</span>
-                </div>
-                <div className="flank-stat">
-                  <span className="flank-class-title">Digital Circuits & Systems</span>
-                </div>
-                <div className="flank-loc-row">
-                  <Clock size={13} />
-                  <span>10:00 AM – 11:00 AM • Lecture</span>
-                </div>
-                <div className="flank-countdown-pill">
-                  <span className="pulse-dot"></span>
-                  <span>Google Calendar Sync Ready</span>
-                </div>
-                <div className="flank-offline-note">
-                  <LayoutGrid size={12} />
-                  <span>Customizable via Widget Studio</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
