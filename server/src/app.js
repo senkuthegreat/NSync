@@ -9,12 +9,16 @@ const ocrRoutes = require('./routes/ocrRoutes');
 const appRoutes = require('./routes/appRoutes');
 const logger = require('./utils/logger');
 
+const path = require('path');
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve interactive landing page from docs directory
+app.use(express.static(path.join(__dirname, '../../docs')));
 
 // Safe request logging (secrets automatically redacted)
 app.use((req, res, next) => {

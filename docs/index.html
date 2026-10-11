@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSync — Academic Life, Seamlessly Synced (NSUT Student Companion)</title>
+  <meta name="description" content="The ultimate student companion app for NSUT. Track attendance with 75% criteria calculator, view daily timetables, exam seating, and enjoy effortless IMS logins.">
+  <meta property="og:title" content="NSync — Academic Life, Seamlessly Synced">
+  <meta property="og:description" content="Fast, lightweight Android companion app for NSUT students. Zero captcha headaches, home screen widgets, and offline access.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient Background Glows & Grid -->
+  <div class="bg-ambient">
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+    <div class="ambient-glow-3"></div>
+    <div class="bg-grid-overlay"></div>
+  </div>
+
+  <!-- Header & Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <img src="assets/logo.png" alt="NSync Logo" class="brand-logo">
+        <span class="brand-text">N<span>Sync</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#mockup">App Preview</a></li>
+        <li><a href="#install">How to Install</a></li>
+        <li><a href="https://github.com/senkuthegreat/NSync" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+
+      <a href="https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk" class="nav-cta-btn dynamic-download-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download APK
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section">
+      <div class="hero-grid">
+        
+        <!-- Left: Text & CTA -->
+        <div class="hero-content">
+          <div class="version-pill">
+            <span class="pulsing-dot"></span>
+            <span>Version <span class="dynamic-version">v1.0.10</span> is Live • NSUT Student Companion</span>
+          </div>
+
+          <h1 class="hero-title">
+            Academic Life,<br>
+            <span class="gradient-text">Seamlessly Synced.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            The companion app NSUT students always wanted. Instant attendance tracking with 75% target projection, live daily timetables, exam hall details, and zero captcha friction.
+          </p>
+
+          <div class="hero-actions">
+            <a href="https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk" class="btn-download-primary dynamic-download-link">
+              <div class="btn-inner">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download APK (<span class="dynamic-version">v1.0.10</span>)</span>
+              </div>
+              <span class="btn-meta dynamic-apk-size">Android 7.0+ • ~31 MB • Free & Open Source</span>
+            </a>
+
+            <a href="https://github.com/senkuthegreat/NSync" target="_blank" rel="noopener" class="btn-secondary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              Star on GitHub
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <span class="stat-val">100%</span>
+              <span class="stat-label">Free & Open Source</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val">0s</span>
+              <span class="stat-label">Login Friction</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val">OTA</span>
+              <span class="stat-label">In-App Updates</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 3D Interactive Phone Mockup -->
+        <div class="phone-showcase" id="mockup">
+          <div class="phone-wrapper" id="interactivePhone">
+            <div class="phone-screen">
+              <div class="phone-island"></div>
+
+              <div class="screen-content">
+                <!-- Status Bar -->
+                <div class="mock-status-bar">
+                  <span>09:41</span>
+                  <span>5G • 98%</span>
+                </div>
+
+                <!-- App Header -->
+                <div class="mock-header">
+                  <div class="mock-student-info">
+                    <h4>Hey, Senku 👋</h4>
+                    <p>COE • 6th Semester • NSUT</p>
+                  </div>
+                  <div class="mock-avatar">S</div>
+                </div>
+
+                <!-- Screen 1: Attendance (Default) -->
+                <div id="screenAttendance">
+                  <div class="mock-attendance-card">
+                    <div class="circular-gauge">
+                      <svg class="gauge-svg" viewBox="0 0 100 100">
+                        <circle class="gauge-bg" cx="50" cy="50" r="40" />
+                        <circle class="gauge-progress" cx="50" cy="50" r="40" />
+                      </svg>
+                      <div class="gauge-text">
+                        <span class="gauge-number">86.4%</span>
+                        <span class="gauge-status">SAFE</span>
+                      </div>
+                    </div>
+                    <p style="font-size: 11px; color: #94a3b8;">You can safely skip <strong>4 lecture(s)</strong> above 75%.</p>
+                  </div>
+
+                  <div class="mock-subject-list">
+                    <div class="mock-subject-item">
+                      <div class="subject-header">
+                        <span>Software Engineering</span>
+                        <span style="color: #60a5fa;">22/25 (88%)</span>
+                      </div>
+                      <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 88%;"></div>
+                      </div>
+                    </div>
+
+                    <div class="mock-subject-item">
+                      <div class="subject-header">
+                        <span>Computer Networks</span>
+                        <span style="color: #60a5fa;">24/28 (85.7%)</span>
+                      </div>
+                      <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 85.7%;"></div>
+                      </div>
+                    </div>
+
+                    <div class="mock-subject-item">
+                      <div class="subject-header">
+                        <span>Compiler Design</span>
+                        <span style="color: #60a5fa;">19/22 (86.3%)</span>
+                      </div>
+                      <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 86.3%;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Screen 2: Timetable (Hidden initially) -->
+                <div id="screenTimetable" style="display: none;">
+                  <div class="mock-day-pill">
+                    <span class="day-badge active">Mon</span>
+                    <span class="day-badge">Tue</span>
+                    <span class="day-badge">Wed</span>
+                    <span class="day-badge">Thu</span>
+                    <span class="day-badge">Fri</span>
+                  </div>
+
+                  <div class="mock-timetable-container">
+                    <div class="timetable-card">
+                      <div class="tt-time">09:00 - 10:00 • LIVE NOW</div>
+                      <div class="tt-title">CO301: Software Engineering</div>
+                      <div class="tt-room">📍 Block 6, Room LH-101</div>
+                    </div>
+                    <div class="timetable-card">
+                      <div class="tt-time">10:00 - 11:00 • UP NEXT</div>
+                      <div class="tt-title">CO302: Computer Networks</div>
+                      <div class="tt-room">📍 Block 6, Room LH-102</div>
+                    </div>
+                    <div class="timetable-card">
+                      <div class="tt-time">11:00 - 13:00</div>
+                      <div class="tt-title">CO305: Operating Systems Lab</div>
+                      <div class="tt-room">📍 Computing Lab 4</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Screen 3: Exams (Hidden initially) -->
+                <div id="screenExams" style="display: none;">
+                  <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center;">
+                    <span style="font-size: 11px; color: #f87171; font-weight: 700;">MID-TERM SEATING PLAN</span>
+                    <p style="font-size: 12px; font-weight: 600; color: #fff; margin-top: 2px;">Desk Row: B-14 • Seat 28</p>
+                  </div>
+
+                  <div class="mock-subject-list">
+                    <div class="mock-subject-item">
+                      <div class="subject-header">
+                        <span>CO301 Software Engg</span>
+                        <span style="color: #fbbf24;">14 Oct • 10:00 AM</span>
+                      </div>
+                      <p style="font-size: 10px; color: #94a3b8;">Hall: APJ-102</p>
+                    </div>
+                    <div class="mock-subject-item">
+                      <div class="subject-header">
+                        <span>CO302 Computer Networks</span>
+                        <span style="color: #fbbf24;">16 Oct • 10:00 AM</span>
+                      </div>
+                      <p style="font-size: 10px; color: #94a3b8;">Hall: APJ-104</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Screen 4: OCR Scanner (Hidden initially) -->
+                <div id="screenOcr" style="display: none;">
+                  <div style="background: rgba(16, 185, 129, 0.1); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="margin: 0 auto 6px;">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <p style="font-size: 11px; color: #34d399; font-weight: 600;">Fast Local OCR Scanner</p>
+                    <p style="font-size: 10px; color: #94a3b8;">Extract schedule & notices without cloud APIs</p>
+                  </div>
+                  <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 10px; font-size: 11px; color: #cbd5e1; font-family: monospace;">
+                    Extracted Text:<br>
+                    "CO301 Midterm Examination scheduled in Hall APJ-102"
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Screen Switcher Tabs -->
+          <div class="phone-tabs">
+            <button class="tab-btn active" data-target="attendance">📊 Attendance</button>
+            <button class="tab-btn" data-target="timetable">🗓️ Timetable</button>
+            <button class="tab-btn" data-target="exams">📝 Exams</button>
+            <button class="tab-btn" data-target="ocr">🔍 OCR</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Bento Features Section -->
+    <section class="features-section" id="features">
+      <div class="section-header">
+        <div class="section-tag">ENGINEERED FOR NSUT</div>
+        <h2 class="section-title">Everything you need for college, in one fluid interface.</h2>
+        <p class="section-desc">Designed to replace clunky portal logins and slow web pages with instant, offline-first native performance.</p>
+      </div>
+
+      <div class="bento-grid">
+        
+        <!-- Bento 1 (Wide): Session Persistence & No Captchas -->
+        <div class="bento-card wide">
+          <div class="card-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3>Zero CAPTCHA Friction with Session Persistence</h3>
+          <p>Tired of typing security numbers every 5 minutes? NSync safely stores your authorized IMS session in the backend and sliding token cache. Log in once with official captcha verification, and navigate seamlessly for hours.</p>
+        </div>
+
+        <!-- Bento 2: 75% Bunk Calculator -->
+        <div class="bento-card">
+          <div class="card-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+          </div>
+          <h3>Smart 75% Bunk Criteria</h3>
+          <p>Never calculate manually on paper again. Live projections tell you exactly how many lectures you can safely skip or need to attend to stay safe from detentions.</p>
+        </div>
+
+        <!-- Bento 3: Android Home Screen Widgets -->
+        <div class="bento-card">
+          <div class="card-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <h3>Home Screen Widgets</h3>
+          <p>View your next class, room number, and attendance percentage without even opening the app. Tactile Glance widgets designed for your home screen.</p>
+        </div>
+
+        <!-- Bento 4: Offline Timetable -->
+        <div class="bento-card">
+          <div class="card-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3>Offline Timetable Sync</h3>
+          <p>Syncs your class schedule to local database cache. Checks your timetable even inside poor network lecture halls and basements.</p>
+        </div>
+
+        <!-- Bento 5 (Wide): Lightweight OCR & In-App Auto-Updates -->
+        <div class="bento-card wide">
+          <div class="card-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+          </div>
+          <h3>Over-The-Air In-App Auto-Updates</h3>
+          <p>Installed directly from GitHub? You never have to manually check or download future updates. Whenever a new feature or fix is released, NSync alerts you and installs the new version in one tap.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Installation Guide Section -->
+    <section class="guide-section" id="install">
+      <div class="section-header">
+        <div class="section-tag">QUICK INSTALLATION</div>
+        <h2 class="section-title">Up and running in 3 simple steps</h2>
+        <p class="section-desc">No Google Play account needed. Download and install directly onto any Android device running Android 7.0 or higher.</p>
+      </div>
+
+      <div class="guide-steps">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h4>Download the APK</h4>
+          <p>Tap the download button to grab the official signed <code>NSync-latest.apk</code> directly from our verified GitHub Releases.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h4>Allow Installation</h4>
+          <p>When prompted by your browser or Android file manager, allow <em>"Install unknown apps"</em> for this source.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h4>Log In & Sync</h4>
+          <p>Open NSync, enter your roll number and password, solve the inline security captcha once, and you are ready to roll!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download CTA Banner -->
+    <section class="cta-banner-section">
+      <div class="cta-banner">
+        <h2>Experience NSUT Academic Life, Refined.</h2>
+        <p>Free forever, zero third-party ads, open source, and built with love by students for students.</p>
+
+        <a href="https://github.com/senkuthegreat/NSync/releases/latest/download/NSync-latest.apk" class="btn-download-primary dynamic-download-link" style="margin: 0 auto; display: inline-flex;">
+          <div class="btn-inner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download NSync APK</span>
+          </div>
+          <span class="btn-meta dynamic-apk-size">Android 7.0+ • ~31 MB • Direct Release</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-credits">
+        <p><strong>NSync</strong> — Handcrafted for Netaji Subhas University of Technology (NSUT).</p>
+        <p style="font-size: 0.8rem; margin-top: 4px;">Open-source student companion app. Not officially affiliated with NSUT administration.</p>
+      </div>
+
+      <ul class="footer-links">
+        <li><a href="https://github.com/senkuthegreat/NSync" target="_blank" rel="noopener">GitHub Repository</a></li>
+        <li><a href="https://github.com/senkuthegreat/NSync/releases" target="_blank" rel="noopener">Releases</a></li>
+        <li><a href="https://github.com/senkuthegreat/NSync/issues" target="_blank" rel="noopener">Bug Reports</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
