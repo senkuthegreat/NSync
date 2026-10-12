@@ -758,14 +758,13 @@ class ImsNetworkClient {
         return "$prevStart-${((prevStart + 1) % 100).toString().padStart(2, '0')}"
     }
 
-    private fun isAttendanceMatrixHtml(html: String): Boolean {
-        return html.contains("plum_fieldbig", ignoreCase = true) ||
-                html.contains("plum_head", ignoreCase = true) ||
+    fun isAttendanceMatrixHtml(html: String): Boolean {
+        return html.contains("Overall Class", ignoreCase = true) ||
+                html.contains("Overall (%)", ignoreCase = true) ||
                 html.contains("Total Classes", ignoreCase = true) ||
-                html.contains("Overall", ignoreCase = true) ||
-                (html.contains("Total", ignoreCase = true) && html.contains("Present", ignoreCase = true)) ||
-                html.contains("myreport", ignoreCase = true) ||
-                html.contains("ABSENT", ignoreCase = true)
+                html.contains("0 - > ABSENT", ignoreCase = true) ||
+                (html.contains("Days", ignoreCase = true) && html.contains("ABSENT", ignoreCase = true)) ||
+                (html.contains("Total", ignoreCase = true) && html.contains("Present", ignoreCase = true) && html.contains("Absent", ignoreCase = true))
     }
 
     private fun fetchAttendanceHtmlFromPortal(
@@ -806,10 +805,13 @@ class ImsNetworkClient {
                 return null
             }
 
-            // If the initial GET response already rendered the attendance matrix:
+            // Only treat initial GET as pre-rendered matrix if it actually contains parsed attendance records
             if (isAttendanceMatrixHtml(initialHtml)) {
-                Log.i("NSyncAttendance", "Attendance matrix found directly on initial GET response")
-                return initialHtml
+                val initialSummary = ImsParser.parseAttendanceHtml(initialHtml, rollNumber)
+                if (initialSummary.records.isNotEmpty()) {
+                    Log.i("NSyncAttendance", "Attendance matrix found directly on initial GET response with ${initialSummary.records.size} subjects")
+                    return initialHtml
+                }
             }
 
             // Step 2: Extract form and dynamically submit with student roll and hidden parameters
@@ -885,7 +887,11 @@ class ImsNetworkClient {
                 candidateSems.add(resolvedSem)
                 if (semInt > 1) {
                     candidateSems.add((semInt - 1).toString())
-                } else if (semInt < 8) {
+                }
+                if (semInt > 2) {
+                    candidateSems.add((semInt - 2).toString())
+                }
+                if (semInt < 8) {
                     candidateSems.add((semInt + 1).toString())
                 }
 

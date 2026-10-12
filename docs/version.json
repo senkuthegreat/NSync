@@ -1,8 +1,8 @@
 {
-  "version": "1.0.46",
-  "versionCode": 46,
-  "name": "NSync v1.0.46",
-  "notes": "Clean student name parsing, reliable dynamic branch resolution, fast bounded attendance query with correct session cookies and portal headers.",
+  "version": "1.0.47",
+  "versionCode": 47,
+  "name": "NSync v1.0.47",
+  "notes": "Reliable dynamic attendance retrieval: fixed matrix detection to submit the IMS attendance form directly, with dynamic financial year and candidate semester negotiation.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-12T05:00:00Z"
+  "publishedAt": "2026-10-12T05:30:00Z"
 }
