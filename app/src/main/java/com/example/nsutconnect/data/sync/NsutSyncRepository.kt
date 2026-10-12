@@ -101,7 +101,8 @@ class NsutSyncRepository(private val context: Context) {
                 prefs.saveCredentials(cleanRoll, cleanPass, autoLogin)
                 prefs.savePortalCookies(authResult.cookies)
                 authResult.studentName?.let { prefs.setStudentName(it) }
-                authResult.branch?.let { prefs.setBranch(it) }
+                val initialBranch = authResult.branch ?: ImsNetworkClient.resolveBranchFromRoll(cleanRoll)
+                initialBranch?.let { prefs.setBranch(it) }
                 val attUrl = authResult.attendanceUrl
                 val ttUrl = authResult.timetableUrl
                 prefs.saveAttendanceUrl(attUrl)
@@ -132,8 +133,9 @@ class NsutSyncRepository(private val context: Context) {
                     cookies = authResult.cookies,
                     rollNumber = cleanRoll,
                     attendanceUrl = attUrl,
-                    branch = authResult.branch,
-                    semester = resolvedSemester
+                    branch = initialBranch,
+                    semester = resolvedSemester,
+                    activitiesUrl = authResult.activitiesUrl
                 )
                 val liveTimetable = networkClient.fetchLiveTimetable(
                     cookies = authResult.cookies,
@@ -144,6 +146,12 @@ class NsutSyncRepository(private val context: Context) {
                 if (liveAttendance != null) {
                     prefs.saveAttendanceSummary(liveAttendance)
                     _attendance.value = liveAttendance
+                    if (liveAttendance.studentName.isNotBlank() && liveAttendance.studentName != "STUDENT") {
+                        prefs.setStudentName(liveAttendance.studentName)
+                    }
+                    if (liveAttendance.branch.isNotBlank() && liveAttendance.branch != "Engineering") {
+                        prefs.setBranch(liveAttendance.branch)
+                    }
                 }
                 if (liveTimetable != null) {
                     prefs.saveTimetable(liveTimetable)
@@ -189,7 +197,14 @@ class NsutSyncRepository(private val context: Context) {
         val activitiesUrl = prefs.getActivitiesUrl()
         var coursesUrl = prefs.getCoursesUrl()
         var semester = prefs.getSemester()
-        val branch = prefs.getBranch()
+        var branch = prefs.getBranch()
+        if (branch.isBlank() || branch == "B.Tech." || branch == "Engineering") {
+            val resolved = ImsNetworkClient.resolveBranchFromRoll(rollNumber)
+            if (resolved != null) {
+                branch = resolved
+                prefs.setBranch(resolved)
+            }
+        }
         var liveAttendance: AttendanceSummary? = null
         var liveTimetable: WeeklyTimetable? = null
         var sessionExpired = false
@@ -202,7 +217,7 @@ class NsutSyncRepository(private val context: Context) {
                 val cookiesMap = networkClient.parseCookiesToMap(cookies)
                 val actDoc = org.jsoup.Jsoup.connect(activitiesUrl)
                     .userAgent(ImsNetworkClient.USER_AGENT)
-                    .header("Referer", ImsNetworkClient.STUDENT_LOGIN_URL)
+                    .header("Referer", ImsNetworkClient.BASE_URL + "plum_url.php")
                     .cookies(cookiesMap)
                     .timeout(10000)
                     .followRedirects(true)
@@ -246,10 +261,19 @@ class NsutSyncRepository(private val context: Context) {
                 rollNumber = rollNumber,
                 attendanceUrl = attendanceUrl,
                 branch = branch,
-                semester = semester
+                semester = semester,
+                activitiesUrl = activitiesUrl
             )
             when (attResult) {
-                is LiveFetchResult.Success -> liveAttendance = attResult.data
+                is LiveFetchResult.Success -> {
+                    liveAttendance = attResult.data
+                    if (attResult.data.studentName.isNotBlank() && attResult.data.studentName != "STUDENT") {
+                        prefs.setStudentName(attResult.data.studentName)
+                    }
+                    if (attResult.data.branch.isNotBlank() && attResult.data.branch != "Engineering") {
+                        prefs.setBranch(attResult.data.branch)
+                    }
+                }
                 is LiveFetchResult.SessionExpired -> sessionExpired = true
                 is LiveFetchResult.Error -> {}
             }

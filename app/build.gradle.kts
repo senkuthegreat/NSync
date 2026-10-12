@@ -7,8 +7,8 @@ plugins {
 android {
     namespace = "com.example.nsutconnect"
     compileSdk = 36
-    val appVersionCode = project.findProperty("versionCode")?.toString()?.toIntOrNull() ?: 45
-    val appVersionName = project.findProperty("versionName")?.toString() ?: "1.0.45"
+    val appVersionCode = project.findProperty("versionCode")?.toString()?.toIntOrNull() ?: 46
+    val appVersionName = project.findProperty("versionName")?.toString() ?: "1.0.46"
 
     defaultConfig {
         applicationId = "com.example.nsutconnect"
@@ -50,6 +50,10 @@ android {
       resources {
         excludes += "/META-INF/{AL2.0,LGPL2.1}"
       }
+    }
+
+    testOptions {
+      unitTests.isReturnDefaultValues = true
     }
 }
 

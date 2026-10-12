@@ -239,4 +239,62 @@ class ImsParserTest {
         assertEquals(32, ec305.totalClasses)
         assertEquals(90.63, ec305.percentage, 0.5)
     }
+
+    @Test
+    fun testLivePortalPageExtraction() {
+        val targetHtml = File("src/main/assets/live_target_page.html").readText()
+        val activitiesHtml = File("src/main/assets/live_activities_page.html").readText()
+        val attendanceInitialHtml = File("src/main/assets/live_attendance_initial.html").readText()
+
+        val targetDoc = org.jsoup.Jsoup.parse(targetHtml)
+        val activitiesDoc = org.jsoup.Jsoup.parse(activitiesHtml)
+        val attendanceInitialDoc = org.jsoup.Jsoup.parse(attendanceInitialHtml)
+
+        // 1. Name extraction test
+        val nameMatch = Regex("""(?i)Welcome\s*:\s*([A-Za-z\s.'-]+?)(?:<|&|\s{2,}|$)""").find(targetHtml)
+        val studentName = nameMatch?.groupValues?.get(1)?.trim()
+        assertEquals("PRINCE KUMAR", studentName)
+
+        // 2. Discover links from target doc
+        val client = com.example.nsutconnect.data.network.ImsNetworkClient()
+        val links1 = client.resolvePortalLinks(targetDoc, emptyMap())
+        assertNotNull(links1.activitiesUrl)
+        assertTrue(links1.activitiesUrl!!.contains("plum_url.php"))
+
+        // 3. Discover links from activities doc
+        val links2 = client.resolvePortalLinks(activitiesDoc, emptyMap())
+        assertNotNull(links2.attendanceUrl)
+        assertTrue(links2.attendanceUrl!!.contains("plum_url.php"))
+        assertNotNull(links2.timetableUrl)
+        assertTrue(links2.timetableUrl!!.contains("plum_url.php"))
+        assertNotNull(links2.coursesUrl)
+        assertTrue(links2.coursesUrl!!.contains("plum_url.php"))
+
+        // 4. Branch extraction from attendance initial form
+        val dept = attendanceInitialDoc.selectFirst("input[name=dept]")?.attr("value")?.trim()
+        assertEquals("ELECTRONICS AND COMMUNICATION ENGINEERING", dept)
+    }
+
+    @Test
+    fun testStudentNameCleaningAndBranchResolution() {
+        val client = com.example.nsutconnect.data.network.ImsNetworkClient
+
+        // 1. Name cleaning tests
+        assertEquals("PRINCE KUMAR", client.cleanStudentName(": PRINCE KUMAR Welcome : PRINCE KUMAR"))
+        assertEquals("PRINCE KUMAR", client.cleanStudentName("Welcome : PRINCE KUMAR"))
+        assertEquals("PRINCE KUMAR", client.cleanStudentName(": PRINCE KUMAR"))
+        assertEquals("PRINCE KUMAR", client.cleanStudentName("PRINCE KUMAR"))
+        assertEquals("STUDENT", client.cleanStudentName(""))
+        assertEquals("STUDENT", client.cleanStudentName("STUDENT"))
+
+        // 2. Name extraction from HTML
+        assertEquals("PRINCE KUMAR", client.extractStudentNameFromHtml("<font size=2>Welcome : PRINCE KUMAR</font>"))
+        assertEquals("PRINCE KUMAR", client.extractStudentNameFromHtml("<td>Home Welcome : PRINCE KUMAR Welcome : PRINCE KUMAR</td>"))
+
+        // 3. Branch resolution tests
+        assertEquals("Electronics Engineering (VLSI Design and Technology)", client.resolveBranchFromRoll("2025UEV2858"))
+        assertEquals("Computer Engineering", client.resolveBranchFromRoll("2024UCO1500"))
+        assertEquals("Information Technology", client.resolveBranchFromRoll("2024UIT1001"))
+        assertEquals("Electronics and Communication Engineering", client.resolveBranchFromRoll("2024UEC1002"))
+    }
 }

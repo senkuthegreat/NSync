@@ -1,8 +1,8 @@
 {
-  "version": "1.0.45",
-  "versionCode": 45,
-  "name": "NSync v1.0.45",
-  "notes": "Fixed Plumware attendance form selector, removed hardcoded degree/course/timetable fallbacks, dynamic token and legend resolution.",
+  "version": "1.0.46",
+  "versionCode": 46,
+  "name": "NSync v1.0.46",
+  "notes": "Clean student name parsing, reliable dynamic branch resolution, fast bounded attendance query with correct session cookies and portal headers.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-12T04:00:00Z"
+  "publishedAt": "2026-10-12T05:00:00Z"
 }

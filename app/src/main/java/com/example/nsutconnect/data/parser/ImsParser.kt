@@ -61,9 +61,22 @@ object ImsParser {
             if (!s.isNullOrBlank()) semester = "Semester $s"
         }
 
+        if (studentName == "STUDENT") {
+            val welcomeMatch = Regex("""(?i)Welcome\s*:\s*([A-Za-z\s.'-]+?)(?:<|&|\s{2,}|$)""").find(html)?.groupValues?.get(1)?.trim()
+            if (!welcomeMatch.isNullOrBlank()) {
+                studentName = welcomeMatch
+            }
+        }
+        studentName = com.example.nsutconnect.data.network.ImsNetworkClient.cleanStudentName(studentName)
+
         val deptInput = doc.select("input[name=dept]").firstOrNull()?.attr("value")
         if (!deptInput.isNullOrBlank()) {
             branch = deptInput.lowercase().capitalizeWords()
+        } else if (branch == "Engineering") {
+            val resolved = com.example.nsutconnect.data.network.ImsNetworkClient.resolveBranchFromRoll(rollNumber)
+            if (resolved != null) {
+                branch = resolved
+            }
         }
 
         // 2. Extract dynamic subject legends from the bottom of attendance table

@@ -229,14 +229,31 @@ class UserPreferences(private val context: Context) {
         clearSession(keepCredentials = false)
     }
 
-    fun getBranch(): String = prefs.getString(KEY_BRANCH, "B.Tech.") ?: "B.Tech."
-    fun setBranch(branch: String) {
-        prefs.edit().putString(KEY_BRANCH, branch).apply()
+    fun getBranch(): String {
+        val stored = prefs.getString(KEY_BRANCH, "") ?: ""
+        if (stored.isNotBlank() && stored != "B.Tech." && stored != "Engineering") {
+            return stored
+        }
+        val roll = getRollNumber()
+        val resolved = com.example.nsutconnect.data.network.ImsNetworkClient.resolveBranchFromRoll(roll)
+        return resolved ?: (if (stored.isNotBlank()) stored else "B.Tech.")
     }
 
-    fun getStudentName(): String = prefs.getString(KEY_STUDENT_NAME, "STUDENT") ?: "STUDENT"
+    fun setBranch(branch: String) {
+        val trimmed = branch.trim()
+        if (trimmed.isNotBlank()) {
+            prefs.edit().putString(KEY_BRANCH, trimmed).apply()
+        }
+    }
+
+    fun getStudentName(): String {
+        val stored = prefs.getString(KEY_STUDENT_NAME, "STUDENT") ?: "STUDENT"
+        return com.example.nsutconnect.data.network.ImsNetworkClient.cleanStudentName(stored)
+    }
+
     fun setStudentName(name: String) {
-        prefs.edit().putString(KEY_STUDENT_NAME, name).apply()
+        val cleaned = com.example.nsutconnect.data.network.ImsNetworkClient.cleanStudentName(name)
+        prefs.edit().putString(KEY_STUDENT_NAME, cleaned).apply()
     }
 
     fun savePortalCookies(cookies: String) {
