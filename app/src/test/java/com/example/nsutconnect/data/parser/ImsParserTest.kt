@@ -72,7 +72,7 @@ class ImsParserTest {
         assertEquals("10:00", mondayClasses[0].startTime)
         assertEquals("11:00", mondayClasses[0].endTime)
         assertEquals("VTECC305", mondayClasses[0].subjectCode)
-        assertEquals("Dr. Neeraj Goel", mondayClasses[0].facultyName)
+        assertEquals("Prof. Neeraj Goel", mondayClasses[0].facultyName)
 
         assertEquals("12:00", mondayClasses[1].startTime)
         assertEquals("13:00", mondayClasses[1].endTime)
@@ -210,5 +210,33 @@ class ImsParserTest {
         assertEquals(2, courses.size)
         assertEquals("Mathematics I", courses["MA101"])
         assertEquals("Programming Fundamentals", courses["CS101"])
+    }
+
+    @Test
+    fun testParseRealLiveAttendanceHtml() {
+        val file = File("src/main/assets/live_attendance_sample.html")
+        assertTrue("live_attendance_sample.html must exist", file.exists())
+        val html = file.readText()
+
+        val summary = ImsParser.parseAttendanceHtml(html, "2025UEV2858")
+        assertNotNull(summary)
+        assertEquals("2025UEV2858", summary.rollNumber)
+        assertTrue("Should have records", summary.records.isNotEmpty())
+        assertEquals(7, summary.records.size)
+
+        // Verify subjects found
+        val codes = summary.records.map { it.subjectCode }
+        assertTrue(codes.contains("VTECC302"))
+        assertTrue(codes.contains("VTECC303"))
+        assertTrue(codes.contains("VTECC304"))
+        assertTrue(codes.contains("VTECC305"))
+        assertTrue(codes.contains("VTPHC301"))
+
+        // Check VTECC305: 29 attended out of 32
+        val ec305 = summary.records.firstOrNull { it.subjectCode == "VTECC305" }
+        assertNotNull(ec305)
+        assertEquals(29, ec305!!.attendedClasses)
+        assertEquals(32, ec305.totalClasses)
+        assertEquals(90.63, ec305.percentage, 0.5)
     }
 }

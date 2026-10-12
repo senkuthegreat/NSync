@@ -1,6 +1,7 @@
 package com.example.nsutconnect.data.sync
 
 import android.content.Context
+import android.util.Log
 import com.example.nsutconnect.data.calendar.CalendarSyncResult
 import com.example.nsutconnect.data.calendar.GoogleCalendarSyncManager
 import com.example.nsutconnect.data.local.UserPreferences
@@ -101,8 +102,8 @@ class NsutSyncRepository(private val context: Context) {
                 prefs.savePortalCookies(authResult.cookies)
                 authResult.studentName?.let { prefs.setStudentName(it) }
                 authResult.branch?.let { prefs.setBranch(it) }
-                val attUrl = authResult.attendanceUrl ?: ImsNetworkClient.ATTENDANCE_URL
-                val ttUrl = authResult.timetableUrl ?: ImsNetworkClient.TIMETABLE_URL
+                val attUrl = authResult.attendanceUrl
+                val ttUrl = authResult.timetableUrl
                 prefs.saveAttendanceUrl(attUrl)
                 prefs.saveTimetableUrl(ttUrl)
                 prefs.saveActivitiesUrl(authResult.activitiesUrl)
@@ -185,14 +186,6 @@ class NsutSyncRepository(private val context: Context) {
         val cookies = prefs.getPortalCookies()
         var attendanceUrl = prefs.getAttendanceUrl()
         var timetableUrl = prefs.getTimetableUrl()
-        if (attendanceUrl.isNullOrBlank()) {
-            attendanceUrl = ImsNetworkClient.ATTENDANCE_URL
-            prefs.saveAttendanceUrl(attendanceUrl)
-        }
-        if (timetableUrl.isNullOrBlank()) {
-            timetableUrl = ImsNetworkClient.TIMETABLE_URL
-            prefs.saveTimetableUrl(timetableUrl)
-        }
         val activitiesUrl = prefs.getActivitiesUrl()
         var coursesUrl = prefs.getCoursesUrl()
         var semester = prefs.getSemester()
@@ -201,8 +194,10 @@ class NsutSyncRepository(private val context: Context) {
         var liveTimetable: WeeklyTimetable? = null
         var sessionExpired = false
 
-        // If attendanceUrl, timetableUrl, or coursesUrl is missing but activitiesUrl is saved, re-resolve dynamically
-        if ((attendanceUrl.isNullOrBlank() || timetableUrl.isNullOrBlank() || coursesUrl.isNullOrBlank()) && !activitiesUrl.isNullOrBlank() && cookies.isNotBlank()) {
+        // If attendanceUrl, timetableUrl, or coursesUrl is missing, re-resolve dynamically from activitiesUrl
+        val needsAttResolution = attendanceUrl.isNullOrBlank()
+        val needsTtResolution = timetableUrl.isNullOrBlank()
+        if ((needsAttResolution || needsTtResolution || coursesUrl.isNullOrBlank()) && !activitiesUrl.isNullOrBlank() && cookies.isNotBlank()) {
             try {
                 val cookiesMap = networkClient.parseCookiesToMap(cookies)
                 val actDoc = org.jsoup.Jsoup.connect(activitiesUrl)
@@ -225,7 +220,9 @@ class NsutSyncRepository(private val context: Context) {
                     coursesUrl = discovered.coursesUrl
                     prefs.saveCoursesUrl(discovered.coursesUrl)
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w("NSyncSync", "Failed to refresh dynamic links from activitiesUrl: ${e.message}")
+            }
         }
 
         // Ensure semester and enrolled courses are fetched

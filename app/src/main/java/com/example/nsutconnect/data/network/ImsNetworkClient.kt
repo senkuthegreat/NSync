@@ -48,10 +48,6 @@ class ImsNetworkClient {
         const val STUDENT_LOGIN110_URL = "https://www.imsnsit.org/imsnsit/student_login110.php"
         const val STUDENT_LOGIN_URL = "https://www.imsnsit.org/imsnsit/student_login.php"
         const val PLUM_SCREEN_INIT_URL = "https://www.imsnsit.org/imsnsit/plum5_fw_login.php?t=sw&w=1"
-        const val TIMETABLE_URL = "https://www.imsnsit.org/imsnsit/plum_url.php?41uZnOKcTatoQuZ1nS5qVGIuiLOuCZGGw43gNaDJuC6JU+zlhWK6ya/tcFLywtouIo7aWVZdCbDde4Onb0dyebiOoF5CwOCF9cWNylj6wkXd0RX8bVnVGaPKlMtStKmyuAZXCzEdKq+zBvagqtna+Vjw3K+2YkEhpEDLFH9RwuVsL162Qyo3TRed5amA2UTcldG13/T8xEKGB82zR7JxVA=="
-        const val ATTENDANCE_URL = "https://www.imsnsit.org/imsnsit/plum_url.php?P59Otr7+3xJIlCBBABoVb0GIgAXiKbA1LIAMUeXV5ZvLND/AfclikCFEYYIO4oq3BkrlNPPPoLsLVLt2ihg6VdTT8AXD3bdKB07WmGbjTQ4PM9NWTedZH8r2ohs9zsBsbFmAs01PXjfJn07m4ARSsaaeuZxTy4F4EJp+SoAk4dHNGvsD3yrO6W3oQUld+8626tyicw9vPYtiH/KgrqEbUsWbLNgbppb9cgWn/IrjvV15vuFRdLZIHnwX5Qndspns"
-        const val ATTENDANCE_FALLBACK_URL = ATTENDANCE_URL
-        const val COURSES_FALLBACK_URL = "https://www.imsnsit.org/imsnsit/student_courses_registered.php"
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.119 Safari/537.36"
     }
 
@@ -594,7 +590,7 @@ class ImsNetworkClient {
         rollNumber: String,
         timetableUrl: String? = null
     ): WeeklyTimetable? = withContext(Dispatchers.IO) {
-        val targetUrl = timetableUrl?.ifBlank { null } ?: TIMETABLE_URL
+        val targetUrl = timetableUrl?.ifBlank { null } ?: return@withContext null
 
         try {
             val response = Jsoup.connect(targetUrl)
@@ -657,7 +653,7 @@ class ImsNetworkClient {
         cookies: String,
         coursesUrl: String?
     ): Pair<String?, Map<String, String>> = withContext(Dispatchers.IO) {
-        val targetUrl = coursesUrl?.ifBlank { null } ?: COURSES_FALLBACK_URL
+        val targetUrl = coursesUrl?.ifBlank { null } ?: return@withContext Pair(null, emptyMap())
         if (cookies.isBlank()) {
             return@withContext Pair(null, emptyMap())
         }
@@ -694,6 +690,12 @@ class ImsNetworkClient {
         }
     }
 
+    fun getPreviousFinancialYear(fy: String): String {
+        val startYear = fy.substringBefore("-").toIntOrNull() ?: return fy
+        val prevStart = startYear - 1
+        return "$prevStart-${((prevStart + 1) % 100).toString().padStart(2, '0')}"
+    }
+
     private fun isAttendanceMatrixHtml(html: String): Boolean {
         return html.contains("plum_fieldbig", ignoreCase = true) ||
                 html.contains("plum_head", ignoreCase = true) ||
@@ -711,7 +713,8 @@ class ImsNetworkClient {
         branch: String?,
         semester: String? = null
     ): String? {
-        val effectiveUrl = targetUrl.ifBlank { ATTENDANCE_FALLBACK_URL }
+        if (targetUrl.isBlank()) return null
+        val effectiveUrl = targetUrl
         try {
             val cookiesMap = parseCookiesToMap(cookies)
             Log.i("NSyncAttendance", "Requesting attendance from: $effectiveUrl with roll: $rollNumber")
@@ -743,12 +746,15 @@ class ImsNetworkClient {
             }
 
             // Step 2: Extract form and dynamically submit with student roll and hidden parameters
-            val form = doc.selectFirst("form#frm, form[name=frm], form")
+            val form = doc.selectFirst("form#frm, form[name=frm]")
+                ?: doc.select("form").firstOrNull { it.selectFirst("select[name=year], select[name=sem]") != null }
+                ?: doc.selectFirst("form")
             if (form != null) {
                 val actionAttr = form.attr("action").trim()
                 val postUrl = when {
                     actionAttr.startsWith("http") -> actionAttr
-                    actionAttr.isNotBlank() -> if (actionAttr.startsWith("/")) "https://www.imsnsit.org$actionAttr" else BASE_URL + actionAttr
+                    actionAttr.isNotBlank() && !actionAttr.contains("createpdf", ignoreCase = true) ->
+                        if (actionAttr.startsWith("/")) "https://www.imsnsit.org$actionAttr" else BASE_URL + actionAttr
                     else -> effectiveUrl
                 }
 
@@ -784,22 +790,22 @@ class ImsNetworkClient {
                 if (!baseParams.containsKey("ename")) baseParams["ename"] = ""
                 if (!baseParams.containsKey("ecode")) baseParams["ecode"] = ""
 
-                // Determine Academic / Financial Year
-                val yearSelect = form.selectFirst("select[name=year]")
+                // Determine Academic / Financial Year candidates
+                val yearSelect = form.selectFirst("select[name=year]") ?: doc.selectFirst("select[name=year]")
                 val availableYears = yearSelect?.select("option")?.mapNotNull { it.attr("value").trim().ifBlank { null } } ?: emptyList()
                 val targetYear = getFinancialYear()
-                val selectedYear = when {
-                    availableYears.contains(targetYear) -> targetYear
-                    availableYears.any { it.startsWith(targetYear.substringBefore("-")) } ->
-                        availableYears.first { it.startsWith(targetYear.substringBefore("-")) }
-                    availableYears.isNotEmpty() -> availableYears.first()
-                    else -> targetYear
+                val candidateYears = mutableListOf<String>()
+                if (availableYears.contains(targetYear)) candidateYears.add(targetYear)
+                val prevYear = getPreviousFinancialYear(targetYear)
+                if (availableYears.contains(prevYear)) candidateYears.add(prevYear)
+                for (yr in availableYears) {
+                    if (!candidateYears.contains(yr)) candidateYears.add(yr)
                 }
-                baseParams["year"] = selectedYear
+                if (candidateYears.isEmpty()) candidateYears.add(targetYear)
 
                 // Determine Candidate Semesters to query
                 val resolvedSem = semester?.ifBlank { null } ?: calculateSemesterFromRoll(rollNumber)
-                val semSelect = form.selectFirst("select[name=sem]")
+                val semSelect = form.selectFirst("select[name=sem]") ?: doc.selectFirst("select[name=sem]")
                 val availableSems = semSelect?.select("option")?.mapNotNull { it.attr("value").trim().ifBlank { null } } ?: emptyList()
 
                 val semInt = resolvedSem.toIntOrNull() ?: 1
@@ -814,26 +820,32 @@ class ImsNetworkClient {
 
                 val validCandidates = candidateSems.filter { availableSems.isEmpty() || availableSems.contains(it) }.distinct()
 
-                for (candSem in validCandidates) {
-                    val postParams = baseParams.toMutableMap()
-                    postParams["sem"] = candSem
+                for (candYear in candidateYears) {
+                    for (candSem in validCandidates) {
+                        val postParams = baseParams.toMutableMap()
+                        postParams["year"] = candYear
+                        postParams["sem"] = candSem
 
-                    Log.i("NSyncAttendance", "Submitting POST to $postUrl with year=$selectedYear, sem=$candSem, roll=$rollNumber")
+                        Log.i("NSyncAttendance", "Submitting POST to $postUrl with year=$candYear, sem=$candSem, roll=$rollNumber")
 
-                    val postRes = Jsoup.connect(postUrl)
-                        .userAgent(USER_AGENT)
-                        .header("Referer", effectiveUrl)
-                        .cookies(cookiesMap)
-                        .data(postParams)
-                        .timeout(15000)
-                        .followRedirects(true)
-                        .method(Connection.Method.POST)
-                        .execute()
+                        val postRes = Jsoup.connect(postUrl)
+                            .userAgent(USER_AGENT)
+                            .header("Referer", effectiveUrl)
+                            .cookies(cookiesMap)
+                            .data(postParams)
+                            .timeout(15000)
+                            .followRedirects(true)
+                            .method(Connection.Method.POST)
+                            .execute()
 
-                    val postHtml = postRes.body()
-                    if (isAttendanceMatrixHtml(postHtml)) {
-                        Log.i("NSyncAttendance", "Successfully retrieved live attendance matrix from POST response for sem $candSem")
-                        return postHtml
+                        val postHtml = postRes.body()
+                        if (isAttendanceMatrixHtml(postHtml)) {
+                            val parsed = ImsParser.parseAttendanceHtml(postHtml, rollNumber)
+                            if (parsed.records.isNotEmpty()) {
+                                Log.i("NSyncAttendance", "Successfully retrieved live attendance matrix from POST response for year $candYear, sem $candSem with ${parsed.records.size} subjects")
+                                return postHtml
+                            }
+                        }
                     }
                 }
             }
@@ -852,7 +864,7 @@ class ImsNetworkClient {
         branch: String? = null,
         semester: String? = null
     ): AttendanceSummary? = withContext(Dispatchers.IO) {
-        val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_FALLBACK_URL
+        val targetUrl = attendanceUrl?.ifBlank { null } ?: return@withContext null
 
         val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch, semester) ?: return@withContext null
         if (isAttendanceMatrixHtml(html)) {
@@ -874,7 +886,8 @@ class ImsNetworkClient {
         if (cookies.isBlank()) {
             return@withContext LiveFetchResult.SessionExpired
         }
-        val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_FALLBACK_URL
+        val targetUrl = attendanceUrl?.ifBlank { null }
+            ?: return@withContext LiveFetchResult.Error("Attendance module link not found in portal session")
 
         val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch, semester)
         if (html == null) {
@@ -906,7 +919,8 @@ class ImsNetworkClient {
         if (cookies.isBlank()) {
             return@withContext LiveFetchResult.SessionExpired
         }
-        val targetUrl = timetableUrl?.ifBlank { null } ?: TIMETABLE_URL
+        val targetUrl = timetableUrl?.ifBlank { null }
+            ?: return@withContext LiveFetchResult.Error("Timetable module link not found in portal session")
 
         try {
             val response = Jsoup.connect(targetUrl)

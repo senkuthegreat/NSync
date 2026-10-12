@@ -305,9 +305,18 @@ object ImsParser {
      */
     fun parseTimetableHtml(html: String, targetRoll: String): WeeklyTimetable {
         val doc = Jsoup.parse(html)
-        var studentBranch = "Electronics Engineering (VLSI Design and Technology)"
-        var section = "Sec 1"
-        var semester = "Semester 3"
+        var studentBranch = ""
+        var section = ""
+        var semester = ""
+
+        // Dynamically extract metadata from header elements
+        val headerText = doc.select("td, th, font, b, div").text()
+        val branchMatch = Regex("(?i)Branch\\s*:\\s*([^,;]+)").find(headerText)
+        if (branchMatch != null) studentBranch = branchMatch.groupValues[1].trim()
+        val secMatch = Regex("(?i)Sec(?:tion)?\\s*:\\s*([^,;]+)").find(headerText)
+        if (secMatch != null) section = secMatch.groupValues[1].trim()
+        val semMatch = Regex("(?i)Sem(?:ester)?\\s*:\\s*([^,;]+)").find(headerText)
+        if (semMatch != null) semester = semMatch.groupValues[1].trim()
 
         // 1. Extract faculty and subject map from bottom table
         val facultyMap = extractFacultyAndSubjectMap(doc)
@@ -356,7 +365,7 @@ object ImsParser {
 
                     // Parse room
                     val roomMatch = Regex("(?i)Room\\s*:\\s*(\\d+)").find(text)
-                    val room = if (roomMatch != null) "Room ${roomMatch.groupValues[1]}" else "Room 8003"
+                    val room = if (roomMatch != null) "Room ${roomMatch.groupValues[1]}" else "Classroom"
 
                     // Determine ClassType
                     val isTut = text.contains("Tut", ignoreCase = true)
@@ -367,9 +376,12 @@ object ImsParser {
                         else -> ClassType.LECTURE
                     }
 
-                    // For multi-group entries, filter according to student group
-                    val isGrp1 = text.contains("Grp-1", ignoreCase = true)
-                    if (isLab && isGrp1 && !text.contains("Grp-2", ignoreCase = true)) {
+                    // For multi-group lab entries, dynamically resolve according to student's group/roll number
+                    val rollDigits = targetRoll.filter { it.isDigit() }.toLongOrNull()
+                    val targetGroup = if (rollDigits != null && rollDigits % 2L != 0L) 1 else 2
+                    val otherGroupStr = if (targetGroup == 1) "Grp-2" else "Grp-1"
+                    val myGroupStr = "Grp-$targetGroup"
+                    if (isLab && text.contains(otherGroupStr, ignoreCase = true) && !text.contains(myGroupStr, ignoreCase = true)) {
                         continue
                     }
 
@@ -589,40 +601,17 @@ object ImsParser {
 
     private fun formatFacultyName(rawFaculty: String): String {
         val trimmed = rawFaculty.trim()
-        if (trimmed.isBlank()) return "Department Faculty"
-        val upper = trimmed.uppercase()
-        return when {
-            upper.contains("RAJ SENANI") -> "Prof. Raj Senani"
-            upper.contains("NEERAJ GOEL") -> "Dr. Neeraj Goel"
-            upper.contains("DHARMENDRA") -> "Dr. Dharmendra Ku Upadhyay"
-            upper.contains("AMIT SINGHAL") -> "Dr. Amit Singhal"
-            upper.contains("HERA TARIQUE") -> "Dr. Hera Tarique"
-            trimmed.startsWith("Prof.", ignoreCase = true) || trimmed.startsWith("Dr.", ignoreCase = true) -> {
-                trimmed.lowercase().capitalizeWords()
-            }
-            else -> "Prof. " + trimmed.lowercase().capitalizeWords()
+        if (trimmed.isBlank()) return "Faculty"
+        return if (trimmed.startsWith("Prof.", ignoreCase = true) || trimmed.startsWith("Dr.", ignoreCase = true)) {
+            trimmed.lowercase().capitalizeWords()
+        } else {
+            "Prof. " + trimmed.lowercase().capitalizeWords()
         }
     }
 
-    private fun fallbackSubjectName(code: String): String = when (code) {
-        "VTPHC301" -> "Solid State Physics"
-        "VTECC302" -> "Signals and Systems"
-        "VTECC303" -> "Probability Theory and Random Process"
-        "VTECC304" -> "Microelectronics"
-        "VTECC305" -> "Digital Circuits and Systems"
-        "FCFO0301" -> "Community Internship"
-        "VANM0303" -> "Innovation, Business Models and Entrepreneurship"
-        else -> code
-    }
+    private fun fallbackSubjectName(code: String): String = dynamicSubjectNames[code] ?: code
 
-    private fun fallbackFaculty(code: String): String = when (code) {
-        "VTPHC301" -> "Dr. Hera Tarique"
-        "VTECC302" -> "Dr. Dharmendra Ku Upadhyay"
-        "VTECC303" -> "Dr. Amit Singhal"
-        "VTECC304" -> "Prof. Raj Senani"
-        "VTECC305" -> "Dr. Neeraj Goel"
-        else -> "Department Faculty"
-    }
+    private fun fallbackFaculty(code: String): String = dynamicFacultyNames[code] ?: "Faculty"
 
     private data class RawScheduleSlot(
         val slotIndex: Int,
@@ -642,9 +631,9 @@ object ImsParser {
 
     private fun fallbackWeeklyTimetable(): WeeklyTimetable {
         return WeeklyTimetable(
-            studentBranch = "Electronics Engineering (VLSI Design and Technology)",
-            section = "Sec 1",
-            semester = "Semester 3",
+            studentBranch = "",
+            section = "",
+            semester = "",
             days = emptyList(),
             lastSyncedTimestamp = System.currentTimeMillis()
         )
