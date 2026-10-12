@@ -27,7 +27,7 @@ const DEVELOPER_INFO = {
   portfolio: 'https://senkuthegreat.me',
   github: 'https://github.com/senkuthegreat',
   linkedin: 'https://www.linkedin.com/in/rohit-dahiya-14b180240/',
-  instagram: 'https://instagram.com/senkuthegreat',
+  instagram: 'https://instagram.com/senku.thegreat',
   email: 'mailto:rohitdahiya245@gmail.com'
 };
 
@@ -200,7 +200,7 @@ export default function App() {
                         </div>
                         <div className="popover-link-text">
                           <span className="title">Instagram</span>
-                          <span className="sub">@senkuthegreat</span>
+                          <span className="sub">@senku.thegreat</span>
                         </div>
                       </a>
 

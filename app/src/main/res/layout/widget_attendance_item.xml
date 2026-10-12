@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="5dp">
+    android:paddingVertical="9dp">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -21,30 +21,27 @@
             android:maxLines="1"
             android:text="Machine Learning"
             android:textColor="#FFFFFF"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
+        <!-- Kept with gone visibility per user: don't show x/n classes subtitle -->
         <TextView
             android:id="@+id/tv_item_subject_counts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="32 / 38 classes (CSD301)"
-            android:textColor="#8F9CAE"
-            android:textSize="10sp" />
+            android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Bunk / Need Chip -->
+    <!-- Bunk / Need Text without Background -->
     <TextView
         android:id="@+id/tv_item_bunk_chip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="6dp"
-        android:background="@drawable/widget_pill_accent"
-        android:paddingHorizontal="6dp"
-        android:paddingVertical="2dp"
+        android:layout_marginEnd="8dp"
         android:text="+4 bunks"
-        android:textColor="#90CDF4"
-        android:textSize="9sp" />
+        android:textColor="#30D158"
+        android:textSize="11sp"
+        android:textStyle="bold" />
 
     <!-- Percentage Badge -->
     <TextView

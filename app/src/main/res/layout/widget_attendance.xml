@@ -5,88 +5,66 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_card_bg"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="13dp">
 
-    <!-- Header -->
+    <!-- Header Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
+        <!-- App Name & Styled Section Header (Rendered with Unkempt font and #6366F1) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_attendance_title"
+            <ImageView
+                android:id="@+id/iv_widget_header_title"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NSync Attendance"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_attendance_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Synced with IMS"
-                android:textColor="#8E8E93"
-                android:textSize="11sp" />
+                android:layout_height="28dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="NSync Attendance" />
         </LinearLayout>
 
-        <!-- Overall Percentage Badge (Removed per user: no overall attendance) -->
+        <!-- Dummy/hidden IDs to maintain backward compatibility -->
+        <TextView
+            android:id="@+id/tv_attendance_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_attendance_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/tv_overall_percentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
+        <LinearLayout
+            android:id="@+id/layout_stats_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <!-- Restyled Refresh Action Button -->
         <ImageView
             android:id="@+id/btn_refresh_attendance"
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_marginStart="8dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/widget_refresh_btn_bg"
             android:contentDescription="Refresh Attendance"
-            android:padding="4dp"
+            android:padding="6dp"
             android:src="@drawable/ic_huge_refresh" />
-    </LinearLayout>
-
-    <!-- Quick Stats Bar (Hidden per user: no overall attendance) -->
-    <LinearLayout
-        android:id="@+id/layout_stats_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#2C2C2E"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        android:padding="7dp">
-
-        <TextView
-            android:id="@+id/tv_stats_attended"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Classes: 165/196"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp" />
-
-        <TextView
-            android:id="@+id/tv_stats_bunks"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Safe Bunks: 24"
-            android:textColor="#30D158"
-            android:textSize="11sp"
-            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Subjects List View -->
@@ -94,10 +72,10 @@
         android:id="@+id/lv_attendance_subjects"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:divider="#2C2C2E"
-        android:dividerHeight="1dp" />
+        android:dividerHeight="0.5dp" />
 
     <!-- Empty view if no data -->
     <TextView

@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import android.os.Bundle
+
 class NsutAttendanceWidgetReceiver : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -27,6 +29,16 @@ class NsutAttendanceWidgetReceiver : AppWidgetProvider() {
             updateWidget(context, appWidgetManager, appWidgetId)
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        updateWidget(context, appWidgetManager, appWidgetId)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -71,21 +83,27 @@ class NsutAttendanceWidgetReceiver : AppWidgetProvider() {
                 "purple" -> 0xFF8B5CF6.toInt()
                 else -> 0xFF6366F1.toInt()
             }
+            views.setViewVisibility(R.id.tv_attendance_subtitle, View.GONE)
             views.setInt(R.id.btn_refresh_attendance, "setColorFilter", accentColor)
 
-            if (attendance != null && attendance.records.isNotEmpty()) {
-                val timeStr = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(attendance.lastSyncedTimestamp))
-                views.setTextViewText(R.id.tv_attendance_subtitle, "${attendance.records.size} Courses · $timeStr")
+            // Render Unkempt bold cursive + indigo title header
+            val headerBitmap = WidgetHeaderHelper.createHeaderBitmap(context, "Attendance")
+            views.setImageViewBitmap(R.id.iv_widget_header_title, headerBitmap)
+
+            val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+            val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
+            val activeRecords = attendance?.records?.filter { it.totalClasses > 0 } ?: emptyList()
+            if (activeRecords.isNotEmpty()) {
                 views.setViewVisibility(R.id.tv_overall_percentage, View.GONE)
                 views.setViewVisibility(R.id.layout_stats_bar, View.GONE)
                 views.setViewVisibility(R.id.lv_attendance_subjects, View.VISIBLE)
                 views.setViewVisibility(R.id.tv_attendance_empty, View.GONE)
             } else {
-                views.setTextViewText(R.id.tv_attendance_subtitle, "Tap to log in and sync")
                 views.setViewVisibility(R.id.tv_overall_percentage, View.GONE)
                 views.setViewVisibility(R.id.layout_stats_bar, View.GONE)
                 views.setViewVisibility(R.id.lv_attendance_subjects, View.GONE)
                 views.setViewVisibility(R.id.tv_attendance_empty, View.VISIBLE)
+                views.setTextViewText(R.id.tv_attendance_empty, "No classes held yet")
             }
 
             // Set up RemoteViewsService for ListView
@@ -140,7 +158,11 @@ class NsutAttendanceWidgetReceiver : AppWidgetProvider() {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val myProvider = ComponentName(context, NsutAttendanceWidgetReceiver::class.java)
             return if (appWidgetManager.isRequestPinAppWidgetSupported) {
-                appWidgetManager.requestPinAppWidget(myProvider, null, null)
+                val previewViews = RemoteViews(context.packageName, R.layout.widget_attendance_preview)
+                val extras = android.os.Bundle().apply {
+                    putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, previewViews)
+                }
+                appWidgetManager.requestPinAppWidget(myProvider, extras, null)
             } else {
                 false
             }

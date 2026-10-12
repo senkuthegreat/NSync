@@ -31,13 +31,9 @@ class AttendanceRemoteViewsFactory(private val context: Context) : RemoteViewsSe
     private fun loadData() {
         val prefs = UserPreferences(context)
         val list = prefs.getCachedAttendance()?.records ?: emptyList()
-        records = list.sortedWith(
-            compareBy<AttendanceRecord> { record ->
-                if (record.totalClasses == 0) 1 else 0
-            }.thenBy { record ->
-                record.percentage
-            }
-        )
+        records = list
+            .filter { it.totalClasses > 0 }
+            .sortedBy { it.percentage }
     }
 
     override fun onDestroy() {
@@ -52,10 +48,7 @@ class AttendanceRemoteViewsFactory(private val context: Context) : RemoteViewsSe
 
         val item = records[position]
         views.setTextViewText(R.id.tv_item_subject_name, item.subjectName)
-        views.setTextViewText(
-            R.id.tv_item_subject_counts,
-            "${item.attendedClasses}/${item.totalClasses} classes • ${item.subjectCode}"
-        )
+        views.setViewVisibility(R.id.tv_item_subject_counts, View.GONE)
 
         val pct = item.percentage
         val pctStr = String.format(Locale.getDefault(), "%.1f%%", pct)

@@ -2,6 +2,7 @@ package com.example.nsutconnect.widget
 
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.example.nsutconnect.R
@@ -20,6 +21,8 @@ class ScheduleRemoteViewsFactory(private val context: Context) : RemoteViewsServ
 
     private var classes: List<ClassScheduleItem> = emptyList()
 
+    private var isDisplayingToday: Boolean = true
+
     override fun onCreate() {
         loadData()
     }
@@ -33,19 +36,26 @@ class ScheduleRemoteViewsFactory(private val context: Context) : RemoteViewsServ
         val timetable = prefs.getCachedTimetable() ?: return
         val today = java.time.LocalDate.now().dayOfWeek
         val now = java.time.LocalTime.now()
-        val isTodayCompleted = timetable.isDayCompleted(today, now)
-        val targetDay = timetable.getAutoDefaultDay(today, now)
-        val isShowingTomorrow = isTodayCompleted || (today != targetDay && today != java.time.DayOfWeek.SATURDAY && today != java.time.DayOfWeek.SUNDAY)
-        val activeDay = if (isShowingTomorrow) targetDay else today
 
-        val dayClasses = timetable.getScheduleFor(activeDay)
-        classes = if (isShowingTomorrow) {
-            dayClasses
-        } else {
-            // Focus on current ongoing and upcoming classes of today
-            val currentAndUpcoming = dayClasses.filter { it.isOngoingAt(now) || it.isUpcomingAt(now) }
-            if (currentAndUpcoming.isNotEmpty()) currentAndUpcoming else dayClasses
+        val isWeekend = today == java.time.DayOfWeek.SATURDAY || today == java.time.DayOfWeek.SUNDAY
+        val isTodayCompleted = timetable.isDayCompleted(today, now)
+
+        val (activeDay, isToday) = when {
+            isWeekend -> Pair(java.time.DayOfWeek.MONDAY, false)
+            isTodayCompleted -> {
+                val tomorrow = today.plus(1)
+                if (tomorrow == java.time.DayOfWeek.SATURDAY || tomorrow == java.time.DayOfWeek.SUNDAY) {
+                    Pair(java.time.DayOfWeek.MONDAY, false)
+                } else {
+                    Pair(tomorrow, false)
+                }
+            }
+            else -> Pair(today, true)
         }
+
+        isDisplayingToday = isToday
+        val dayClasses = timetable.getScheduleFor(activeDay).sortedBy { it.startTime }
+        classes = dayClasses
     }
 
     override fun onDestroy() {
@@ -59,28 +69,55 @@ class ScheduleRemoteViewsFactory(private val context: Context) : RemoteViewsServ
         if (position >= classes.size) return views
 
         val item = classes[position]
-        views.setTextViewText(R.id.tv_schedule_item_time, "${item.startTime} - ${item.endTime}")
-        views.setTextViewText(R.id.tv_schedule_item_name, item.subjectName)
-        views.setTextViewText(
-            R.id.tv_schedule_item_location,
-            "${item.roomNumber}${if (item.facultyName.isNotBlank()) " • " + item.facultyName else ""}"
-        )
+        val now = java.time.LocalTime.now()
 
+        val isOngoing = isDisplayingToday && item.isOngoingAt(now)
+        val isFinished = isDisplayingToday && item.isFinishedAt(now)
+
+        // No background block (borderless rows with dividers like attendance)
+        views.setInt(R.id.widget_schedule_item_root, "setBackgroundResource", 0)
+
+        // Title & Time (12-hour formatted: 2:00 PM – 4:00 PM, without room number)
+        views.setTextViewText(R.id.tv_schedule_item_name, item.subjectName)
+        views.setTextColor(R.id.tv_schedule_item_name, if (isFinished) 0xFF8E8E93.toInt() else 0xFFFFFFFF.toInt())
+
+        val timeDisplay = "${item.startTimeFormatted} – ${item.endTimeFormatted}"
+        views.setTextViewText(R.id.tv_schedule_item_time, timeDisplay)
+        views.setTextColor(R.id.tv_schedule_item_time, if (isOngoing) 0xFF6366F1.toInt() else 0xFF8E8E93.toInt())
+
+        // Status tag (now / done without bg)
+        when {
+            isOngoing -> {
+                views.setViewVisibility(R.id.tv_schedule_item_status, View.VISIBLE)
+                views.setTextViewText(R.id.tv_schedule_item_status, "now")
+                views.setInt(R.id.tv_schedule_item_status, "setBackgroundResource", 0)
+                views.setTextColor(R.id.tv_schedule_item_status, 0xFF22C55E.toInt())
+            }
+            isFinished -> {
+                views.setViewVisibility(R.id.tv_schedule_item_status, View.VISIBLE)
+                views.setTextViewText(R.id.tv_schedule_item_status, "done")
+                views.setInt(R.id.tv_schedule_item_status, "setBackgroundResource", 0)
+                views.setTextColor(R.id.tv_schedule_item_status, 0xFF71717A.toInt())
+            }
+            else -> {
+                views.setViewVisibility(R.id.tv_schedule_item_status, View.GONE)
+            }
+        }
+
+        // Type tag (LEC / LAB / TUT)
+        views.setTextViewText(R.id.tv_schedule_item_type, item.classType.shortName)
         when (item.classType) {
             ClassType.LECTURE -> {
-                views.setTextViewText(R.id.tv_schedule_item_type, "LEC")
-                views.setInt(R.id.tv_schedule_item_type, "setBackgroundResource", R.drawable.widget_pill_accent)
+                views.setInt(R.id.tv_schedule_item_type, "setBackgroundResource", R.drawable.widget_badge_lecture_bg)
                 views.setTextColor(R.id.tv_schedule_item_type, 0xFF6366F1.toInt())
             }
             ClassType.LAB -> {
-                views.setTextViewText(R.id.tv_schedule_item_type, "LAB")
-                views.setInt(R.id.tv_schedule_item_type, "setBackgroundResource", R.drawable.widget_badge_safe)
-                views.setTextColor(R.id.tv_schedule_item_type, 0xFF2ECC71.toInt())
+                views.setInt(R.id.tv_schedule_item_type, "setBackgroundResource", R.drawable.widget_badge_lab_bg)
+                views.setTextColor(R.id.tv_schedule_item_type, 0xFF22C55E.toInt())
             }
             ClassType.TUTORIAL -> {
-                views.setTextViewText(R.id.tv_schedule_item_type, "TUT")
-                views.setInt(R.id.tv_schedule_item_type, "setBackgroundResource", R.drawable.widget_badge_warning)
-                views.setTextColor(R.id.tv_schedule_item_type, 0xFFF39C12.toInt())
+                views.setInt(R.id.tv_schedule_item_type, "setBackgroundResource", R.drawable.widget_badge_tutorial_bg)
+                views.setTextColor(R.id.tv_schedule_item_type, 0xFFF59E0B.toInt())
             }
         }
 

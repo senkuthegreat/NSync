@@ -21,6 +21,8 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+import android.os.Bundle
+
 class NsutScheduleWidgetReceiver : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -28,6 +30,16 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
             updateWidget(context, appWidgetManager, appWidgetId)
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        updateWidget(context, appWidgetManager, appWidgetId)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -74,82 +86,53 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
             }
             views.setInt(R.id.btn_refresh_schedule, "setColorFilter", accentColor)
 
+            // Render Unkempt bold cursive + indigo title header
+            val headerBitmap = WidgetHeaderHelper.createHeaderBitmap(context, "Schedule")
+            views.setImageViewBitmap(R.id.iv_widget_header_title, headerBitmap)
+
             val today = LocalDate.now().dayOfWeek
             val now = LocalTime.now()
 
             if (timetable != null) {
+                val isWeekend = today == java.time.DayOfWeek.SATURDAY || today == java.time.DayOfWeek.SUNDAY
                 val isTodayCompleted = timetable.isDayCompleted(today, now)
-                val targetDay = timetable.getAutoDefaultDay(today, now)
-                val isShowingTomorrow = isTodayCompleted || (today != targetDay && today != java.time.DayOfWeek.SATURDAY && today != java.time.DayOfWeek.SUNDAY)
-                val activeDay = if (isShowingTomorrow) targetDay else today
+
+                val (activeDay, badgeText) = when {
+                    isWeekend -> Pair(java.time.DayOfWeek.MONDAY, "MONDAY")
+                    isTodayCompleted -> {
+                        val tomorrow = today.plus(1)
+                        if (tomorrow == java.time.DayOfWeek.SATURDAY || tomorrow == java.time.DayOfWeek.SUNDAY) {
+                            Pair(java.time.DayOfWeek.MONDAY, "MONDAY")
+                        } else {
+                            Pair(tomorrow, "TOMORROW")
+                        }
+                    }
+                    else -> Pair(today, "TODAY")
+                }
                 val activeClasses = timetable.getScheduleFor(activeDay)
 
                 val dayName = activeDay.name.lowercase().replaceFirstChar { it.uppercase() }
-                val daySubtitle = if (isShowingTomorrow) {
-                    "Tomorrow · $dayName"
-                } else {
-                    "$dayName · ${LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault()))}"
-                }
-
                 views.setTextViewText(R.id.tv_schedule_title, "NSync Schedule")
-                views.setTextViewText(R.id.tv_schedule_day_subtitle, daySubtitle)
+                views.setTextViewText(R.id.tv_schedule_day_subtitle, "$dayName Schedule")
 
-                if (isShowingTomorrow) {
-                    views.setTextViewText(R.id.tv_schedule_badge, "TOMORROW")
-                    views.setInt(R.id.tv_schedule_badge, "setBackgroundResource", R.drawable.widget_pill_accent)
-                    views.setTextColor(R.id.tv_schedule_badge, accentColor)
-                } else {
-                    val (currentOrNext, isOngoing) = timetable.getCurrentOrNextClass(today, now)
-                    views.setTextViewText(R.id.tv_schedule_badge, if (isOngoing) "LIVE" else "TODAY")
-                    views.setTextColor(R.id.tv_schedule_badge, if (isOngoing) 0xFF30D158.toInt() else accentColor)
-                }
+                // Badge is always clean accent pill with TODAY / TOMORROW / MONDAY (no LIVE tag)
+                views.setTextViewText(R.id.tv_schedule_badge, badgeText)
+                views.setInt(R.id.tv_schedule_badge, "setBackgroundResource", R.drawable.widget_pill_accent)
+                views.setTextColor(R.id.tv_schedule_badge, accentColor)
 
-                val showBanner = prefs.isWidgetBannerEnabled()
-
+                views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
                 if (activeClasses.isNotEmpty()) {
                     views.setViewVisibility(R.id.lv_schedule_classes, View.VISIBLE)
                     views.setViewVisibility(R.id.tv_schedule_empty, View.GONE)
-
-                    if (!isShowingTomorrow && showBanner) {
-                        val (currentOrNext, isOngoing) = timetable.getCurrentOrNextClass(today, now)
-                        if (currentOrNext != null) {
-                            views.setViewVisibility(R.id.layout_current_class_banner, View.VISIBLE)
-                            if (isOngoing) {
-                                views.setTextViewText(R.id.tv_current_class_status, "NOW IN PROGRESS (${currentOrNext.timeSlotDisplay})")
-                                views.setTextColor(R.id.tv_current_class_status, 0xFF68D391.toInt())
-                            } else {
-                                views.setTextViewText(R.id.tv_current_class_status, "NEXT UP AT ${currentOrNext.startTimeFormatted}")
-                                views.setTextColor(R.id.tv_current_class_status, accentColor)
-                            }
-                            views.setTextViewText(
-                                R.id.tv_current_class_details,
-                                "${currentOrNext.subjectName} · ${currentOrNext.roomNumber}"
-                            )
-                        } else {
-                            views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
-                        }
-                    } else if (isShowingTomorrow && showBanner) {
-                        // Tomorrow mode
-                        val firstClass = activeClasses.firstOrNull()
-                        if (firstClass != null) {
-                            views.setViewVisibility(R.id.layout_current_class_banner, View.VISIBLE)
-                            views.setTextViewText(R.id.tv_current_class_status, "FIRST CLASS TOMORROW (${firstClass.startTimeFormatted})")
-                            views.setTextColor(R.id.tv_current_class_status, accentColor)
-                            views.setTextViewText(
-                                R.id.tv_current_class_details,
-                                "${firstClass.subjectName} · ${firstClass.roomNumber}"
-                            )
-                        } else {
-                            views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
-                        }
-                    } else {
-                        views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
-                    }
                 } else {
-                    views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
                     views.setViewVisibility(R.id.lv_schedule_classes, View.GONE)
                     views.setViewVisibility(R.id.tv_schedule_empty, View.VISIBLE)
-                    views.setTextViewText(R.id.tv_schedule_empty, "No classes scheduled for $dayName 🎉")
+                    val emptyMsg = when (badgeText) {
+                        "TOMORROW" -> "No classes scheduled for tomorrow 🎉"
+                        "MONDAY" -> "No classes scheduled for Monday 🎉"
+                        else -> "No classes scheduled for today 🌴"
+                    }
+                    views.setTextViewText(R.id.tv_schedule_empty, emptyMsg)
                 }
             } else {
                 views.setViewVisibility(R.id.layout_current_class_banner, View.GONE)
@@ -210,7 +193,11 @@ class NsutScheduleWidgetReceiver : AppWidgetProvider() {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val myProvider = ComponentName(context, NsutScheduleWidgetReceiver::class.java)
             return if (appWidgetManager.isRequestPinAppWidgetSupported) {
-                appWidgetManager.requestPinAppWidget(myProvider, null, null)
+                val previewViews = RemoteViews(context.packageName, R.layout.widget_schedule_preview)
+                val extras = android.os.Bundle().apply {
+                    putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, previewViews)
+                }
+                appWidgetManager.requestPinAppWidget(myProvider, extras, null)
             } else {
                 false
             }

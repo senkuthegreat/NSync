@@ -7,7 +7,14 @@ import java.time.format.DateTimeFormatter
 enum class ClassType {
     LECTURE,
     LAB,
-    TUTORIAL
+    TUTORIAL;
+
+    val shortName: String
+        get() = when (this) {
+            LECTURE -> "LEC"
+            LAB -> "LAB"
+            TUTORIAL -> "TUT"
+        }
 }
 
 enum class ClassScheduleStatus {

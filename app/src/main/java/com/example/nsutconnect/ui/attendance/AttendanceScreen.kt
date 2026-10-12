@@ -112,15 +112,11 @@ fun AttendanceScreen(
                     }
                 }
             } else {
-                // Sort: low attendance above, high attendance below, and 0 classes occurred courses at the bottom
+                // Exclude subjects with 0 total classes, sort low attendance first
                 val sortedRecords = remember(attendance.records) {
-                    attendance.records.sortedWith(
-                        compareBy<AttendanceRecord> { record ->
-                            if (record.totalClasses == 0) 1 else 0
-                        }.thenBy { record ->
-                            record.percentage
-                        }
-                    )
+                    attendance.records
+                        .filter { it.totalClasses > 0 }
+                        .sortedBy { it.percentage }
                 }
 
                 LazyColumn(

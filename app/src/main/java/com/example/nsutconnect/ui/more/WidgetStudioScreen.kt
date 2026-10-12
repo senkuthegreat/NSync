@@ -1,10 +1,10 @@
 package com.example.nsutconnect.ui.more
 
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,9 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.*
@@ -33,20 +32,10 @@ import com.example.nsutconnect.data.local.UserPreferences
 import com.example.nsutconnect.theme.*
 import com.example.nsutconnect.widget.NsutAttendanceWidgetReceiver
 import com.example.nsutconnect.widget.NsutScheduleWidgetReceiver
-
-data class WidgetThemeOption(
-    val id: String,
-    val title: String,
-    val description: String,
-    val cardColor: Color,
-    val borderColor: Color
-)
-
-data class AccentOption(
-    val id: String,
-    val name: String,
-    val color: Color
-)
+import com.example.nsutconnect.data.model.ClassType
+import androidx.compose.ui.text.style.TextOverflow
+import java.time.LocalDate
+import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,36 +46,32 @@ fun WidgetStudioScreen(
     val context = LocalContext.current
 
     var selectedTheme by remember { mutableStateOf(prefs.getWidgetTheme()) }
-    var selectedAccent by remember { mutableStateOf(prefs.getWidgetAccent()) }
     var bunksEnabled by remember { mutableStateOf(prefs.isWidgetBunksEnabled()) }
     var bannerEnabled by remember { mutableStateOf(prefs.isWidgetBannerEnabled()) }
     var previewMode by remember { mutableIntStateOf(0) } // 0 = Attendance, 1 = Schedule
 
-    val themeOptions = remember {
-        listOf(
-            WidgetThemeOption("oled", "OLED Pure", "Deep pitch black for AMOLED", Color(0xFF000000), Color(0xFF26262E)),
-            WidgetThemeOption("dark", "Dark Slate", "Subtle charcoal finish", Color(0xFF121217), Color(0xFF2A2A38)),
-            WidgetThemeOption("translucent", "Translucent", "Glassmorphic frosty blur", Color(0xD010111A), Color(0xFF36394F)),
-            WidgetThemeOption("midnight", "Midnight", "Deep navy space vibe", Color(0xFF0A0D1A), Color(0xFF1F2A56))
-        )
+    val realAttendance = remember { prefs.getCachedAttendance() }
+    val realTimetable = remember { prefs.getCachedTimetable() }
+
+    val themeCardColor = when (selectedTheme) {
+        "oled" -> Color(0xFF000000)
+        "dark" -> Color(0xFF16161C)
+        "translucent" -> Color(0xD012131F)
+        "midnight" -> Color(0xFF0A0D1A)
+        else -> Color(0xFF000000)
     }
 
-    val accentOptions = remember {
-        listOf(
-            AccentOption("indigo", "Indigo", Color(0xFF6366F1)),
-            AccentOption("cyan", "Neon Cyan", Color(0xFF06B6D4)),
-            AccentOption("emerald", "Emerald", Color(0xFF10B981)),
-            AccentOption("amber", "Amber", Color(0xFFF59E0B)),
-            AccentOption("purple", "Cyber Purple", Color(0xFF8B5CF6))
-        )
+    val themeBorderColor = when (selectedTheme) {
+        "oled" -> Color(0xFF26262E)
+        "dark" -> Color(0xFF2A2A38)
+        "translucent" -> Color(0xFF36394F)
+        "midnight" -> Color(0xFF1F2A56)
+        else -> Color(0xFF26262E)
     }
 
-    val activeAccentColor = remember(selectedAccent) {
-        accentOptions.firstOrNull { it.id == selectedAccent }?.color ?: Color(0xFF6366F1)
-    }
-
-    val activeThemeOption = remember(selectedTheme) {
-        themeOptions.firstOrNull { it.id == selectedTheme } ?: themeOptions[0]
+    fun applyAndBroadcast() {
+        NsutAttendanceWidgetReceiver.updateAll(context)
+        NsutScheduleWidgetReceiver.updateAll(context)
     }
 
     Scaffold(
@@ -110,13 +95,79 @@ fun WidgetStudioScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            applyAndBroadcast()
+                            Toast.makeText(context, "Widgets refreshed", Toast.LENGTH_SHORT).show()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = AppleSystemBlue
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = AppleBackground,
                     titleContentColor = AppleLabel
                 )
             )
         },
-        containerColor = AppleBackground
+        containerColor = AppleBackground,
+        bottomBar = {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = AppleBackground,
+                tonalElevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            val pinned = if (previewMode == 0) {
+                                NsutAttendanceWidgetReceiver.requestPinWidget(context)
+                            } else {
+                                NsutScheduleWidgetReceiver.requestPinWidget(context)
+                            }
+                            if (!pinned) {
+                                Toast.makeText(
+                                    context,
+                                    "Long-press your home screen to place the widget",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppleSystemBlue,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (previewMode == 0) "Add Attendance Widget" else "Add Schedule Widget",
+                            fontFamily = AppleSans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
+                }
+            }
+        }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -124,618 +175,563 @@ fun WidgetStudioScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(top = 4.dp, bottom = 48.dp)
+            contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
         ) {
-            // Live Preview Header & Segmented Tab
+            // Todoist-style Segmented Widget Switcher
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(AppleCardSurface)
+                        .padding(3.dp)
                 ) {
-                    Text(
-                        text = "LIVE WIDGET PREVIEW",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextSecondary,
-                        letterSpacing = 1.sp
-                    )
-
-                    // Preview Toggle Tabs
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(AppleCardSurface)
-                            .padding(2.dp)
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (previewMode == 0) AppleElevatedSurface else Color.Transparent)
+                            .clickable { previewMode = 0 }
+                            .padding(vertical = 9.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (previewMode == 0) AppleElevatedSurface else Color.Transparent)
-                                .clickable { previewMode = 0 }
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "Attendance",
-                                fontSize = 11.sp,
-                                fontWeight = if (previewMode == 0) FontWeight.Bold else FontWeight.Normal,
-                                color = if (previewMode == 0) Color.White else TextSecondary
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (previewMode == 1) AppleElevatedSurface else Color.Transparent)
-                                .clickable { previewMode = 1 }
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "Schedule",
-                                fontSize = 11.sp,
-                                fontWeight = if (previewMode == 1) FontWeight.Bold else FontWeight.Normal,
-                                color = if (previewMode == 1) Color.White else TextSecondary
-                            )
-                        }
+                        Text(
+                            text = "Attendance",
+                            fontFamily = AppleSans,
+                            fontSize = 13.sp,
+                            fontWeight = if (previewMode == 0) FontWeight.Bold else FontWeight.Medium,
+                            color = if (previewMode == 0) Color.White else AppleSecondaryLabel
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (previewMode == 1) AppleElevatedSurface else Color.Transparent)
+                            .clickable { previewMode = 1 }
+                            .padding(vertical = 9.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Schedule",
+                            fontFamily = AppleSans,
+                            fontSize = 13.sp,
+                            fontWeight = if (previewMode == 1) FontWeight.Bold else FontWeight.Medium,
+                            color = if (previewMode == 1) Color.White else AppleSecondaryLabel
+                        )
                     }
                 }
             }
 
-            // Interactive Preview Card
+            // Live Interactive Preview Card (with real user data)
             item {
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, activeThemeOption.borderColor, RoundedCornerShape(20.dp)),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    color = activeThemeOption.cardColor
+                    color = themeCardColor
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(14.dp)
                     ) {
-                        // Widget Card Header
+                        // Header Row
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            // NSync Brand + Tag
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "N",
+                                        fontFamily = UnkemptFont,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Sync",
+                                        fontFamily = UnkemptFont,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp,
+                                        color = AppleSystemBlue
+                                    )
+                                }
+
                                 Text(
-                                    text = if (previewMode == 0) "NSync Attendance" else "NSync Schedule",
+                                    text = if (previewMode == 0) "Attendance" else "Schedule",
                                     fontFamily = AppleSans,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = if (previewMode == 0) "6 Courses · 11:20 AM" else "Today · Mon, Oct 12",
-                                    fontFamily = AppleSans,
-                                    fontSize = 10.sp,
-                                    color = Color(0xFF8E8E93)
+                                    color = AppleSystemBlue,
+                                    modifier = Modifier.padding(start = 6.dp)
                                 )
                             }
 
+                            // Live badge & Restyled Refresh Button (no bg when idle)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (previewMode == 1) {
+                                    val realTimetable = prefs.getCachedTimetable()
+                                    val today = LocalDate.now().dayOfWeek
+                                    val now = LocalTime.now()
+                                    val isWeekend = today == java.time.DayOfWeek.SATURDAY || today == java.time.DayOfWeek.SUNDAY
+                                    val isTodayCompleted = realTimetable?.isDayCompleted(today, now) ?: false
+                                    val badgeText = when {
+                                        isWeekend -> "MONDAY"
+                                        isTodayCompleted -> {
+                                            val tomorrow = today.plus(1)
+                                            if (tomorrow == java.time.DayOfWeek.SATURDAY || tomorrow == java.time.DayOfWeek.SUNDAY) {
+                                                "MONDAY"
+                                            } else {
+                                                "TOMORROW"
+                                            }
+                                        }
+                                        else -> "TODAY"
+                                    }
+
                                     Surface(
-                                        shape = RoundedCornerShape(8.dp),
+                                        shape = RoundedCornerShape(6.dp),
                                         color = Color(0xFF2C2C2E),
                                         modifier = Modifier.padding(end = 8.dp)
                                     ) {
                                         Text(
-                                            text = "LIVE",
-                                            color = activeAccentColor,
-                                            fontSize = 10.sp,
+                                            text = badgeText,
+                                            color = AppleSystemBlue,
+                                            fontSize = 9.sp,
                                             fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                         )
                                     }
                                 }
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_huge_refresh),
-                                    contentDescription = null,
-                                    tint = activeAccentColor,
-                                    modifier = Modifier.size(18.dp)
-                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .clickable {
+                                            applyAndBroadcast()
+                                            Toast.makeText(context, "Widgets refreshed", Toast.LENGTH_SHORT).show()
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_huge_refresh),
+                                        contentDescription = "Refresh",
+                                        tint = AppleSystemBlue,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))
 
                         if (previewMode == 0) {
-                            // Attendance preview items
-                            AttendancePreviewRow(
-                                code = "CSD301",
-                                name = "Machine Learning",
-                                stats = "32 / 38 classes",
-                                pct = "84.2%",
-                                safeBunk = "+4 bunks",
-                                isSafe = true,
-                                showBunks = bunksEnabled
+                            // Real attendance subjects (excluding 0 total classes) or clean fallback
+                            val subjectsToShow = realAttendance?.records
+                                ?.filter { it.totalClasses > 0 }
+                                ?.sortedBy { it.percentage } ?: listOf(
+                                com.example.nsutconnect.data.model.AttendanceRecord(
+                                    subjectCode = "VTECC305",
+                                    subjectName = "Digital Circuits and Systems",
+                                    attendedClasses = 24,
+                                    totalClasses = 26
+                                ),
+                                com.example.nsutconnect.data.model.AttendanceRecord(
+                                    subjectCode = "VTECC303",
+                                    subjectName = "Probability Theory and Random Process",
+                                    attendedClasses = 23,
+                                    totalClasses = 29
+                                ),
+                                com.example.nsutconnect.data.model.AttendanceRecord(
+                                    subjectCode = "VTECC302",
+                                    subjectName = "Signals and Systems",
+                                    attendedClasses = 16,
+                                    totalClasses = 24
+                                )
                             )
-                            HorizontalDivider(color = Color(0xFF2C2C2E), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 6.dp))
-                            AttendancePreviewRow(
-                                code = "CSD302",
-                                name = "Distributed Systems",
-                                stats = "28 / 40 classes",
-                                pct = "70.0%",
-                                safeBunk = "Need 2",
-                                isSafe = false,
-                                showBunks = bunksEnabled
-                            )
-                        } else {
-                            // Schedule preview items
-                            if (bannerEnabled) {
-                                Surface(
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = Color(0xFF2C2C2E),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Column(modifier = Modifier.padding(8.dp)) {
-                                        Text(
-                                            text = "NOW IN PROGRESS (11:00 AM - 12:00 PM)",
-                                            fontSize = 9.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF68D391)
-                                        )
-                                        Text(
-                                            text = "Machine Learning · Block VI - 302",
-                                            fontFamily = AppleSans,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp,
-                                            color = Color.White
-                                        )
-                                    }
+
+                            subjectsToShow.forEachIndexed { idx, sub ->
+                                val pct = sub.percentage
+                                val isSafe = pct >= 75.0
+                                val bunkText = if (isSafe) {
+                                    val safe = sub.calculateSafeBunks()
+                                    if (safe > 0) "+$safe bunks" else "Safe"
+                                } else {
+                                    "Need ${sub.calculateClassesNeeded()}"
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                            SchedulePreviewRow(time = "01:00 PM", subject = "Distributed Systems", room = "Room 204")
-                            HorizontalDivider(color = Color(0xFF2C2C2E), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
-                            SchedulePreviewRow(time = "03:00 PM", subject = "Cloud Computing Lab", room = "Lab 4")
-                        }
-                    }
-                }
-            }
 
-            // Theme Options Section
-            item {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "BACKGROUND THEME",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
-                    letterSpacing = 1.sp
-                )
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    themeOptions.forEach { theme ->
-                        val isSelected = selectedTheme == theme.id
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .bounceClick {
-                                    selectedTheme = theme.id
-                                    prefs.setWidgetTheme(theme.id)
-                                },
-                            shape = RoundedCornerShape(14.dp),
-                            color = AppleCardSurface,
-                            border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, activeAccentColor) else androidx.compose.foundation.BorderStroke(0.5.dp, Color(0xFF2C2C2E))
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp, horizontal = 4.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Box(
+                                Row(
                                     modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(theme.cardColor)
-                                        .border(1.dp, theme.borderColor, RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
+                                        .fillMaxWidth()
+                                        .padding(vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = activeAccentColor,
-                                            modifier = Modifier.size(16.dp)
+                                    Text(
+                                        text = sub.subjectName,
+                                        fontFamily = AppleSans,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp,
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    if (bunksEnabled) {
+                                        Text(
+                                            text = bunkText,
+                                            color = if (isSafe) Color(0xFF30D158) else if (pct >= 70.0) Color(0xFFFF9F0A) else Color(0xFFFF453A),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(end = 8.dp)
                                         )
+                                    }
+
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (isSafe) Color(0xFF0D2818) else if (pct >= 70.0) Color(0xFF2C1E0A) else Color(0xFF2C0E0E),
+                                        modifier = Modifier.width(48.dp)
+                                    ) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.padding(vertical = 2.dp)
+                                        ) {
+                                            Text(
+                                                text = String.format(java.util.Locale.getDefault(), "%.1f%%", pct),
+                                                color = if (isSafe) Color(0xFF2ECC71) else if (pct >= 70.0) Color(0xFFFF9F0A) else Color(0xFFFF453A),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
                                     }
                                 }
 
+                                if (idx < subjectsToShow.size - 1) {
+                                    HorizontalDivider(
+                                        color = Color(0xFF2C2C2E),
+                                        thickness = 0.5.dp,
+                                        modifier = Modifier.padding(vertical = 3.dp)
+                                    )
+                                }
+                            }
+                        } else {
+                            // Dynamic Schedule Preview matching live widget
+                            val realTimetable = prefs.getCachedTimetable()
+                            val today = LocalDate.now().dayOfWeek
+                            val now = LocalTime.now()
+                            val isWeekend = today == java.time.DayOfWeek.SATURDAY || today == java.time.DayOfWeek.SUNDAY
+                            val isTodayCompleted = realTimetable?.isDayCompleted(today, now) ?: false
+                            val (activeDay, isToday) = when {
+                                isWeekend -> Pair(java.time.DayOfWeek.MONDAY, false)
+                                isTodayCompleted -> {
+                                    val tomorrow = today.plus(1)
+                                    if (tomorrow == java.time.DayOfWeek.SATURDAY || tomorrow == java.time.DayOfWeek.SUNDAY) {
+                                        Pair(java.time.DayOfWeek.MONDAY, false)
+                                    } else {
+                                        Pair(tomorrow, false)
+                                    }
+                                }
+                                else -> Pair(today, true)
+                            }
+                            val activeClasses = realTimetable?.getScheduleFor(activeDay) ?: emptyList()
+
+                            val classesToShow = if (activeClasses.isNotEmpty()) {
+                                activeClasses.sortedBy { it.startTime }
+                            } else {
+                                listOf(
+                                    com.example.nsutconnect.data.model.ClassScheduleItem(
+                                        id = "mock1",
+                                        dayOfWeek = java.time.DayOfWeek.MONDAY,
+                                        subjectCode = "VTECC305",
+                                        subjectName = "Digital Circuits and Systems",
+                                        roomNumber = "Hall 302",
+                                        facultyName = "Dr. Anand Gupta",
+                                        startTime = "10:00",
+                                        endTime = "11:00",
+                                        classType = ClassType.LECTURE
+                                    ),
+                                    com.example.nsutconnect.data.model.ClassScheduleItem(
+                                        id = "mock2",
+                                        dayOfWeek = java.time.DayOfWeek.MONDAY,
+                                        subjectCode = "VTECC304",
+                                        subjectName = "Microelectronics",
+                                        roomNumber = "Room 8003",
+                                        facultyName = "Prof. Raj Senani",
+                                        startTime = "12:00",
+                                        endTime = "13:00",
+                                        classType = ClassType.LECTURE
+                                    ),
+                                    com.example.nsutconnect.data.model.ClassScheduleItem(
+                                        id = "mock3",
+                                        dayOfWeek = java.time.DayOfWeek.MONDAY,
+                                        subjectCode = "VTECC302",
+                                        subjectName = "Signals and Systems",
+                                        roomNumber = "Block VI - 302",
+                                        facultyName = "Dr. Dharmendra",
+                                        startTime = "14:00",
+                                        endTime = "16:00",
+                                        classType = ClassType.TUTORIAL
+                                    ),
+                                    com.example.nsutconnect.data.model.ClassScheduleItem(
+                                        id = "mock4",
+                                        dayOfWeek = java.time.DayOfWeek.MONDAY,
+                                        subjectCode = "VTECC303",
+                                        subjectName = "Probability Theory and Random Process",
+                                        roomNumber = "Room 8003",
+                                        facultyName = "Prof. Amit Singhal",
+                                        startTime = "16:00",
+                                        endTime = "18:00",
+                                        classType = ClassType.TUTORIAL
+                                    )
+                                )
+                            }
+
+                            if (classesToShow.isEmpty()) {
                                 Text(
-                                    text = when (theme.id) {
-                                        "oled" -> "OLED"
-                                        "slate" -> "Slate"
-                                        "translucent" -> "Glass"
-                                        "midnight" -> "Midnight"
-                                        else -> theme.title
-                                    },
-                                    fontFamily = AppleSans,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    text = if (!isToday) "No classes scheduled for tomorrow 🎉" else "No classes scheduled for today 🌴",
+                                    color = Color(0xFF8E8E93),
                                     fontSize = 11.sp,
-                                    color = if (isSelected) Color.White else TextSecondary,
-                                    maxLines = 1
+                                    fontFamily = AppleSans,
+                                    modifier = Modifier.padding(vertical = 12.dp)
                                 )
+                            }
+
+                            classesToShow.forEachIndexed { idx, item ->
+                                val isOngoing = isToday && item.isOngoingAt(now)
+                                val isFinished = isToday && item.isFinishedAt(now)
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = item.subjectName,
+                                            fontFamily = AppleSans,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 13.5.sp,
+                                            color = if (isFinished) AppleSecondaryLabel else Color.White,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        val timeDisplay = "${item.startTimeFormatted} – ${item.endTimeFormatted}"
+                                        Text(
+                                            text = timeDisplay,
+                                            fontFamily = AppleSans,
+                                            fontSize = 11.5.sp,
+                                            color = if (isOngoing) AppleSystemBlue else AppleSecondaryLabel,
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        )
+                                    }
+
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        if (isOngoing) {
+                                            Text(
+                                                text = "now",
+                                                fontFamily = AppleSans,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 11.sp,
+                                                color = Color(0xFF22C55E)
+                                            )
+                                        } else if (isFinished) {
+                                            Text(
+                                                text = "done",
+                                                fontFamily = AppleSans,
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 11.sp,
+                                                color = Color(0xFF71717A)
+                                            )
+                                        }
+
+                                        val (typeBg, typeColor) = when (item.classType) {
+                                            ClassType.LECTURE -> Pair(Color(0xFF1E203B), AppleSystemBlue)
+                                            ClassType.LAB -> Pair(Color(0xFF0E2A18), Color(0xFF22C55E))
+                                            ClassType.TUTORIAL -> Pair(Color(0xFF2B1D08), Color(0xFFF59E0B))
+                                        }
+
+                                        Surface(
+                                            shape = RoundedCornerShape(7.dp),
+                                            color = typeBg
+                                        ) {
+                                            Text(
+                                                text = item.classType.shortName,
+                                                fontFamily = AppleSans,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 9.5.sp,
+                                                color = typeColor,
+                                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                if (idx < classesToShow.size - 1) {
+                                    HorizontalDivider(
+                                        color = Color(0xFF2C2C2E),
+                                        thickness = 0.5.dp,
+                                        modifier = Modifier.padding(vertical = 3.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // Accent Color Section
-            item {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "ACCENT COLOR",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
-                    letterSpacing = 1.sp
-                )
-            }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(AppleCardSurface)
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    accentOptions.forEach { accent ->
-                        val isSelected = selectedAccent == accent.id
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(accent.color)
-                                .border(
-                                    width = if (isSelected) 3.dp else 0.dp,
-                                    color = if (isSelected) Color.White else Color.Transparent,
-                                    shape = CircleShape
-                                )
-                                .clickable {
-                                    selectedAccent = accent.id
-                                    prefs.setWidgetAccent(accent.id)
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Display Toggles Section
-            item {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "DISPLAY PREFERENCES",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
-                    letterSpacing = 1.sp
-                )
-            }
-
+            // Todoist-style Unified Configuration Card
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     color = AppleCardSurface
                 ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        // Dynamic Section Header per selected tab
+                        Text(
+                            text = if (previewMode == 0) "ATTENDANCE APPEARANCE" else "SCHEDULE APPEARANCE",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AppleSecondaryLabel,
+                            letterSpacing = 0.5.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Theme Selection (Clean 3-way Segmented Control)
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(AppleElevatedSurface)
+                                .padding(2.dp)
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Safe Bunks / Needed Deficit",
-                                    fontFamily = AppleSans,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Show calculated safe bunks badge in attendance widget",
-                                    fontFamily = AppleSans,
-                                    fontSize = 11.sp,
-                                    color = TextSecondary
-                                )
+                            listOf(
+                                "oled" to "OLED Black",
+                                "dark" to "Slate Dark",
+                                "translucent" to "Glass"
+                            ).forEach { (themeId, themeName) ->
+                                val isSelected = selectedTheme == themeId
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(if (isSelected) AppleSystemBlue else Color.Transparent)
+                                        .clickable {
+                                            selectedTheme = themeId
+                                            prefs.setWidgetTheme(themeId)
+                                            applyAndBroadcast()
+                                        }
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = themeName,
+                                        fontFamily = AppleSans,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isSelected) Color.White else AppleSecondaryLabel
+                                    )
+                                }
                             }
-                            Switch(
-                                checked = bunksEnabled,
-                                onCheckedChange = {
-                                    bunksEnabled = it
-                                    prefs.setWidgetBunksEnabled(it)
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = activeAccentColor,
-                                    uncheckedThumbColor = Color.LightGray,
-                                    uncheckedTrackColor = AppleElevatedSurface
-                                )
-                            )
                         }
 
                         HorizontalDivider(
                             color = Color(0xFF2C2C2E),
                             thickness = 0.5.dp,
-                            modifier = Modifier.padding(vertical = 12.dp)
+                            modifier = Modifier.padding(vertical = 14.dp)
                         )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Live Ongoing / Next Class Banner",
-                                    fontFamily = AppleSans,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Show real-time class header in schedule widget",
-                                    fontFamily = AppleSans,
-                                    fontSize = 11.sp,
-                                    color = TextSecondary
+                        // Separate toggles per widget mode
+                        if (previewMode == 0) {
+                            // Attendance-Only Toggle: Safe Bunk Counter
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Safe Bunk Counter",
+                                        fontFamily = AppleSans,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 14.sp,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Show calculated safe bunks / classes needed",
+                                        fontFamily = AppleSans,
+                                        fontSize = 11.sp,
+                                        color = AppleSecondaryLabel
+                                    )
+                                }
+                                Switch(
+                                    checked = bunksEnabled,
+                                    onCheckedChange = {
+                                        bunksEnabled = it
+                                        prefs.setWidgetBunksEnabled(it)
+                                        applyAndBroadcast()
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = AppleSystemBlue,
+                                        uncheckedThumbColor = Color.LightGray,
+                                        uncheckedTrackColor = AppleElevatedSurface
+                                    )
                                 )
                             }
-                            Switch(
-                                checked = bannerEnabled,
-                                onCheckedChange = {
-                                    bannerEnabled = it
-                                    prefs.setWidgetBannerEnabled(it)
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = activeAccentColor,
-                                    uncheckedThumbColor = Color.LightGray,
-                                    uncheckedTrackColor = AppleElevatedSurface
+                        } else {
+                            // Schedule-Only Toggle: Highlight Active Lecture
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Highlight Active Lecture",
+                                        fontFamily = AppleSans,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 14.sp,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Show NOW / NEXT live status tags on class cards",
+                                        fontFamily = AppleSans,
+                                        fontSize = 11.sp,
+                                        color = AppleSecondaryLabel
+                                    )
+                                }
+                                Switch(
+                                    checked = bannerEnabled,
+                                    onCheckedChange = {
+                                        bannerEnabled = it
+                                        prefs.setWidgetBannerEnabled(it)
+                                        applyAndBroadcast()
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = AppleSystemBlue,
+                                        uncheckedThumbColor = Color.LightGray,
+                                        uncheckedTrackColor = AppleElevatedSurface
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
             }
-
-            // Instant Apply & Pin Buttons
-            item {
-                Spacer(modifier = Modifier.height(4.dp))
-                Button(
-                    onClick = {
-                        NsutAttendanceWidgetReceiver.updateAll(context)
-                        NsutScheduleWidgetReceiver.updateAll(context)
-                        Toast.makeText(context, "✨ Home screen widgets updated!", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .bounceClick {
-                            NsutAttendanceWidgetReceiver.updateAll(context)
-                            NsutScheduleWidgetReceiver.updateAll(context)
-                            Toast.makeText(context, "✨ Home screen widgets updated!", Toast.LENGTH_SHORT).show()
-                        },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = activeAccentColor,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Apply Changes to Home Screen",
-                        fontFamily = AppleSans,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = {
-                            val pinned = NsutAttendanceWidgetReceiver.requestPinWidget(context)
-                            if (!pinned) {
-                                Toast.makeText(context, "Long-press your home screen to add the widget", Toast.LENGTH_LONG).show()
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Widgets,
-                            contentDescription = null,
-                            tint = activeAccentColor,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "+ Attendance",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            val pinned = NsutScheduleWidgetReceiver.requestPinWidget(context)
-                            if (!pinned) {
-                                Toast.makeText(context, "Long-press your home screen to add the widget", Toast.LENGTH_LONG).show()
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Widgets,
-                            contentDescription = null,
-                            tint = activeAccentColor,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "+ Schedule",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AttendancePreviewRow(
-    code: String,
-    name: String,
-    stats: String,
-    pct: String,
-    safeBunk: String,
-    isSafe: Boolean,
-    showBunks: Boolean
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = name,
-                fontFamily = AppleSans,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = Color.White
-            )
-            Text(
-                text = "$stats • $code",
-                fontFamily = AppleSans,
-                fontSize = 10.sp,
-                color = Color(0xFF8F9CAE)
-            )
-        }
-
-        if (showBunks) {
-            Surface(
-                shape = RoundedCornerShape(6.dp),
-                color = Color(0xFF2C2C2E),
-                modifier = Modifier.padding(end = 6.dp)
-            ) {
-                Text(
-                    text = safeBunk,
-                    color = if (isSafe) Color(0xFF30D158) else Color(0xFFFF9F0A),
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                )
-            }
-        }
-
-        Surface(
-            shape = RoundedCornerShape(6.dp),
-            color = if (isSafe) Color(0x3330D158) else Color(0x33FF9F0A),
-            modifier = Modifier.width(46.dp)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.padding(vertical = 2.dp)
-            ) {
-                Text(
-                    text = pct,
-                    color = if (isSafe) Color(0xFF30D158) else Color(0xFFFF9F0A),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SchedulePreviewRow(
-    time: String,
-    subject: String,
-    room: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Surface(
-            shape = RoundedCornerShape(6.dp),
-            color = Color(0xFF2C2C2E),
-            modifier = Modifier.padding(end = 8.dp)
-        ) {
-            Text(
-                text = time,
-                color = Color(0xFF90CDF4),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-            )
-        }
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = subject,
-                fontFamily = AppleSans,
-                fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
-                color = Color.White
-            )
-            Text(
-                text = room,
-                fontFamily = AppleSans,
-                fontSize = 9.sp,
-                color = Color(0xFF8E8E93)
-            )
         }
     }
 }
