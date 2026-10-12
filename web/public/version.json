@@ -1,8 +1,8 @@
 {
-  "version": "1.0.42",
-  "versionCode": 42,
-  "name": "NSync v1.0.42",
-  "notes": "Dynamic Plumware My Activities routing for real student attendance and enrolled courses across all branches (CSE, IT, CSAI, etc.), and complete elimination of shared mock subjects.",
+  "version": "1.0.43",
+  "versionCode": 43,
+  "name": "NSync v1.0.43",
+  "notes": "Fix student attendance data sync: dynamic academic year & semester submission (enc_year/enc_sem), 2-letter course code parsing (MA101, CS101, etc.), registered course name mapping, and permanent cache persistence.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-11T22:50:00Z"
+  "publishedAt": "2026-10-12T02:00:00Z"
 }

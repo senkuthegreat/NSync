@@ -76,7 +76,8 @@ object ImsParser {
         var overallAbsent = mutableListOf<Int>()
         var overallClasses = mutableListOf<Int>()
         val subjectHistory = mutableMapOf<String, MutableList<AttendanceDateEntry>>()
-        val datePattern = Regex("^[A-Za-z]{3}-\\d{1,2}$")
+        val datePattern = Regex("^(?:[A-Za-z]{3}-\\d{1,2}|\\d{1,2}-[A-Za-z]{3}|\\d{1,2}[-/]\\d{1,2}(?:[-/]\\d{2,4})?)$")
+        val subjectCodeRegex = Regex("^[A-Z]{2,6}\\d{2,4}[A-Z]?$")
 
         for (table in tables) {
             val rows = table.select("tr")
@@ -86,19 +87,25 @@ object ImsParser {
                 val cells = row.select("td, th").map { it.text().trim() }
                 if (cells.isEmpty()) continue
 
-                // Subject header row (e.g. Days | FCFO0301 | VANM0303 | VTECC302 | VTECC303 | ...)
-                if (cells.any { it.matches(Regex("^[A-Z]{3,6}\\d{3,4}$")) }) {
-                    val codes = cells.filter { it.matches(Regex("^[A-Z]{3,6}\\d{3,4}$")) }
-                    if (codes.isNotEmpty()) {
-                        tableCodes = codes
+                // Subject header row (e.g. Days | FCFO0301 | VANM0303 | VTECC302 | VTECC303 | ... or MA101 | CS101)
+                val isHeaderRow = cells.firstOrNull()?.contains("Days", ignoreCase = true) == true ||
+                        cells.any { it.matches(subjectCodeRegex) }
+                if (isHeaderRow && !cells[0].matches(datePattern)) {
+                    val candidateCodes = if (cells.firstOrNull()?.contains("Days", ignoreCase = true) == true) {
+                        cells.drop(1).filter { it.isNotBlank() && (it.matches(subjectCodeRegex) || it.matches(Regex("^[A-Z0-9-]{3,12}$"))) }
+                    } else {
+                        cells.filter { it.matches(subjectCodeRegex) }
+                    }
+                    if (candidateCodes.isNotEmpty()) {
+                        tableCodes = candidateCodes
                         if (subjectCodes.isEmpty()) {
-                            subjectCodes.addAll(codes)
+                            subjectCodes.addAll(candidateCodes)
                         }
                     }
                     continue
                 }
 
-                // Check for Date row (e.g. Jul-27, Aug-12, Sep-15, Oct-06)
+                // Check for Date row (e.g. Jul-27, Aug-12, Sep-15, Oct-06, 27-Jul)
                 if (cells[0].matches(datePattern) && tableCodes.isNotEmpty()) {
                     val dateStr = cells[0]
                     for (colIdx in 1 until cells.size) {
@@ -122,26 +129,82 @@ object ImsParser {
                 } else if (rowText.contains("overall") && rowText.contains("class")) {
                     val nums = cells.drop(1).mapNotNull { it.toIntOrNull() }
                     if (nums.isNotEmpty()) overallClasses = nums.toMutableList()
+                } else if (rowText.contains("overall") || rowText.contains("total")) {
+                    val fractions = cells.drop(1).mapNotNull { c ->
+                        val m = Regex("""^(\d+)\s*/\s*(\d+)$""").find(c)
+                        if (m != null) Pair(m.groupValues[1].toInt(), m.groupValues[2].toInt()) else null
+                    }
+                    if (fractions.isNotEmpty()) {
+                        overallPresent = fractions.map { it.first }.toMutableList()
+                        overallClasses = fractions.map { it.second }.toMutableList()
+                        overallAbsent = fractions.map { (it.second - it.first).coerceAtLeast(0) }.toMutableList()
+                    }
                 }
             }
         }
 
-        // Fallback to "Total Present" / "Total Absent" if "Overall" not present in this segment
+        // Fallback to summing monthly totals or subject history if "Overall" row not present
         if (overallPresent.isEmpty() || overallAbsent.isEmpty()) {
+            val monthlyPresentSums = IntArray(subjectCodes.size) { 0 }
+            val monthlyAbsentSums = IntArray(subjectCodes.size) { 0 }
+            val monthlyClassSums = IntArray(subjectCodes.size) { 0 }
+            var foundAnyMonthlyTotal = false
+
             for (table in tables) {
                 val rows = table.select("tr")
                 for (row in rows) {
                     val cells = row.select("td, th").map { it.text().trim() }
                     val rowText = cells.joinToString(" ").lowercase()
-                    if (overallPresent.isEmpty() && rowText.contains("total") && rowText.contains("present")) {
+                    if (rowText.contains("total") && rowText.contains("present")) {
                         val nums = cells.drop(1).mapNotNull { it.toIntOrNull() }
-                        if (nums.isNotEmpty()) overallPresent = nums.toMutableList()
+                        for (idx in nums.indices) {
+                            if (idx < monthlyPresentSums.size) monthlyPresentSums[idx] += nums[idx]
+                        }
+                        foundAnyMonthlyTotal = true
                     }
-                    if (overallAbsent.isEmpty() && rowText.contains("total") && rowText.contains("absent")) {
+                    if (rowText.contains("total") && rowText.contains("absent")) {
                         val nums = cells.drop(1).mapNotNull { it.toIntOrNull() }
-                        if (nums.isNotEmpty()) overallAbsent = nums.toMutableList()
+                        for (idx in nums.indices) {
+                            if (idx < monthlyAbsentSums.size) monthlyAbsentSums[idx] += nums[idx]
+                        }
+                        foundAnyMonthlyTotal = true
+                    }
+                    if (rowText.contains("total") && rowText.contains("class")) {
+                        val nums = cells.drop(1).mapNotNull { it.toIntOrNull() }
+                        for (idx in nums.indices) {
+                            if (idx < monthlyClassSums.size) monthlyClassSums[idx] += nums[idx]
+                        }
                     }
                 }
+            }
+
+            if (foundAnyMonthlyTotal) {
+                if (overallPresent.isEmpty()) overallPresent = monthlyPresentSums.toMutableList()
+                if (overallAbsent.isEmpty()) overallAbsent = monthlyAbsentSums.toMutableList()
+                if (overallClasses.isEmpty()) overallClasses = monthlyClassSums.toMutableList()
+            }
+        }
+
+        // Final fallback: Calculate present and total directly from subjectHistory entries
+        if (overallPresent.isEmpty() || overallAbsent.isEmpty()) {
+            overallPresent = mutableListOf()
+            overallAbsent = mutableListOf()
+            overallClasses = mutableListOf()
+            for (code in subjectCodes) {
+                val history = subjectHistory[code] ?: emptyList()
+                var presCount = 0
+                var totalCount = 0
+                for (entry in history) {
+                    when {
+                        entry.statusCode == "1+1" -> { presCount += 2; totalCount += 2 }
+                        entry.statusCode == "0+1" || entry.statusCode == "1+0" -> { presCount += 1; totalCount += 2 }
+                        entry.isPresent == true -> { presCount += 1; totalCount += 1 }
+                        entry.isPresent == false -> { totalCount += 1 }
+                    }
+                }
+                overallPresent.add(presCount)
+                overallAbsent.add((totalCount - presCount).coerceAtLeast(0))
+                overallClasses.add(totalCount)
             }
         }
 
@@ -194,8 +257,8 @@ object ImsParser {
 
     private fun parseAttendanceMark(date: String, mark: String): AttendanceDateEntry {
         val (statusText, isPresent) = when {
-            mark == "1" -> Pair("Present", true)
-            mark == "0" -> Pair("Absent", false)
+            mark == "1" || mark.equals("P", ignoreCase = true) || mark.equals("Present", ignoreCase = true) -> Pair("Present", true)
+            mark == "0" || mark.equals("A", ignoreCase = true) || mark.equals("Absent", ignoreCase = true) -> Pair("Absent", false)
             mark == "1+1" -> Pair("Present (2 Classes)", true)
             mark == "0+1" || mark == "1+0" -> Pair("1 Present, 1 Absent", false)
             mark == "CS" -> Pair("Class Suspended", null)
@@ -371,9 +434,46 @@ object ImsParser {
         )
     }
 
+    fun registerSubjectNames(names: Map<String, String>) {
+        dynamicSubjectNames.putAll(names)
+    }
+
+    fun parseSemesterFromHtml(html: String): String? {
+        val doc = Jsoup.parse(html)
+        val divTag = doc.selectFirst("div#div2.plum_head, div.plum_head, td.plum_head")
+        val text = divTag?.text() ?: doc.text()
+        val matcher = Regex("(?i)Semester\\s*(\\d+)").find(text)
+        return matcher?.groupValues?.get(1)
+    }
+
+    fun parseEnrolledCoursesHtml(html: String): Map<String, String> {
+        val doc = Jsoup.parse(html)
+        val map = mutableMapOf<String, String>()
+        val tables = doc.select("table")
+        val codeRegex = Regex("^([A-Z]{2,6}\\d{2,4}[A-Z]?)$")
+        for (table in tables) {
+            val rows = table.select("tr")
+            for (row in rows) {
+                val cells = row.select("td").map { it.text().trim() }
+                if (cells.size >= 2) {
+                    for (i in 0 until cells.size - 1) {
+                        val candidateCode = cells[i]
+                        val nextCell = cells[i + 1]
+                        if (codeRegex.matches(candidateCode) && nextCell.isNotBlank() && !codeRegex.matches(nextCell)) {
+                            map[candidateCode] = nextCell
+                            dynamicSubjectNames[candidateCode] = nextCell
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        return map
+    }
+
     private fun extractSubjectLegends(doc: Element) {
         val legendElements = doc.select("table.plum_fieldbig tr.plum_fieldbig, tr.plum_fieldbig td, table.plum_field")
-        val pattern = Pattern.compile("([A-Z]{3,6}\\d{3,4})\\s*[-–]\\s*([^<\\n\\r/]+)")
+        val pattern = Pattern.compile("([A-Z]{2,6}\\d{2,4}[A-Z]?)\\s*[-–]\\s*([^<\\n\\r/]+)")
         for (el in legendElements) {
             val text = el.html().replace(Regex("(?i)<br\\s*/?>"), "\n").replace("&nbsp;", " ")
             val matcher = pattern.matcher(text)

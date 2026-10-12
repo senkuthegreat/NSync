@@ -55,6 +55,8 @@ class UserPreferences(private val context: Context) {
         private const val KEY_ATTENDANCE_URL = "key_attendance_url"
         private const val KEY_TIMETABLE_URL = "key_timetable_url"
         private const val KEY_ACTIVITIES_URL = "key_activities_url"
+        private const val KEY_COURSES_URL = "key_courses_url"
+        private const val KEY_SEMESTER = "key_semester"
 
         private const val KEYSTORE_ALIAS = "NsutAuthKeyAlias"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
@@ -184,6 +186,16 @@ class UserPreferences(private val context: Context) {
         prefs.edit().putString(KEY_ACTIVITIES_URL, url).apply()
     }
 
+    fun getCoursesUrl(): String? = prefs.getString(KEY_COURSES_URL, null)
+    fun saveCoursesUrl(url: String?) {
+        prefs.edit().putString(KEY_COURSES_URL, url).apply()
+    }
+
+    fun getSemester(): String? = prefs.getString(KEY_SEMESTER, null)
+    fun saveSemester(semester: String?) {
+        prefs.edit().putString(KEY_SEMESTER, semester).apply()
+    }
+
     fun getSavedPassword(): String? {
         val enc = prefs.getString(KEY_ENCRYPTED_PASSWORD, null) ?: return null
         val iv = prefs.getString(KEY_PASSWORD_IV, null) ?: return null
@@ -207,6 +219,8 @@ class UserPreferences(private val context: Context) {
             .remove(KEY_PORTAL_COOKIES)
             .remove(KEY_ATTENDANCE_URL)
             .remove(KEY_TIMETABLE_URL)
+            .remove(KEY_ACTIVITIES_URL)
+            .remove(KEY_COURSES_URL)
             .putBoolean(KEY_IS_LOGGED_IN, false)
         if (!keepCredentials) {
             editor.remove(KEY_ROLL_NUMBER)
@@ -216,6 +230,7 @@ class UserPreferences(private val context: Context) {
                 .remove(KEY_TIMETABLE_JSON)
                 .remove(KEY_STUDENT_NAME)
                 .remove(KEY_BRANCH)
+                .remove(KEY_SEMESTER)
         }
         editor.apply()
     }
@@ -312,23 +327,6 @@ class UserPreferences(private val context: Context) {
             val currentRoll = getRollNumber()
             if (currentRoll.isNotBlank() && cachedRoll.isNotBlank() && !cachedRoll.equals(currentRoll, ignoreCase = true)) {
                 return null
-            }
-            // Auto-purge contaminated cache: if student is not 2024UCO1500, purge Rohit's ECE subjects or name
-            if (!currentRoll.equals("2024UCO1500", ignoreCase = true)) {
-                val sName = root.optString("studentName", "")
-                val rohitEceCodes = setOf("VTECC302", "VTECC303", "VTECC304", "VTECC305", "VTPHC301")
-                val rArr = root.optJSONArray("records")
-                var rohitSubjectCount = 0
-                if (rArr != null) {
-                    for (i in 0 until rArr.length()) {
-                        val code = rArr.getJSONObject(i).optString("subjectCode", "")
-                        if (rohitEceCodes.contains(code)) rohitSubjectCount++
-                    }
-                }
-                if (rohitSubjectCount >= 3 || sName.contains("Rohit", ignoreCase = true)) {
-                    prefs.edit().remove(KEY_ATTENDANCE_JSON).apply()
-                    return null
-                }
             }
             val records = mutableListOf<AttendanceRecord>()
             val arr = root.optJSONArray("records")
@@ -434,14 +432,6 @@ class UserPreferences(private val context: Context) {
             val currentRoll = getRollNumber()
             if (currentRoll.isNotBlank() && cachedRoll.isNotBlank() && !cachedRoll.equals(currentRoll, ignoreCase = true)) {
                 return null
-            }
-            // Auto-purge contaminated timetable: if user is not 2024UCO1500, purge Rohit's ECE timetable
-            if (!currentRoll.equals("2024UCO1500", ignoreCase = true)) {
-                val jsonStr = root.toString()
-                if (jsonStr.contains("VTECC302") && jsonStr.contains("VTECC304")) {
-                    prefs.edit().remove(KEY_TIMETABLE_JSON).apply()
-                    return null
-                }
             }
             val daysList = mutableListOf<DaySchedule>()
             val daysArr = root.optJSONArray("days")

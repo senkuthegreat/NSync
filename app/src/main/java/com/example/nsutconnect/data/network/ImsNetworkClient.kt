@@ -34,7 +34,9 @@ sealed class ImsLoginResponse {
         val profileUrl: String? = null,
         val activitiesUrl: String? = null,
         val attendanceUrl: String? = null,
-        val timetableUrl: String? = null
+        val timetableUrl: String? = null,
+        val coursesUrl: String? = null,
+        val semester: String? = null
     ) : ImsLoginResponse()
     data class Failure(val message: String) : ImsLoginResponse()
 }
@@ -47,6 +49,8 @@ class ImsNetworkClient {
         const val STUDENT_LOGIN_URL = "https://www.imsnsit.org/imsnsit/student_login.php"
         const val PLUM_SCREEN_INIT_URL = "https://www.imsnsit.org/imsnsit/plum5_fw_login.php?t=sw&w=1"
         const val TIMETABLE_URL = "https://www.imsnsit.org/imsnsit/plum_url.php?41uZnOKcTatoQuZ1nS5qVGIuiLOuCZGGw43gNaDJuC6JU+zlhWK6ya/tcFLywtouIo7aWVZdCbDde4Onb0dyebiOoF5CwOCF9cWNylj6wkXd0RX8bVnVGaPKlMtStKmyuAZXCzEdKq+zBvagqtna+Vjw3K+2YkEhpEDLFH9RwuVsL162Qyo3TRed5amA2UTcldG13/T8xEKGB82zR7JxVA=="
+        const val ATTENDANCE_FALLBACK_URL = "https://www.imsnsit.org/imsnsit/student_attendance.php"
+        const val COURSES_FALLBACK_URL = "https://www.imsnsit.org/imsnsit/student_courses_registered.php"
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.119 Safari/537.36"
     }
 
@@ -70,6 +74,15 @@ class ImsNetworkClient {
         fun extractUrlFromElement(elem: org.jsoup.nodes.Element): String? {
             val href = elem.attr("href").trim()
             val onclick = elem.attr("onclick").trim()
+            val jsRegex = Regex("""(?:openURL|showURL|window\.open)\s*\(\s*['"]([^'"]+)['"]""")
+            val jsMatch = jsRegex.find(href)?.groupValues?.get(1) ?: jsRegex.find(onclick)?.groupValues?.get(1)
+            if (jsMatch != null && jsMatch.isNotBlank() && jsMatch != "#") {
+                return when {
+                    jsMatch.startsWith("http") -> jsMatch
+                    jsMatch.startsWith("/") -> "https://www.imsnsit.org$jsMatch"
+                    else -> BASE_URL + jsMatch
+                }
+            }
             return when {
                 href.startsWith("http") -> href
                 href.isNotBlank() && !href.startsWith("javascript") && !href.startsWith("#") -> {
@@ -103,8 +116,9 @@ class ImsNetworkClient {
                         timetableUrl = resolvedUrl
                         Log.i("NSyncAuth", "Found timetableUrl: $timetableUrl (from text: '$text')")
                     }
-                    if (coursesUrl == null && (textLower.contains("coursesregistered") || textLower.contains("course") || combined.contains("courses_registered"))) {
+                    if (coursesUrl == null && (textLower.contains("coursesregistered") || textLower.contains("registeredcourses") || (textLower.contains("course") && textLower.contains("register")) || combined.contains("courses_registered"))) {
                         coursesUrl = resolvedUrl
+                        Log.i("NSyncAuth", "Found coursesUrl: $coursesUrl (from text: '$text')")
                     }
                     if (resultUrl == null && (textLower.contains("result") || combined.contains("examination_result"))) {
                         resultUrl = resolvedUrl
@@ -126,12 +140,16 @@ class ImsNetworkClient {
         scanDocument(doc, isActivitiesDoc = false)
 
         // Pass 2: If activitiesUrl or profileUrl wasn't found directly, inspect child frames
-        if (activitiesUrl == null || profileUrl == null || attendanceUrl == null) {
+        if (activitiesUrl == null || profileUrl == null || attendanceUrl == null || coursesUrl == null) {
             val frames = doc.select("frame, iframe")
             for (frame in frames) {
                 val src = frame.attr("src").trim()
                 if (src.isBlank() || src.startsWith("javascript") || src.equals("about:blank", ignoreCase = true)) continue
-                val frameUrl = if (src.startsWith("http")) src else BASE_URL + src
+                val frameUrl = when {
+                    src.startsWith("http") -> src
+                    src.startsWith("/") -> "https://www.imsnsit.org$src"
+                    else -> BASE_URL + src
+                }
                 try {
                     val frameDoc = Jsoup.connect(frameUrl)
                         .userAgent(USER_AGENT)
@@ -148,9 +166,8 @@ class ImsNetworkClient {
 
         // Pass 3: THE KEY TO NSUT IMS: Fetch "My Activities" to resolve dynamic sub-module links!
         // In Plumware, "My Attendance", "Timetable", "Courses" live inside the "My Activities" module page!
-        if (activitiesUrl != null && (attendanceUrl == null || timetableUrl == null)) {
-            val actUrl: String = activitiesUrl ?: ""
-            if (actUrl.isNotBlank()) {
+        val actUrl = activitiesUrl
+        if (!actUrl.isNullOrBlank() && (attendanceUrl == null || timetableUrl == null || coursesUrl == null)) {
             try {
                 Log.i("NSyncAuth", "Fetching My Activities page: $actUrl")
                 val actDoc = Jsoup.connect(actUrl)
@@ -164,12 +181,16 @@ class ImsNetworkClient {
                 scanDocument(actDoc, isActivitiesDoc = true)
 
                 // Also inspect any frames within My Activities if attendanceUrl still not resolved
-                if (attendanceUrl == null || timetableUrl == null) {
+                if (attendanceUrl == null || timetableUrl == null || coursesUrl == null) {
                     val actFrames = actDoc.select("frame, iframe")
                     for (frame in actFrames) {
                         val src = frame.attr("src").trim()
                         if (src.isBlank() || src.startsWith("javascript") || src.equals("about:blank", ignoreCase = true)) continue
-                        val frameUrl = if (src.startsWith("http")) src else BASE_URL + src
+                        val frameUrl = when {
+                            src.startsWith("http") -> src
+                            src.startsWith("/") -> "https://www.imsnsit.org$src"
+                            else -> BASE_URL + src
+                        }
                         try {
                             val fDoc = Jsoup.connect(frameUrl)
                                 .userAgent(USER_AGENT)
@@ -186,10 +207,9 @@ class ImsNetworkClient {
             } catch (e: Exception) {
                 Log.e("NSyncAuth", "Failed to fetch activitiesUrl $activitiesUrl: ${e.message}")
             }
-            }
         }
 
-        Log.i("NSyncAuth", "Resolved portal links: attendance=$attendanceUrl, timetable=$timetableUrl, profile=$profileUrl, activities=$activitiesUrl")
+        Log.i("NSyncAuth", "Resolved portal links: attendance=$attendanceUrl, timetable=$timetableUrl, courses=$coursesUrl, profile=$profileUrl, activities=$activitiesUrl")
         return DiscoveredPortalLinks(
             profileUrl = profileUrl,
             activitiesUrl = activitiesUrl,
@@ -431,8 +451,19 @@ class ImsNetworkClient {
                         targetHtml.contains("student_profile", ignoreCase = true) ||
                         targetHtml.contains("student_attendance", ignoreCase = true)
 
+                    var detectedSem: String? = null
+                    if (!discovered.coursesUrl.isNullOrBlank()) {
+                        try {
+                            val (semFromCourses, _) = fetchEnrolledCourses(updatedCookieHeader, discovered.coursesUrl)
+                            detectedSem = semFromCourses
+                        } catch (_: Exception) {}
+                    }
+                    if (detectedSem.isNullOrBlank()) {
+                        detectedSem = calculateSemesterFromRoll(rollNumber)
+                    }
+
                     if (isSuccess) {
-                        Log.i("NSyncAuth", "Login SUCCESS: name=$studentName, branch=$detectedBranch, attUrl=${discovered.attendanceUrl}, ttUrl=${discovered.timetableUrl}")
+                        Log.i("NSyncAuth", "Login SUCCESS: name=$studentName, branch=$detectedBranch, attUrl=${discovered.attendanceUrl}, ttUrl=${discovered.timetableUrl}, coursesUrl=${discovered.coursesUrl}, sem=$detectedSem")
                         return@withContext ImsLoginResponse.Success(
                             cookies = updatedCookieHeader,
                             studentName = studentName,
@@ -440,7 +471,9 @@ class ImsNetworkClient {
                             profileUrl = discovered.profileUrl,
                             activitiesUrl = discovered.activitiesUrl,
                             attendanceUrl = discovered.attendanceUrl,
-                            timetableUrl = discovered.timetableUrl
+                            timetableUrl = discovered.timetableUrl,
+                            coursesUrl = discovered.coursesUrl,
+                            semester = detectedSem
                         )
                     }
 
@@ -459,7 +492,9 @@ class ImsNetworkClient {
                         profileUrl = discovered.profileUrl,
                         activitiesUrl = discovered.activitiesUrl,
                         attendanceUrl = discovered.attendanceUrl,
-                        timetableUrl = discovered.timetableUrl
+                        timetableUrl = discovered.timetableUrl,
+                        coursesUrl = discovered.coursesUrl,
+                        semester = detectedSem
                     )
                 } catch (e: Exception) {
                     Log.e("NSyncAuth", "Error following redirect: ${e.message}", e)
@@ -503,6 +538,17 @@ class ImsNetworkClient {
                 .trim()
                 .ifBlank { null }
 
+            var detectedSem2: String? = null
+            if (!discovered2.coursesUrl.isNullOrBlank()) {
+                try {
+                    val (semFromCourses, _) = fetchEnrolledCourses(cookieHeader, discovered2.coursesUrl)
+                    detectedSem2 = semFromCourses
+                } catch (_: Exception) {}
+            }
+            if (detectedSem2.isNullOrBlank()) {
+                detectedSem2 = calculateSemesterFromRoll(rollNumber)
+            }
+
             if (discovered2.profileUrl != null || discovered2.activitiesUrl != null || studentName != null || html.contains("Logout")) {
                 return@withContext ImsLoginResponse.Success(
                     cookies = cookieHeader,
@@ -511,7 +557,9 @@ class ImsNetworkClient {
                     profileUrl = discovered2.profileUrl,
                     activitiesUrl = discovered2.activitiesUrl,
                     attendanceUrl = discovered2.attendanceUrl,
-                    timetableUrl = discovered2.timetableUrl
+                    timetableUrl = discovered2.timetableUrl,
+                    coursesUrl = discovered2.coursesUrl,
+                    semester = detectedSem2
                 )
             }
 
@@ -530,7 +578,9 @@ class ImsNetworkClient {
                 profileUrl = discovered2.profileUrl,
                 activitiesUrl = discovered2.activitiesUrl,
                 attendanceUrl = discovered2.attendanceUrl,
-                timetableUrl = discovered2.timetableUrl
+                timetableUrl = discovered2.timetableUrl,
+                coursesUrl = discovered2.coursesUrl,
+                semester = detectedSem2
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -580,6 +630,58 @@ class ImsNetworkClient {
         return map
     }
 
+    fun calculateSemesterFromRoll(rollNumber: String): String {
+        val clean = rollNumber.trim().uppercase()
+        val match = Regex("""^(?:20)?(\d{2})""").find(clean)
+        if (match != null) {
+            val yr2 = match.groupValues[1].toIntOrNull()
+            if (yr2 != null) {
+                val admYear = 2000 + yr2
+                val now = java.time.LocalDate.now()
+                val curYear = now.year
+                val curMonth = now.monthValue
+                val diff = (curYear - admYear).coerceAtLeast(0)
+                val sem = if (curMonth <= 6) {
+                    diff * 2
+                } else {
+                    diff * 2 + 1
+                }
+                return sem.coerceIn(1, 8).toString()
+            }
+        }
+        return "1"
+    }
+
+    suspend fun fetchEnrolledCourses(
+        cookies: String,
+        coursesUrl: String?
+    ): Pair<String?, Map<String, String>> = withContext(Dispatchers.IO) {
+        val targetUrl = coursesUrl?.ifBlank { null } ?: COURSES_FALLBACK_URL
+        if (cookies.isBlank()) {
+            return@withContext Pair(null, emptyMap())
+        }
+        try {
+            val cookiesMap = parseCookiesToMap(cookies)
+            val res = Jsoup.connect(targetUrl)
+                .userAgent(USER_AGENT)
+                .header("Referer", STUDENT_LOGIN_URL)
+                .cookies(cookiesMap)
+                .timeout(10000)
+                .followRedirects(true)
+                .get()
+            val html = res.html()
+            val sem = ImsParser.parseSemesterFromHtml(html)
+            val courses = ImsParser.parseEnrolledCoursesHtml(html)
+            if (courses.isNotEmpty()) {
+                ImsParser.registerSubjectNames(courses)
+            }
+            Pair(sem, courses)
+        } catch (e: Exception) {
+            Log.w("NSyncCourses", "Failed to fetch enrolled courses: ${e.message}")
+            Pair(null, emptyMap())
+        }
+    }
+
     fun getFinancialYear(): String {
         val now = java.time.LocalDate.now()
         val year = now.year
@@ -595,15 +697,16 @@ class ImsNetworkClient {
         targetUrl: String,
         cookies: String,
         rollNumber: String,
-        branch: String?
+        branch: String?,
+        semester: String? = null
     ): String? {
-        if (targetUrl.isBlank()) return null
+        val effectiveUrl = targetUrl.ifBlank { ATTENDANCE_FALLBACK_URL }
         try {
             val cookiesMap = parseCookiesToMap(cookies)
-            Log.i("NSyncAttendance", "Requesting attendance from: $targetUrl with roll: $rollNumber")
+            Log.i("NSyncAttendance", "Requesting attendance from: $effectiveUrl with roll: $rollNumber")
 
             // Step 1: Issue GET request to attendance module with session cookies
-            val getRes = Jsoup.connect(targetUrl)
+            val getRes = Jsoup.connect(effectiveUrl)
                 .userAgent(USER_AGENT)
                 .header("Referer", STUDENT_LOGIN_URL)
                 .cookies(cookiesMap)
@@ -635,56 +738,92 @@ class ImsNetworkClient {
                 val postUrl = when {
                     actionAttr.startsWith("http") -> actionAttr
                     actionAttr.isNotBlank() -> if (actionAttr.startsWith("/")) "https://www.imsnsit.org$actionAttr" else BASE_URL + actionAttr
-                    else -> targetUrl
+                    else -> effectiveUrl
                 }
 
-                val postParams = mutableMapOf<String, String>()
+                val baseParams = mutableMapOf<String, String>()
                 for (input in form.select("input")) {
                     val name = input.attr("name").trim()
                     val value = input.attr("value")
                     if (name.isNotBlank()) {
-                        postParams[name] = value
-                    }
-                }
-                for (select in form.select("select")) {
-                    val name = select.attr("name").trim()
-                    val selectedOpt = select.selectFirst("option[selected]")
-                        ?: select.select("option").lastOrNull { it.attr("value").isNotBlank() }
-                        ?: select.selectFirst("option")
-                    val value = selectedOpt?.attr("value") ?: ""
-                    if (name.isNotBlank()) {
-                        postParams[name] = value
+                        baseParams[name] = value
                     }
                 }
 
-                postParams["recentitycode"] = rollNumber
-                postParams["submit"] = "Submit"
-                if (postParams["dept"].isNullOrBlank() && !branch.isNullOrBlank()) {
-                    postParams["dept"] = branch
-                }
-                if (postParams["degree"].isNullOrBlank()) {
-                    postParams["degree"] = "B.Tech."
-                }
-                if (postParams["year"].isNullOrBlank()) {
-                    postParams["year"] = getFinancialYear()
+                // Explicitly extract enc_year and enc_sem like imsnsit
+                val encYear = doc.selectFirst("#enc_year, input[name=enc_year]")?.attr("value")?.trim()
+                val encSem = doc.selectFirst("#enc_sem, input[name=enc_sem]")?.attr("value")?.trim()
+                if (!encYear.isNullOrBlank()) baseParams["enc_year"] = encYear
+                if (!encSem.isNullOrBlank()) baseParams["enc_sem"] = encSem
+
+                val formRoll = form.selectFirst("[name=recentitycode]")?.attr("value")?.trim().orEmpty()
+                baseParams["recentitycode"] = if (formRoll.isNotBlank()) formRoll else rollNumber
+
+                val formDept = form.selectFirst("[name=dept]")?.attr("value")?.trim().orEmpty()
+                if (formDept.isNotBlank()) {
+                    baseParams["dept"] = formDept
+                } else if (!branch.isNullOrBlank()) {
+                    baseParams["dept"] = branch
                 }
 
-                Log.i("NSyncAttendance", "Submitting POST to $postUrl with keys: ${postParams.keys}")
+                val formDegree = form.selectFirst("[name=degree]")?.attr("value")?.trim().orEmpty()
+                baseParams["degree"] = if (formDegree.isNotBlank()) formDegree else "B.Tech."
 
-                val postRes = Jsoup.connect(postUrl)
-                    .userAgent(USER_AGENT)
-                    .header("Referer", targetUrl)
-                    .cookies(cookiesMap)
-                    .data(postParams)
-                    .timeout(15000)
-                    .followRedirects(true)
-                    .method(Connection.Method.POST)
-                    .execute()
+                baseParams["submit"] = "Submit"
+                if (!baseParams.containsKey("ename")) baseParams["ename"] = ""
+                if (!baseParams.containsKey("ecode")) baseParams["ecode"] = ""
 
-                val postHtml = postRes.body()
-                if (postHtml.contains("ABSENT") || postHtml.contains("Total Classes") || postHtml.contains("Overall")) {
-                    Log.i("NSyncAttendance", "Successfully retrieved live attendance matrix from POST response")
-                    return postHtml
+                // Determine Academic / Financial Year
+                val yearSelect = form.selectFirst("select[name=year]")
+                val availableYears = yearSelect?.select("option")?.mapNotNull { it.attr("value").trim().ifBlank { null } } ?: emptyList()
+                val targetYear = getFinancialYear()
+                val selectedYear = when {
+                    availableYears.contains(targetYear) -> targetYear
+                    availableYears.any { it.startsWith(targetYear.substringBefore("-")) } ->
+                        availableYears.first { it.startsWith(targetYear.substringBefore("-")) }
+                    availableYears.isNotEmpty() -> availableYears.first()
+                    else -> targetYear
+                }
+                baseParams["year"] = selectedYear
+
+                // Determine Candidate Semesters to query
+                val resolvedSem = semester?.ifBlank { null } ?: calculateSemesterFromRoll(rollNumber)
+                val semSelect = form.selectFirst("select[name=sem]")
+                val availableSems = semSelect?.select("option")?.mapNotNull { it.attr("value").trim().ifBlank { null } } ?: emptyList()
+
+                val semInt = resolvedSem.toIntOrNull() ?: 1
+                val candidateSems = mutableListOf<String>()
+                candidateSems.add(resolvedSem)
+                if (semInt > 1) {
+                    candidateSems.add((semInt - 1).toString())
+                }
+                if (semInt < 8) {
+                    candidateSems.add((semInt + 1).toString())
+                }
+
+                val validCandidates = candidateSems.filter { availableSems.isEmpty() || availableSems.contains(it) }.distinct()
+
+                for (candSem in validCandidates) {
+                    val postParams = baseParams.toMutableMap()
+                    postParams["sem"] = candSem
+
+                    Log.i("NSyncAttendance", "Submitting POST to $postUrl with year=$selectedYear, sem=$candSem, roll=$rollNumber")
+
+                    val postRes = Jsoup.connect(postUrl)
+                        .userAgent(USER_AGENT)
+                        .header("Referer", effectiveUrl)
+                        .cookies(cookiesMap)
+                        .data(postParams)
+                        .timeout(15000)
+                        .followRedirects(true)
+                        .method(Connection.Method.POST)
+                        .execute()
+
+                    val postHtml = postRes.body()
+                    if (postHtml.contains("ABSENT") || postHtml.contains("Total Classes") || postHtml.contains("Overall")) {
+                        Log.i("NSyncAttendance", "Successfully retrieved live attendance matrix from POST response for sem $candSem")
+                        return postHtml
+                    }
                 }
             }
 
@@ -699,11 +838,12 @@ class ImsNetworkClient {
         cookies: String,
         rollNumber: String,
         attendanceUrl: String? = null,
-        branch: String? = null
+        branch: String? = null,
+        semester: String? = null
     ): AttendanceSummary? = withContext(Dispatchers.IO) {
-        val targetUrl = attendanceUrl?.ifBlank { null } ?: return@withContext null
+        val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_FALLBACK_URL
 
-        val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch) ?: return@withContext null
+        val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch, semester) ?: return@withContext null
         if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
             return@withContext ImsParser.parseAttendanceHtml(html, rollNumber)
         }
@@ -714,17 +854,15 @@ class ImsNetworkClient {
         cookies: String,
         rollNumber: String,
         attendanceUrl: String? = null,
-        branch: String? = null
+        branch: String? = null,
+        semester: String? = null
     ): LiveFetchResult<AttendanceSummary> = withContext(Dispatchers.IO) {
         if (cookies.isBlank()) {
             return@withContext LiveFetchResult.SessionExpired
         }
-        val targetUrl = attendanceUrl?.ifBlank { null }
-        if (targetUrl == null) {
-            return@withContext LiveFetchResult.Error("No attendance link discovered from portal")
-        }
+        val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_FALLBACK_URL
 
-        val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch)
+        val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch, semester)
         if (html == null) {
             return@withContext LiveFetchResult.SessionExpired
         }

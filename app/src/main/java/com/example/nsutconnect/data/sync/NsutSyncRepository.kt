@@ -47,14 +47,14 @@ class NsutSyncRepository(private val context: Context) {
             val roll = prefs.getRollNumber()
             val cachedAtt = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, roll)
             val cachedTt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, roll)
-            if (prefs.getCachedAttendance() == null && cachedAtt != null && roll.equals("2024UCO1500", ignoreCase = true)) {
+            if (prefs.getCachedAttendance() == null && cachedAtt != null) {
                 prefs.saveAttendanceSummary(cachedAtt)
             }
-            if (prefs.getCachedTimetable() == null && cachedTt != null && roll.equals("2024UCO1500", ignoreCase = true)) {
+            if (prefs.getCachedTimetable() == null && cachedTt != null) {
                 prefs.saveTimetable(cachedTt)
             }
-            _attendance.value = cachedAtt
-            _timetable.value = cachedTt
+            if (cachedAtt != null) _attendance.value = cachedAtt
+            if (cachedTt != null) _timetable.value = cachedTt
         }
     }
 
@@ -104,6 +104,24 @@ class NsutSyncRepository(private val context: Context) {
                 prefs.saveAttendanceUrl(authResult.attendanceUrl)
                 prefs.saveTimetableUrl(authResult.timetableUrl)
                 prefs.saveActivitiesUrl(authResult.activitiesUrl)
+                prefs.saveCoursesUrl(authResult.coursesUrl)
+
+                var resolvedSemester = authResult.semester
+                if (!authResult.coursesUrl.isNullOrBlank()) {
+                    try {
+                        val (semFromCourses, _) = networkClient.fetchEnrolledCourses(
+                            authResult.cookies,
+                            authResult.coursesUrl
+                        )
+                        if (!semFromCourses.isNullOrBlank()) {
+                            resolvedSemester = semFromCourses
+                        }
+                    } catch (_: Exception) {}
+                }
+                if (resolvedSemester.isNullOrBlank()) {
+                    resolvedSemester = networkClient.calculateSemesterFromRoll(cleanRoll)
+                }
+                prefs.saveSemester(resolvedSemester)
                 prefs.setLoggedIn(true)
 
                 // Fetch real student attendance and timetable from the portal
@@ -111,7 +129,8 @@ class NsutSyncRepository(private val context: Context) {
                     cookies = authResult.cookies,
                     rollNumber = cleanRoll,
                     attendanceUrl = authResult.attendanceUrl,
-                    branch = authResult.branch
+                    branch = authResult.branch,
+                    semester = resolvedSemester
                 )
                 val liveTimetable = networkClient.fetchLiveTimetable(
                     cookies = authResult.cookies,
@@ -165,13 +184,15 @@ class NsutSyncRepository(private val context: Context) {
         var attendanceUrl = prefs.getAttendanceUrl()
         var timetableUrl = prefs.getTimetableUrl()
         val activitiesUrl = prefs.getActivitiesUrl()
+        var coursesUrl = prefs.getCoursesUrl()
+        var semester = prefs.getSemester()
         val branch = prefs.getBranch()
         var liveAttendance: AttendanceSummary? = null
         var liveTimetable: WeeklyTimetable? = null
         var sessionExpired = false
 
-        // If attendanceUrl or timetableUrl is missing but activitiesUrl is saved, re-resolve dynamically
-        if ((attendanceUrl.isNullOrBlank() || timetableUrl.isNullOrBlank()) && !activitiesUrl.isNullOrBlank() && cookies.isNotBlank()) {
+        // If attendanceUrl, timetableUrl, or coursesUrl is missing but activitiesUrl is saved, re-resolve dynamically
+        if ((attendanceUrl.isNullOrBlank() || timetableUrl.isNullOrBlank() || coursesUrl.isNullOrBlank()) && !activitiesUrl.isNullOrBlank() && cookies.isNotBlank()) {
             try {
                 val cookiesMap = networkClient.parseCookiesToMap(cookies)
                 val actDoc = org.jsoup.Jsoup.connect(activitiesUrl)
@@ -190,7 +211,26 @@ class NsutSyncRepository(private val context: Context) {
                     timetableUrl = discovered.timetableUrl
                     prefs.saveTimetableUrl(discovered.timetableUrl)
                 }
+                if (!discovered.coursesUrl.isNullOrBlank()) {
+                    coursesUrl = discovered.coursesUrl
+                    prefs.saveCoursesUrl(discovered.coursesUrl)
+                }
             } catch (_: Exception) {}
+        }
+
+        // Ensure semester and enrolled courses are fetched
+        if (semester.isNullOrBlank() && !coursesUrl.isNullOrBlank() && cookies.isNotBlank()) {
+            try {
+                val (semFromCourses, _) = networkClient.fetchEnrolledCourses(cookies, coursesUrl)
+                if (!semFromCourses.isNullOrBlank()) {
+                    semester = semFromCourses
+                    prefs.saveSemester(semFromCourses)
+                }
+            } catch (_: Exception) {}
+        }
+        if (semester.isNullOrBlank()) {
+            semester = networkClient.calculateSemesterFromRoll(rollNumber)
+            prefs.saveSemester(semester)
         }
 
         try {
@@ -198,7 +238,8 @@ class NsutSyncRepository(private val context: Context) {
                 cookies = cookies,
                 rollNumber = rollNumber,
                 attendanceUrl = attendanceUrl,
-                branch = branch
+                branch = branch,
+                semester = semester
             )
             when (attResult) {
                 is LiveFetchResult.Success -> liveAttendance = attResult.data
@@ -222,15 +263,19 @@ class NsutSyncRepository(private val context: Context) {
 
         if (sessionExpired) {
             val cached = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, rollNumber)
-            if (prefs.getCachedAttendance() == null && cached != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+            if (prefs.getCachedAttendance() == null && cached != null) {
                 prefs.saveAttendanceSummary(cached)
             }
-            _attendance.value = cached
+            if (cached != null) {
+                _attendance.value = cached
+            }
             val tt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, rollNumber)
-            if (prefs.getCachedTimetable() == null && tt != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+            if (prefs.getCachedTimetable() == null && tt != null) {
                 prefs.saveTimetable(tt)
             }
-            _timetable.value = tt
+            if (tt != null) {
+                _timetable.value = tt
+            }
             updateWidgets()
 
             if (!isBackground) {
@@ -262,17 +307,21 @@ class NsutSyncRepository(private val context: Context) {
             return@withContext res
         }
 
-        // If live sync couldn't connect, fallback to previously cached data or local provider (strictly for 2024UCO1500)
+        // If live sync couldn't connect, fallback to previously cached data or local provider
         val cached = prefs.getCachedAttendance() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getAttendanceForRoll(context, rollNumber)
-        if (prefs.getCachedAttendance() == null && cached != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+        if (prefs.getCachedAttendance() == null && cached != null) {
             prefs.saveAttendanceSummary(cached)
         }
-        _attendance.value = cached
+        if (cached != null) {
+            _attendance.value = cached
+        }
         val tt = prefs.getCachedTimetable() ?: com.example.nsutconnect.data.local.ImsLocalDataProvider.getTimetableForRoll(context, rollNumber)
-        if (prefs.getCachedTimetable() == null && tt != null && rollNumber.equals("2024UCO1500", ignoreCase = true)) {
+        if (prefs.getCachedTimetable() == null && tt != null) {
             prefs.saveTimetable(tt)
         }
-        _timetable.value = tt
+        if (tt != null) {
+            _timetable.value = tt
+        }
         updateWidgets()
         val res = SyncResult.Success("Using offline mode (IMS unreachable)")
         if (!isBackground) _syncState.value = res

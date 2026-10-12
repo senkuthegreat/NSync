@@ -145,4 +145,70 @@ class ImsParserTest {
         assertEquals(DayOfWeek.MONDAY, timetable.getAutoDefaultDay(DayOfWeek.SATURDAY, at12pm))
         assertEquals(DayOfWeek.MONDAY, timetable.getAutoDefaultDay(DayOfWeek.SUNDAY, at12pm))
     }
+
+    @Test
+    fun testParseAttendanceWithTwoLetterSubjectCodes() {
+        val sampleHtml = """
+            <html>
+            <body>
+            <div id="myreport">
+            <table class="plum_fieldbig">
+                <tr class="plum_head">
+                    <td>Days</td><td>MA101</td><td>CS101</td><td>EC201</td>
+                </tr>
+                <tr>
+                    <td>Aug-01</td><td>Present</td><td>Absent</td><td>Present</td>
+                </tr>
+                <tr>
+                    <td>Aug-02</td><td>Present</td><td>Present</td><td>--</td>
+                </tr>
+                <tr>
+                    <td>Overall</td><td>2/2</td><td>1/2</td><td>1/1</td>
+                </tr>
+            </table>
+            </div>
+            </body>
+            </html>
+        """.trimIndent()
+
+        val summary = ImsParser.parseAttendanceHtml(sampleHtml, "2024UCO1001")
+        assertNotNull(summary)
+        assertEquals(3, summary.records.size)
+
+        val ma = summary.records.firstOrNull { it.subjectCode == "MA101" }
+        assertNotNull(ma)
+        assertEquals(2, ma!!.attendedClasses)
+        assertEquals(2, ma.totalClasses)
+        assertEquals(100.0, ma.percentage, 0.01)
+
+        val cs = summary.records.firstOrNull { it.subjectCode == "CS101" }
+        assertNotNull(cs)
+        assertEquals(1, cs!!.attendedClasses)
+        assertEquals(2, cs.totalClasses)
+        assertEquals(50.0, cs.percentage, 0.01)
+    }
+
+    @Test
+    fun testParseSemesterAndEnrolledCourses() {
+        val sampleCoursesHtml = """
+            <html>
+            <body>
+                <div id="div2" class="plum_head">Semester 5 Registered Courses</div>
+                <table class="plum_fieldbig">
+                    <tr><th>Course Code</th><th>Course Title</th></tr>
+                    <tr><td>MA101</td><td>Mathematics I</td></tr>
+                    <tr><td>CS101</td><td>Programming Fundamentals</td></tr>
+                </table>
+            </body>
+            </html>
+        """.trimIndent()
+
+        val sem = ImsParser.parseSemesterFromHtml(sampleCoursesHtml)
+        assertEquals("5", sem)
+
+        val courses = ImsParser.parseEnrolledCoursesHtml(sampleCoursesHtml)
+        assertEquals(2, courses.size)
+        assertEquals("Mathematics I", courses["MA101"])
+        assertEquals("Programming Fundamentals", courses["CS101"])
+    }
 }
