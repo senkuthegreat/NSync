@@ -101,8 +101,10 @@ class NsutSyncRepository(private val context: Context) {
                 prefs.savePortalCookies(authResult.cookies)
                 authResult.studentName?.let { prefs.setStudentName(it) }
                 authResult.branch?.let { prefs.setBranch(it) }
-                prefs.saveAttendanceUrl(authResult.attendanceUrl)
-                prefs.saveTimetableUrl(authResult.timetableUrl)
+                val attUrl = authResult.attendanceUrl ?: ImsNetworkClient.ATTENDANCE_URL
+                val ttUrl = authResult.timetableUrl ?: ImsNetworkClient.TIMETABLE_URL
+                prefs.saveAttendanceUrl(attUrl)
+                prefs.saveTimetableUrl(ttUrl)
                 prefs.saveActivitiesUrl(authResult.activitiesUrl)
                 prefs.saveCoursesUrl(authResult.coursesUrl)
 
@@ -128,14 +130,14 @@ class NsutSyncRepository(private val context: Context) {
                 val liveAttendance = networkClient.fetchLiveAttendance(
                     cookies = authResult.cookies,
                     rollNumber = cleanRoll,
-                    attendanceUrl = authResult.attendanceUrl,
+                    attendanceUrl = attUrl,
                     branch = authResult.branch,
                     semester = resolvedSemester
                 )
                 val liveTimetable = networkClient.fetchLiveTimetable(
                     cookies = authResult.cookies,
                     rollNumber = cleanRoll,
-                    timetableUrl = authResult.timetableUrl
+                    timetableUrl = ttUrl
                 )
 
                 if (liveAttendance != null) {
@@ -183,6 +185,14 @@ class NsutSyncRepository(private val context: Context) {
         val cookies = prefs.getPortalCookies()
         var attendanceUrl = prefs.getAttendanceUrl()
         var timetableUrl = prefs.getTimetableUrl()
+        if (attendanceUrl.isNullOrBlank()) {
+            attendanceUrl = ImsNetworkClient.ATTENDANCE_URL
+            prefs.saveAttendanceUrl(attendanceUrl)
+        }
+        if (timetableUrl.isNullOrBlank()) {
+            timetableUrl = ImsNetworkClient.TIMETABLE_URL
+            prefs.saveTimetableUrl(timetableUrl)
+        }
         val activitiesUrl = prefs.getActivitiesUrl()
         var coursesUrl = prefs.getCoursesUrl()
         var semester = prefs.getSemester()

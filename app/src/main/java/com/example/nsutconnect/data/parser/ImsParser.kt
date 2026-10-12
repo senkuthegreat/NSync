@@ -77,7 +77,7 @@ object ImsParser {
         var overallClasses = mutableListOf<Int>()
         val subjectHistory = mutableMapOf<String, MutableList<AttendanceDateEntry>>()
         val datePattern = Regex("^(?:[A-Za-z]{3}-\\d{1,2}|\\d{1,2}-[A-Za-z]{3}|\\d{1,2}[-/]\\d{1,2}(?:[-/]\\d{2,4})?)$")
-        val subjectCodeRegex = Regex("^[A-Z]{2,6}\\d{2,4}[A-Z]?$")
+        val subjectCodeRegex = Regex("^[A-Z]{2,6}\\d{1,4}[A-Z]?$")
 
         for (table in tables) {
             val rows = table.select("tr")
@@ -89,12 +89,14 @@ object ImsParser {
 
                 // Subject header row (e.g. Days | FCFO0301 | VANM0303 | VTECC302 | VTECC303 | ... or MA101 | CS101)
                 val isHeaderRow = cells.firstOrNull()?.contains("Days", ignoreCase = true) == true ||
+                        cells.firstOrNull()?.contains("Date", ignoreCase = true) == true ||
                         cells.any { it.matches(subjectCodeRegex) }
                 if (isHeaderRow && !cells[0].matches(datePattern)) {
-                    val candidateCodes = if (cells.firstOrNull()?.contains("Days", ignoreCase = true) == true) {
-                        cells.drop(1).filter { it.isNotBlank() && (it.matches(subjectCodeRegex) || it.matches(Regex("^[A-Z0-9-]{3,12}$"))) }
+                    val candidateCodes = if (cells.firstOrNull()?.contains("Days", ignoreCase = true) == true ||
+                            cells.firstOrNull()?.contains("Date", ignoreCase = true) == true) {
+                        cells.drop(1).filter { it.isNotBlank() && (it.matches(subjectCodeRegex) || it.matches(Regex("^[A-Z0-9-]{2,12}$"))) }
                     } else {
-                        cells.filter { it.matches(subjectCodeRegex) }
+                        cells.filter { it.matches(subjectCodeRegex) || it.matches(Regex("^[A-Z0-9-]{2,12}$")) }
                     }
                     if (candidateCodes.isNotEmpty()) {
                         tableCodes = candidateCodes
@@ -138,6 +140,21 @@ object ImsParser {
                         overallPresent = fractions.map { it.first }.toMutableList()
                         overallClasses = fractions.map { it.second }.toMutableList()
                         overallAbsent = fractions.map { (it.second - it.first).coerceAtLeast(0) }.toMutableList()
+                    }
+                }
+            }
+        }
+
+        // Fallback: If subjectCodes couldn't be extracted, check table.plum_fieldbig tr.plum_head or div#myreport
+        if (subjectCodes.isEmpty()) {
+            val plumHeadRows = doc.select("table.plum_fieldbig tr.plum_head, div#myreport tr.plum_head")
+            for (headRow in plumHeadRows) {
+                val tdList = headRow.select("td, th").map { it.text().trim() }
+                if (tdList.size >= 3) {
+                    val candidate = tdList.drop(1).filter { it.isNotBlank() && (it.matches(subjectCodeRegex) || it.matches(Regex("^[A-Z0-9-]{2,12}$"))) }
+                    if (candidate.size >= 2) {
+                        subjectCodes.addAll(candidate)
+                        break
                     }
                 }
             }

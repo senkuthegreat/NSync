@@ -157,26 +157,12 @@ class UserPreferences(private val context: Context) {
 
     fun getRollNumber(): String = prefs.getString(KEY_ROLL_NUMBER, "") ?: ""
 
-    fun getAttendanceUrl(): String? {
-        val url = prefs.getString(KEY_ATTENDANCE_URL, null)
-        if (url != null && url.contains("P59Otr7+3xJIlCBBABoVb0GIg")) {
-            prefs.edit().remove(KEY_ATTENDANCE_URL).apply()
-            return null
-        }
-        return url
-    }
+    fun getAttendanceUrl(): String? = prefs.getString(KEY_ATTENDANCE_URL, null)
     fun saveAttendanceUrl(url: String?) {
         prefs.edit().putString(KEY_ATTENDANCE_URL, url).apply()
     }
 
-    fun getTimetableUrl(): String? {
-        val url = prefs.getString(KEY_TIMETABLE_URL, null)
-        if (url != null && url.contains("41uZnOKcTatoQuZ1nS5qVGIuiLOuCZGG")) {
-            prefs.edit().remove(KEY_TIMETABLE_URL).apply()
-            return null
-        }
-        return url
-    }
+    fun getTimetableUrl(): String? = prefs.getString(KEY_TIMETABLE_URL, null)
     fun saveTimetableUrl(url: String?) {
         prefs.edit().putString(KEY_TIMETABLE_URL, url).apply()
     }

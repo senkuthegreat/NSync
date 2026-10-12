@@ -1,8 +1,8 @@
 {
-  "version": "1.0.43",
-  "versionCode": 43,
-  "name": "NSync v1.0.43",
-  "notes": "Fix student attendance data sync: dynamic academic year & semester submission (enc_year/enc_sem), 2-letter course code parsing (MA101, CS101, etc.), registered course name mapping, and permanent cache persistence.",
+  "version": "1.0.44",
+  "versionCode": 44,
+  "name": "NSync v1.0.44",
+  "notes": "Restored authentic Plumware attendance routing, eliminated self-purging URL caches in preferences, and updated live sync handlers.",
   "downloadUrl": "https://nsync-app.vercel.app/downloads/NSync.apk",
-  "publishedAt": "2026-10-12T02:00:00Z"
+  "publishedAt": "2026-10-12T02:50:00Z"
 }

@@ -49,7 +49,8 @@ class ImsNetworkClient {
         const val STUDENT_LOGIN_URL = "https://www.imsnsit.org/imsnsit/student_login.php"
         const val PLUM_SCREEN_INIT_URL = "https://www.imsnsit.org/imsnsit/plum5_fw_login.php?t=sw&w=1"
         const val TIMETABLE_URL = "https://www.imsnsit.org/imsnsit/plum_url.php?41uZnOKcTatoQuZ1nS5qVGIuiLOuCZGGw43gNaDJuC6JU+zlhWK6ya/tcFLywtouIo7aWVZdCbDde4Onb0dyebiOoF5CwOCF9cWNylj6wkXd0RX8bVnVGaPKlMtStKmyuAZXCzEdKq+zBvagqtna+Vjw3K+2YkEhpEDLFH9RwuVsL162Qyo3TRed5amA2UTcldG13/T8xEKGB82zR7JxVA=="
-        const val ATTENDANCE_FALLBACK_URL = "https://www.imsnsit.org/imsnsit/student_attendance.php"
+        const val ATTENDANCE_URL = "https://www.imsnsit.org/imsnsit/plum_url.php?P59Otr7+3xJIlCBBABoVb0GIgAXiKbA1LIAMUeXV5ZvLND/AfclikCFEYYIO4oq3BkrlNPPPoLsLVLt2ihg6VdTT8AXD3bdKB07WmGbjTQ4PM9NWTedZH8r2ohs9zsBsbFmAs01PXjfJn07m4ARSsaaeuZxTy4F4EJp+SoAk4dHNGvsD3yrO6W3oQUld+8626tyicw9vPYtiH/KgrqEbUsWbLNgbppb9cgWn/IrjvV15vuFRdLZIHnwX5Qndspns"
+        const val ATTENDANCE_FALLBACK_URL = ATTENDANCE_URL
         const val COURSES_FALLBACK_URL = "https://www.imsnsit.org/imsnsit/student_courses_registered.php"
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.119 Safari/537.36"
     }
@@ -693,6 +694,16 @@ class ImsNetworkClient {
         }
     }
 
+    private fun isAttendanceMatrixHtml(html: String): Boolean {
+        return html.contains("plum_fieldbig", ignoreCase = true) ||
+                html.contains("plum_head", ignoreCase = true) ||
+                html.contains("Total Classes", ignoreCase = true) ||
+                html.contains("Overall", ignoreCase = true) ||
+                (html.contains("Total", ignoreCase = true) && html.contains("Present", ignoreCase = true)) ||
+                html.contains("myreport", ignoreCase = true) ||
+                html.contains("ABSENT", ignoreCase = true)
+    }
+
     private fun fetchAttendanceHtmlFromPortal(
         targetUrl: String,
         cookies: String,
@@ -726,7 +737,7 @@ class ImsNetworkClient {
             }
 
             // If the initial GET response already rendered the attendance matrix:
-            if (initialHtml.contains("ABSENT") || initialHtml.contains("Total Classes") || initialHtml.contains("Overall")) {
+            if (isAttendanceMatrixHtml(initialHtml)) {
                 Log.i("NSyncAttendance", "Attendance matrix found directly on initial GET response")
                 return initialHtml
             }
@@ -820,7 +831,7 @@ class ImsNetworkClient {
                         .execute()
 
                     val postHtml = postRes.body()
-                    if (postHtml.contains("ABSENT") || postHtml.contains("Total Classes") || postHtml.contains("Overall")) {
+                    if (isAttendanceMatrixHtml(postHtml)) {
                         Log.i("NSyncAttendance", "Successfully retrieved live attendance matrix from POST response for sem $candSem")
                         return postHtml
                     }
@@ -844,8 +855,11 @@ class ImsNetworkClient {
         val targetUrl = attendanceUrl?.ifBlank { null } ?: ATTENDANCE_FALLBACK_URL
 
         val html = fetchAttendanceHtmlFromPortal(targetUrl, cookies, rollNumber, branch, semester) ?: return@withContext null
-        if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
-            return@withContext ImsParser.parseAttendanceHtml(html, rollNumber)
+        if (isAttendanceMatrixHtml(html)) {
+            val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
+            if (summary.records.isNotEmpty()) {
+                return@withContext summary
+            }
         }
         null
     }
@@ -867,9 +881,9 @@ class ImsNetworkClient {
             return@withContext LiveFetchResult.SessionExpired
         }
 
-        if (html.contains("ABSENT") || html.contains("Total Classes") || html.contains("Overall")) {
+        if (isAttendanceMatrixHtml(html)) {
             val summary = ImsParser.parseAttendanceHtml(html, rollNumber)
-            if (summary != null) {
+            if (summary.records.isNotEmpty()) {
                 return@withContext LiveFetchResult.Success(summary)
             }
         }

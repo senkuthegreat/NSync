@@ -250,6 +250,9 @@ export default function App() {
                 <span>Download for Android</span>
                 <Download size={17} />
               </a>
+              <div style={{ marginTop: '10px', fontSize: '13px', color: 'rgba(255, 255, 255, 0.9)', fontWeight: 500 }}>
+                <span>v1.0.44 • Latest Release</span>
+              </div>
             </div>
           </div>
         </div>
