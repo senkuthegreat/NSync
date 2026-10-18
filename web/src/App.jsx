@@ -12,6 +12,7 @@ import {
   Globe,
   Mail
 } from 'lucide-react';
+import { track } from '@vercel/analytics';
 
 // Direct edge CDN download hosted directly on the site (Zero GitHub dependence)
 const DIRECT_DOWNLOAD_URL = './downloads/NSync.apk';
@@ -226,6 +227,7 @@ export default function App() {
                 href={DIRECT_DOWNLOAD_URL}
                 download="NSync.apk"
                 className="nav-btn-pill"
+                onClick={() => track('download_click', { location: 'header_nav' })}
               >
                 <Download size={15} />
                 <span>Download</span>
@@ -246,6 +248,7 @@ export default function App() {
                 href={DIRECT_DOWNLOAD_URL}
                 download="NSync.apk"
                 className="hero-get-started-btn"
+                onClick={() => track('download_click', { location: 'hero_primary' })}
               >
                 <span>Download for Android</span>
                 <Download size={17} />
@@ -404,6 +407,7 @@ export default function App() {
                 href={DIRECT_DOWNLOAD_URL}
                 download="NSync.apk"
                 className="hero-get-started-btn"
+                onClick={() => track('download_click', { location: 'cta_bottom' })}
               >
                 <span>Download for Android</span>
                 <Download size={18} />
@@ -506,7 +510,11 @@ export default function App() {
             <div className="footer-right">
               <a href="#features">Features</a>
               <a href="#setup">Setup</a>
-              <a href={DIRECT_DOWNLOAD_URL} download="NSync.apk">
+              <a
+                href={DIRECT_DOWNLOAD_URL}
+                download="NSync.apk"
+                onClick={() => track('download_click', { location: 'footer' })}
+              >
                 Download APK
               </a>
             </div>
