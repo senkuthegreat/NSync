@@ -254,7 +254,7 @@ export default function App() {
                 <Download size={17} />
               </a>
               <div style={{ marginTop: '10px', fontSize: '13px', color: 'rgba(255, 255, 255, 0.9)', fontWeight: 500 }}>
-                <span>v1.0.46 • Latest Release</span>
+                <span>v1.0.48 • Latest Release</span>
               </div>
             </div>
           </div>
