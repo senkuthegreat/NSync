@@ -35,7 +35,7 @@
 ---
 
 <p align="center">
-  <img src="docs/assets/artworks/sunset-clouds.jpg" width="100%" alt="NSync Sunset Clouds Hero Banner" />
+  <img src="docs/assets/artworks/sunset-clouds-banner.jpg" width="100%" alt="NSync Sunset Clouds Hero Banner" />
 </p>
 <p align="center">
   <em>“Spend less time battling manual portal friction and attendance math — spend more time learning, creating, and living.”</em>
@@ -106,7 +106,7 @@ Every NSUT student knows the daily drill: wrestling with the sluggish **IMS port
 ---
 
 <p align="center">
-  <img src="docs/assets/artworks/shinkai-meadow.jpg" width="100%" alt="NSync Features Meadow Banner" />
+  <img src="docs/assets/artworks/shinkai-meadow-banner.jpg" width="100%" alt="NSync Features Meadow Banner" />
 </p>
 <p align="center">
   <em>“Engineered for zero friction: every critical college vital accessible in milliseconds, online or offline.”</em>
@@ -175,7 +175,7 @@ $$\mathbf{Classes\ Needed} = \left\lceil \frac{3T - 4A}{1} \right\rceil = \lceil
 ---
 
 <p align="center">
-  <img src="docs/assets/artworks/ghibli-valley.jpg" width="100%" alt="NSync Architecture Banner" />
+  <img src="docs/assets/artworks/ghibli-valley-banner.jpg" width="100%" alt="NSync Architecture Banner" />
 </p>
 <p align="center">
   <em>“A modular, memory-efficient full-stack architecture built for speed and security.”</em>
@@ -254,7 +254,7 @@ sequenceDiagram
 ---
 
 <p align="center">
-  <img src="docs/assets/artworks/alpine-clouds.jpg" width="100%" alt="NSync Setup Alpine Clouds Banner" />
+  <img src="docs/assets/artworks/alpine-clouds-banner.jpg" width="100%" alt="NSync Setup Alpine Clouds Banner" />
 </p>
 <p align="center">
   <em>“Set up in minutes — whether you want the pre-built APK or want to contribute to the codebase.”</em>
@@ -381,7 +381,7 @@ NSync/
 ---
 
 <p align="center">
-  <img src="docs/assets/artworks/mountain-plateau.jpg" width="100%" alt="NSync Community Mountain Plateau Banner" />
+  <img src="docs/assets/artworks/mountain-plateau-banner.jpg" width="100%" alt="NSync Community Mountain Plateau Banner" />
 </p>
 <p align="center">
   <em>“Built with care and attention to detail for the NSUT student community.”</em>
