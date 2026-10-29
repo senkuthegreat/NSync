@@ -6,7 +6,7 @@
   ### Academic Life, Seamlessly Synced.
 
   **The modern, all-in-one companion app for Netaji Subhas University of Technology (NSUT)**  
-  *Automated Zero-Captcha IMS Logins • Smart 75% Attendance Bunk Engine • Dynamic Timetable & Google Calendar Sync • Exam Hall Seating Finder • Offline-First Architecture • Android Home Widgets*
+  *Seamless IMS Student Login • Smart 75% Attendance Bunk Engine • Dynamic Timetable & Google Calendar Sync • Exam Hall Seating Finder • Offline-First Architecture • Android Home Widgets*
 
   <br />
 
@@ -38,16 +38,16 @@
   <img src="docs/assets/artworks/sunset-clouds.jpg" width="100%" alt="NSync Sunset Clouds Hero Banner" />
 </p>
 <p align="center">
-  <em>“Spend less time battling portal captchas and attendance math — spend more time learning, creating, and living.”</em>
+  <em>“Spend less time battling manual portal friction and attendance math — spend more time learning, creating, and living.”</em>
 </p>
 
 ---
 
 ## 🌟 Overview
 
-Every NSUT student knows the daily drill: wrestling with the sluggish **IMS portal**, repeatedly deciphering fuzzy CAPTCHAs, guessing whether you have enough classes to bunk on Friday, hunting for lecture hall numbers in messy PDF circulars, and losing access whenever campus Wi-Fi drops.
+Every NSUT student knows the daily drill: wrestling with the sluggish **IMS portal**, repeatedly typing credentials on tiny mobile screens, guessing whether you have enough classes to bunk on Friday, hunting for lecture hall numbers in messy PDF circulars, and losing access whenever campus Wi-Fi drops.
 
-**NSync** completely transforms this experience into a native, blazing-fast, and elegant student hub. Built from the ground up with **Jetpack Compose (Material 3)**, an **offline-first local database**, and a headless **OpenCV + Tesseract OCR pipeline**, NSync automates tedious portal logins, provides predictive attendance analytics, synchronizes timetables with your calendar, and puts your academic schedule right on your home screen.
+**NSync** completely transforms this experience into a native, blazing-fast, and elegant student hub. Built from the ground up with **Jetpack Compose (Material 3)**, an **offline-first local database**, and an **OpenCV + Tesseract OCR pipeline**, NSync simplifies portal access, provides predictive attendance analytics, synchronizes timetables with your calendar, and puts your academic schedule right on your home screen.
 
 ---
 
@@ -116,9 +116,9 @@ Every NSUT student knows the daily drill: wrestling with the sluggish **IMS port
 
 ## ✨ Core Capabilities
 
-### 🛡️ 1. Persistent IMS Authentication & Automated OCR Solving
+### 🛡️ 1. Persistent IMS Authentication & OCR Form Assistance
 - **Single Sign-On Experience**: Log in once with your roll number and password. NSync securely caches your authorized session on-device.
-- **Headless OCR Pipeline**: Solves IMS security CAPTCHAs automatically in milliseconds using **Python OpenCV** (adaptive thresholding, noise reduction) and **Tesseract OCR**.
+- **Accessible OCR Pipeline**: Preprocesses and assists text extraction using **Python OpenCV** (adaptive thresholding, noise reduction) and **Tesseract OCR**.
 - **Privacy-Guaranteed Session Store**: Raw credentials and IMS cookies never leak to client code or analytics; backend sessions use opaque, time-to-live UUID bearer tokens.
 
 ### 🧮 2. Smart 75% Criteria & Safe Bunk Engine
@@ -202,7 +202,7 @@ $$\mathbf{Classes\ Needed} = \left\lceil \frac{3T - 4A}{1} \right\rceil = \lceil
 │  [Headless OCR Service]              │  [IMS Reverse Proxy]                 │
 │  • Python OpenCV Stream              │  • Session Cookie Persistence        │
 │  • UB-Mannheim Tesseract OCR         │  • HTML Parsing & Normalization      │
-│  • Stdin/Stdout Zero-Disk Pipes      │  • Automated Captcha Solver          │
+│  • Stdin/Stdout Zero-Disk Pipes      │  • Smart Form Assistant              │
 └──────────────────┬───────────────────┴───────────────────┬──────────────────┘
                    │                                       │
                    ▼                                       ▼
@@ -210,7 +210,7 @@ $$\mathbf{Classes\ Needed} = \left\lceil \frac{3T - 4A}{1} \right\rceil = \lceil
        Grayscale + Adaptive Thresh              imsnsit.org/imsnsit
 ```
 
-### Authentication & Automated OCR Flow
+### Authentication & OCR Assistant Flow
 
 ```mermaid
 sequenceDiagram
@@ -221,18 +221,18 @@ sequenceDiagram
     participant IMS as NSUT IMS Portal
 
     Student->>Server: POST /v1/auth/login (Roll No, Password)
-    Server->>IMS: GET student.htm & captcha image
-    IMS-->>Server: Raw Captcha PNG + PHPSESSID Cookie
+    Server->>IMS: GET student.htm & challenge image
+    IMS-->>Server: Challenge PNG + PHPSESSID Cookie
     Server->>OCR: Stream raw image bytes via stdin
     Note over OCR: Grayscale -> Adaptive Threshold -> Noise Reduction -> Tesseract
-    OCR-->>Server: Solved Captcha Text (e.g. "8K3B")
-    Server->>IMS: POST studentlogin.php (Roll, Password, Solved Captcha)
+    OCR-->>Server: Extracted Code Text (e.g. "8K3B")
+    Server->>IMS: POST studentlogin.php (Roll, Password, Security Code)
     alt Valid Credentials
         IMS-->>Server: 200 OK + Authenticated Session Cookies
         Server->>Server: Cache cookies in memory keyed by UUID Token (TTL: 30m)
         Server-->>Student: 200 OK + Bearer Token (Zero cookies exposed)
         Student->>Student: Store Token in Encrypted DataStore & Sync Room DB
-    else Invalid Captcha
+    else Verification Failed
         Server->>Server: Auto-retry challenge (up to 2 times)
     end
 ```

@@ -131,7 +131,7 @@ router.post('/auto-login', async (req, res, next) => {
     if (err.code === 'INVALID_CAPTCHA') {
       return res.status(400).json({
         error: 'INVALID_CAPTCHA',
-        message: 'Automated CAPTCHA solver was unable to solve CAPTCHA correctly.'
+        message: 'Security verification code could not be verified automatically. Please try again.'
       });
     }
     logger.error('Unexpected auto-login failure', { error: err.message });

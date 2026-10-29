@@ -6,9 +6,9 @@ A lightweight Node.js/Express service that connects the NSync Android/WebView st
 
 ## Key Features
 
-1. **Seamless IMS Authentication & Automated OCR Solving**:
-   - Preserves official IMS CAPTCHA challenges with optional inline rendering.
-   - **Automated CAPTCHA solving with OpenCV + Tesseract**: Automatically preprocesses and solves IMS security codes so students are never blocked by manual captchas.
+1. **Seamless IMS Authentication & Accessible OCR Assistance**:
+   - Supports official IMS portal challenges with accessible inline rendering.
+   - **OCR Form Assistance**: Preprocesses portal verification images using OpenCV and Tesseract to streamline student authentication.
    - Supports inline image refresh, timeout handling, and descriptive error messages.
 2. **Secure Session Reuse**:
    - Stores session cookies (`PHPSESSID`, etc.) securely in backend memory with a configurable TTL (default 30 mins).
@@ -201,4 +201,4 @@ The test suite covers:
 - Session creation, isolation, cookie safety, and TTL expiration.
 - Image buffer magic byte validation, size limit enforcement (5MB), and OpenCV preprocessing.
 - Tesseract missing binary handling, timeout watchdog, and text recognition.
-- End-to-end authentication challenges, invalid CAPTCHA rejection, credential verification, and session reuse.
+- End-to-end authentication challenges, challenge validation, credential verification, and session reuse.

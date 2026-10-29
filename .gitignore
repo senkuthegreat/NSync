@@ -23,3 +23,9 @@ local.properties
 .vercel
 release_assets/
 .env*
+
+# Binaries and build artifacts
+*.apk
+*.aab
+web/public/downloads/
+!docs/downloads/NSync.apk

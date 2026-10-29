@@ -1,5 +1,5 @@
 // server/src/ims/imsClient.js
-// Client for NSUT IMS portal authentication, academic services, and automated CAPTCHA solving.
+// Client for NSUT IMS portal authentication, academic services, and verification code processing.
 
 const crypto = require('crypto');
 const logger = require('../utils/logger');

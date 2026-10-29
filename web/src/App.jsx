@@ -266,7 +266,7 @@ export default function App() {
             <span className="section-pill">Intelligence & Design</span>
             <h2>Engineered for zero friction.</h2>
             <p>
-              All your college vitals in one fast, captcha-free app.
+              All your college vitals in one fast, seamless app.
             </p>
             <div className="mobile-swipe-hint">
               <span>Swipe cards ➔</span>
@@ -281,7 +281,7 @@ export default function App() {
               <h3>Persistent IMS Sessions</h3>
               <p>
                 Log in once. Your session stays cached securely on-device with
-                zero repeated logins or captchas.
+                zero repeated logins.
               </p>
             </div>
 
